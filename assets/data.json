@@ -1,0 +1,14 @@
+{
+    "landmarks" : [
+        {
+            "id" : 1,
+            "wikipage" : "https://en.wikipedia.org/wiki/Seven_Saints_Church,_Sofia",
+            "wikiname" : "Seven_Saints_Church,_Sofia"
+        },
+        {
+            "id" : 2,
+            "wikipage" : "https://en.wikipedia.org/wiki/Alexander_Nevsky_Cathedral,_Sofia",
+            "wikiname" : "Alexander_Nevsky_Cathedral,_Sofia"
+        }
+    ]
+}
