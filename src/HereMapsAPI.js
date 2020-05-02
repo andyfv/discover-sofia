@@ -64,8 +64,8 @@ export function initMap() {
 	    document.getElementById('map-container'),
 	    defaultLayers.vector.normal.map,
 	    {
-	      zoom: 10,
-	      center: { lat: 52.5, lng: 13.4 }
+	      zoom: 14,
+	      center: { lat: 42.7, lng: 23.33 }
     	}
     );
 
