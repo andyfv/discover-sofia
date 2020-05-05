@@ -1,4 +1,4 @@
-port module Page.Map exposing (Model, Msg, view, init, update)
+port module Page.Map exposing (Model, Msg(..), view, init, update, subscriptions)
 
 import Url.Builder as UrlBuilder exposing (crossOrigin, custom, QueryParameter)
 import Task
@@ -11,6 +11,14 @@ import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt
 --import Page exposing (viewCards)
 
 port initializeMap : () -> Cmd msg
+port mapInitialized : (() -> msg) -> Sub msg
+
+port addMarker : (Encode.Value) -> Cmd msg
+port showLandmarkSummary : (Int -> msg) -> Sub msg
+
+
+
+
 
 -- MODEL
 
@@ -52,6 +60,15 @@ init =
         ]
     )
 
+
+-- SUBSCRIPTIONS
+
+subscriptions : Sub Msg
+subscriptions =
+    Sub.batch 
+        [ mapInitialized (\_ -> (MapInitialized))
+        , showLandmarkSummary (\id -> OpenLandmarkSummary id)
+        ]
 
 
 -- UPDATE

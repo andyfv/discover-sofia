@@ -69,7 +69,9 @@ type Msg
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch 
-        [ onResize (\_ _ -> HeaderMsg NavBar.ViewportChanged ) 
+        [ onResize (\_ _ -> NavBarMsg NavBar.ViewportChanged) 
+        --, mapInitialized (\_ -> (MapMsg Map.MapInitialized))
+        , Sub.map MapMsg Map.subscriptions
         ]
 
 
