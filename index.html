@@ -22,12 +22,16 @@
         app.ports.initializeMap.subscribe(() =>  {
             HereMapsAPI.loadMapLibs()
             .then(() => HereMapsAPI.initMap())
+            .then(() => console.log("map is Initialized"))
+            .then(() => app.ports.mapInitialized.send(null))
         });
+
 
         // Send @showLandmarkSummary as a callback function
         app.ports.addMarker.subscribe((landmark) => {
             HereMapsAPI.addMarker(landmark, app.ports.showLandmarkSummary.send)
         })
+
     </script>
 </body>
 </html>

@@ -87,15 +87,17 @@ type Msg
     = NoOp
     | InitMap
     | MapInitialized
-    | GetLandmarks String
+    --| GetLandmarks String
     | OpenLandmarkSummary Int
     | ReceivedLandmarks (Result Http.Error (List Landmark))
     | ReceivedLandmarkSummary (Result Http.Error (LandmarkSummary))
-    --| ReceivedLandmarksWiki (Result Http.Error (List Landmark))
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
+    let
+        _ = Debug.log "message" msg 
+    in
     case msg of
         NoOp ->
             (model, Cmd.none)
@@ -106,7 +108,7 @@ update msg model =
                     (model, Cmd.none)
 
                 False ->
-                    (model, initializeMap())
+                    (model, initializeMap ())
 
         OpenLandmarkSummary id ->
             ( { model | isLandmarkSelected = True
@@ -114,10 +116,10 @@ update msg model =
               } , Cmd.none)
 
         MapInitialized ->
-            ({ model | isMapLoaded = True }, Cmd.none)
+            ({ model | isMapLoaded = True }, getLandmarksRequest "/../assets/data.json")
 
-        GetLandmarks url ->
-            (model, getLandmarksRequest url)
+        --GetLandmarks url ->
+        --    (model, getLandmarksRequest url)
 
         ReceivedLandmarks (Ok landmarksList) ->
             let
