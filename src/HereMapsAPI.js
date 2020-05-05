@@ -1,4 +1,4 @@
-var map;
+var map, markerGroup;
 
 const bodyTag = document.getElementsByTagName('body')[0];
 
@@ -9,8 +9,6 @@ const LIBS = {
     mapjsPlaces: 'https://js.api.here.com/v3/3.1/mapsjs-places.js',
     mapjsUI: 'https://js.api.here.com/v3/3.1/mapsjs-ui.js'
 };
-
-
 
 
 /* 
@@ -75,5 +73,74 @@ export function initMap() {
 	// Make the map interactive
     var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 
-    return {map, behavior};
+    //Create a group that can hold map objects
+    markerGroup = new H.map.Group();
+
+    //Add the group to the map object
+    map.addObject(markerGroup);
+
+    // return {map, behavior};
+}
+
+
+
+
+export function addMarker(landmark, callback) {
+	let coords = {
+		lat : landmark.coords.lat,
+		lng : landmark.coords.lon
+	}
+
+	var innerElement = document.createElement('img'),
+		outerElement = document.createElement('div');
+
+	// If there is no thumbnail just render empty icon
+	if (landmark.thumbnail == "") {
+
+		outerElement.classList.add('marker-text');
+
+		//Create paragraph node and add the landmark title to it
+	  	var title = document.createElement('p');
+  		title.innerHTML = landmark.title;
+
+	  	// Add the paragraph to the div
+	  	outerElement.appendChild(title);
+
+	  	//Create new DomIcon by passing the created dom element
+	  	var domIcon = new H.map.DomIcon(outerElement,{});
+
+	  	// Create new marker
+	  	var marker = new H.map.DomMarker(coords,{
+	  		icon: domIcon, 
+	  		data: landmark.id
+	  	});
+
+  	  	marker.addEventListener('tap', (evt) => {
+  			allback(evt.target.data)
+	  	});
+
+	  	// map.addObject(marker);
+	  	markerGroup.addObject(marker);
+
+	} else {
+
+		innerElement.classList.add('marker-image');
+		innerElement.src = landmark.thumbnail;
+
+	  	//Create new DomIcon by passing the created dom element
+	  	var domIcon = new H.map.DomIcon(innerElement,{});
+
+	  	// Create new marker
+	  	var marker = new H.map.DomMarker(coords,{
+	  		icon: domIcon,
+	  		data: landmark.id
+	  	});
+
+  	  	marker.addEventListener('tap', (evt) => {
+	  		callback(evt.target.data)
+	  	});
+
+	  	// map.addObject(marker);
+	  	markerGroup.addObject(marker);
+	}
 }

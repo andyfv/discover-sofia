@@ -23,6 +23,11 @@
             HereMapsAPI.loadMapLibs()
             .then(() => HereMapsAPI.initMap())
         });
+
+        // Send @showLandmarkSummary as a callback function
+        app.ports.addMarker.subscribe((landmark) => {
+            HereMapsAPI.addMarker(landmark, app.ports.showLandmarkSummary.send)
+        })
     </script>
 </body>
 </html>

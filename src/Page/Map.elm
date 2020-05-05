@@ -88,6 +88,7 @@ type Msg
     | InitMap
     | MapInitialized
     | GetLandmarks String
+    | OpenLandmarkSummary Int
     | ReceivedLandmarks (Result Http.Error (List Landmark))
     | ReceivedLandmarkSummary (Result Http.Error (LandmarkSummary))
     --| ReceivedLandmarksWiki (Result Http.Error (List Landmark))
@@ -106,6 +107,11 @@ update msg model =
 
                 False ->
                     (model, initializeMap())
+
+        OpenLandmarkSummary id ->
+            ( { model | isLandmarkSelected = True
+              , selectedLandmarkSummary = Just id
+              } , Cmd.none)
 
         MapInitialized ->
             ({ model | isMapLoaded = True }, Cmd.none)
