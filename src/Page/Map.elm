@@ -1,12 +1,14 @@
 port module Page.Map exposing (Model, Msg(..), view, init, update, subscriptions)
 
 import Url.Builder as UrlBuilder exposing (crossOrigin, custom, QueryParameter)
+import Dict exposing (Dict)
 import Task
 import Http
 import Html exposing (..)
 import Html.Attributes exposing (id)
-import Json.Decode as Decode exposing (Decoder, int, string, list)
+import Json.Decode as Decode exposing (Decoder, int, string, list, float)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt, hardcoded)
+import Json.Encode as Encode 
 --import Article exposing (Article, ArticleCard, Image)
 --import Page exposing (viewCards)
 
@@ -26,7 +28,9 @@ port showLandmarkSummary : (Int -> msg) -> Sub msg
 type alias Model =
     { isMapLoaded : Bool
     , isLandmarkSelected : Bool
-    , landmarks : List Landmark
+    , selectedLandmarkSummary : Maybe Int
+    , landmarksList : List Landmark
+    , landmarkSummaryList : Dict Int LandmarkSummary
     }
 
 
@@ -40,24 +44,29 @@ type alias Landmark =
 type alias LandmarkSummary =
     { id : Int
     , title : String
-    , thumbnail : String
     , extract : String
+    , thumbnail : String
+    , originalImage : String
     , wikiUrl : String
+    , coordinates : Coordinates
     }
 
+
+type alias Coordinates =
+    { lat : Float
+    , lon : Float
+    }
 
 
 init : (Model, Cmd Msg)
 init =
     (   { isMapLoaded = False
         , isLandmarkSelected = False
-        , landmarks = []
+        , landmarksList = []
+        , selectedLandmarkSummary = Nothing
+        , landmarkSummaryList = Dict.empty        
         }
-    , Cmd.batch 
-        [ initializeMap ()
-        , getLandmarksRequest "/../assets/data.json"
-        --, Cmd.map (GetLandmarks "/../assets/data.json")
-        ]
+    , Cmd.batch [ initializeMap () ]
     )
 
 
@@ -104,22 +113,23 @@ update msg model =
         GetLandmarks url ->
             (model, getLandmarksRequest url)
 
-        ReceivedLandmarks (Ok landmarks) ->
+        ReceivedLandmarks (Ok landmarksList) ->
             let
-                _ = Debug.log "landmarks" landmarks
+                _ = Debug.log "landmarks" landmarksList
             in
-            ({ model | landmarks = landmarks }
-            , Cmd.batch (List.map getLandmarkWiki landmarks)
+            ({ model | landmarksList = landmarksList }
+            , Cmd.batch (List.map getLandmarkWiki landmarksList)
             )
 
-        ReceivedLandmarks (Err landmarks) ->
+        ReceivedLandmarks (Err landmarksList) ->
             (model, Cmd.none)
 
         ReceivedLandmarkSummary (Ok summary) ->
             let
                 _ = Debug.log "summary" summary
             in
-            (model, Cmd.none)
+            ( { model | landmarkSummaryList = Dict.insert summary.id summary model.landmarkSummaryList }
+            , addMarker (encodeMarkerInfo summary))
 
         ReceivedLandmarkSummary (Err summary) ->
             let 
@@ -170,10 +180,18 @@ summaryDecoder id =
     Decode.succeed LandmarkSummary
         |> hardcoded id
         |> required "title" string
-        |> requiredAt [ "thumbnail", "source" ] string
         |> required "extract" string
+        |> optionalAt [ "thumbnail", "source" ] string ""
+        |> optionalAt [ "originalimage", "source" ] string ""
         |> requiredAt [ "content_urls", "desktop", "page" ] string
+        |> required "coordinates" coordinatesDecoder 
 
+
+coordinatesDecoder : Decoder Coordinates
+coordinatesDecoder =
+    Decode.succeed Coordinates
+        |> required "lat" float
+        |> required "lon" float
 
 --
 
