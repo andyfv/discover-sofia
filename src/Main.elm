@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Html 
+import Dict exposing (Dict)
 import Url exposing (Url)
 import Browser.Navigation as Nav
 import Browser.Events exposing (onResize)
@@ -38,6 +39,7 @@ type alias Model =
     , page : Page
     , navKey : Nav.Key
     , navBarModel : NavBar.Model
+    , initiatedPages : Dict String Page
     }
 
 
@@ -81,6 +83,7 @@ init flags url navKey =
         (navBarModel, headerCmds) = NavBar.init
         model =
             { route = route
+            , initiatedPages = Dict.empty
             , page = NotFoundPage
             , navKey = navKey
             , navBarModel = navBarModel
@@ -111,7 +114,8 @@ initCurrentPage (model, existingCmds) =
                     updateWith MapPage MapMsg Map.init
 
     in
-    ( { model | page = currentPage }
+    ( { model | page = currentPage
+    , initiatedPages = Dict.insert (Route.routeToString model.route) currentPage model.initiatedPages }
     , Cmd.batch [ existingCmds, mappedPageCmds ]
     )
 
@@ -173,8 +177,20 @@ update msg model =
 
         -- URL UPDATES
         ( _ , UrlChanged url ) ->
-            initCurrentPage 
-                ( { model | route = Route.fromUrl url }, Cmd.none)
+            let 
+                route = Route.fromUrl url
+            in
+                if Dict.member (Route.routeToString route) model.initiatedPages then
+                    case Dict.get (Route.routeToString route) model.initiatedPages of
+                        Just page ->
+                            ({ model | page = page }, Cmd.none) 
+
+                        Nothing ->
+                            ({ model | page = NotFoundPage }, Cmd.none)
+
+                else 
+                    initCurrentPage 
+                        ( { model | route = route }, Cmd.none)
 
         ( _ , LinkClicked urlRequest ) ->
             case urlRequest of 

@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, internalLink, absoluteLink)
+module Route exposing (Route(..), fromUrl, internalLink, absoluteLink, routeToString)
 
 import Url exposing (Url)
 import Url.Builder exposing (relative, absolute)
