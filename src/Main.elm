@@ -16,7 +16,7 @@ import Page.Camera as Camera
 import Page.Photos as Photos
 
 
---port mapInitialized : (map) -> Sub msg
+--port mapInitialized : (() -> msg) -> Sub msg
 
 
 
@@ -28,15 +28,15 @@ main =
         { init = init 
         , view = view
         , update = update 
-        , subscriptions = subscriptions
-        , onUrlRequest = LinkClicked
         , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
+        , subscriptions = subscriptions
         }
 
 
 type alias Model =
-    { route : Route
-    , page : Page
+    { page : Page
+    , route : Route
     , navKey : Nav.Key
     , navBarModel : NavBar.Model
     , initiatedPages : Dict String Page
@@ -56,11 +56,13 @@ type Msg
     | PhotosMsg Photos.Msg
 
     -- URL    
-    | LinkClicked UrlRequest
     | UrlChanged Url
+    | LinkClicked UrlRequest
 
     -- HEADER
-    | HeaderMsg NavBar.Msg
+    | NavBarMsg NavBar.Msg
+
+    -- 
 
 
 
@@ -91,7 +93,7 @@ init flags url navKey =
             , navBarModel = navBarModel
             }
     in
-    initCurrentPage (model, Cmd.batch [ Cmd.map HeaderMsg headerCmds ])
+    initCurrentPage (model, Cmd.batch [ Cmd.map NavBarMsg headerCmds ])
 
 
 
@@ -130,7 +132,7 @@ view model =
     let 
         viewPage route content =
             let 
-                header = Html.map HeaderMsg (NavBar.view route model.navBarModel)
+                header = Html.map NavBarMsg (NavBar.view route model.navBarModel)
                 config = 
                     { route = route
                     , content = content
@@ -166,14 +168,17 @@ update msg model =
             (Map.update subMsg pageModel)
             |> updateWithModel MapPage MapMsg model
 
+        --( _, MapMsg subMsg) ->
+        --    (Map.update submsg pageModel)
 
-        -- HEADER
-        ( _ , HeaderMsg subMsg) ->
+
+        -- NAVBAR
+        ( _ , NavBarMsg subMsg) ->
             let 
                 (navBarModel, subCmds) = NavBar.update subMsg model.navBarModel
             in
             ( { model | navBarModel = navBarModel }
-            , Cmd.map HeaderMsg subCmds)
+            , Cmd.map NavBarMsg subCmds)
 
 
 
