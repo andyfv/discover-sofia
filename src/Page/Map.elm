@@ -138,6 +138,23 @@ update msg model =
             (model, Cmd.none)
 
 
+encodeMarkerInfo : LandmarkSummary -> Encode.Value
+encodeMarkerInfo summary =
+    let 
+        encodedCoord = 
+            Encode.object
+                [ ("lat", Encode.float summary.coordinates.lat)
+                , ("lon", Encode.float summary.coordinates.lon)
+                ]
+    in
+    Encode.object
+        [ ( "id", Encode.int summary.id )
+        , ( "title", Encode.string summary.title)
+        , ( "thumbnail", Encode.string summary.thumbnail )
+        , ( "coords", encodedCoord ) 
+        ]
+
+
 --
 
 {-
