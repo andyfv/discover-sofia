@@ -1,4 +1,4 @@
-var map, markerGroup;
+var map, markerGroup, mapHTML;
 
 const bodyTag = document.getElementsByTagName('body')[0];
 
@@ -49,23 +49,32 @@ function loadLibrary(url) {
 }
 
 
+export function createMapHTML() {
+ 	let mapElement = document.createElement('div');
+ 	mapElement.setAttribute("id", "map");
+ 	document.getElementById('map-container').appendChild(mapElement);
+}
+
 export function initMap() {
 	var platform = new H.service.Platform({
 		'apikey' : 'dP5zwyCeAD7lpfNYrPowSIoJajsYo5P4NQunUM10bw0'
 	});
 
 	// Obtain the default map types from the platform object:
-	var defaultLayers = platform.createDefaultLayers();
+	var defaultLayers = platform.createDefaultLayers({lg: "eng", lg2 : "eng"});
+
 
 	// Instantiate (and display) a map object:
 	map = new H.Map(
-	    document.getElementById('map-container'),
+	    document.getElementById('map'),
 	    defaultLayers.vector.normal.map,
 	    {
-	      zoom: 14,
+	      zoom: 15,
 	      center: { lat: 42.7, lng: 23.33 }
     	}
     );
+
+    // map.setBaseLayer(defaultLayers.normal.mapnight);
 
 	// Resize listener to make sure that the map occupies the whole container
     window.addEventListener('resize', () => map.getViewPort().resize());
@@ -80,6 +89,7 @@ export function initMap() {
     map.addObject(markerGroup);
 
     // return {map, behavior};
+    updateMapHTML();
 }
 
 
@@ -142,5 +152,6 @@ export function addMarker(landmark, callback) {
 
 	  	// map.addObject(marker);
 	  	markerGroup.addObject(marker);
-	}
+
+  	updateMapHTML();
 }

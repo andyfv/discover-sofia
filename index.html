@@ -19,10 +19,11 @@
             node: document.getElementById("app")
         });
 
+        // Load the libraries -> Initialize the map -> Notify the Elm runtime
         app.ports.initializeMap.subscribe(() =>  {
             HereMapsAPI.loadMapLibs()
+            .then(() => HereMapsAPI.createMapHTML())
             .then(() => HereMapsAPI.initMap())
-            .then(() => console.log("map is Initialized"))
             .then(() => app.ports.mapInitialized.send(null))
         });
 
