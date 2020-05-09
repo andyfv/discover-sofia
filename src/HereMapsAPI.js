@@ -102,7 +102,10 @@ export function addMarker(landmark, callback) {
 	}
 
 	var innerElement = document.createElement('img'),
-		outerElement = document.createElement('div');
+		outerElement = document.createElement('div'),
+		domIcon,
+		marker;
+
 
 	// If there is no thumbnail just render empty icon
 	if (landmark.thumbnail == "") {
@@ -117,41 +120,30 @@ export function addMarker(landmark, callback) {
 	  	outerElement.appendChild(title);
 
 	  	//Create new DomIcon by passing the created dom element
-	  	var domIcon = new H.map.DomIcon(outerElement,{});
-
-	  	// Create new marker
-	  	var marker = new H.map.DomMarker(coords,{
-	  		icon: domIcon, 
-	  		data: landmark.id
-	  	});
-
-  	  	marker.addEventListener('tap', (evt) => {
-  			allback(evt.target.data)
-	  	});
-
-	  	// map.addObject(marker);
-	  	markerGroup.addObject(marker);
+	  	domIcon = new H.map.DomIcon(outerElement,{});
 
 	} else {
 
 		innerElement.classList.add('marker-image');
 		innerElement.src = landmark.thumbnail;
+		innerElement.alt = landmark.title;
 
 	  	//Create new DomIcon by passing the created dom element
-	  	var domIcon = new H.map.DomIcon(innerElement,{});
+	  	domIcon = new H.map.DomIcon(innerElement,{});
+	}
 
-	  	// Create new marker
-	  	var marker = new H.map.DomMarker(coords,{
-	  		icon: domIcon,
-	  		data: landmark.id
-	  	});
+	// Create new marker
+  	marker = new H.map.DomMarker(coords,{
+  		icon: domIcon,
+  		data: landmark.id
+  	});
 
-  	  	marker.addEventListener('tap', (evt) => {
-	  		callback(evt.target.data)
-	  	});
+	  	marker.addEventListener('tap', (evt) => {
+  		callback(evt.target.data)
+  	});
 
-	  	// map.addObject(marker);
-	  	markerGroup.addObject(marker);
+  	// map.addObject(marker);
+  	markerGroup.addObject(marker);
 
   	updateMapHTML();
 }
