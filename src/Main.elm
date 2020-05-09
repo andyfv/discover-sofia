@@ -72,7 +72,6 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch 
         [ onResize (\_ _ -> NavBarMsg NavBar.ViewportChanged) 
-        --, mapInitialized (\_ -> (MapMsg Map.MapInitialized))
         , Sub.map MapMsg Map.subscriptions
         ]
 
@@ -119,7 +118,8 @@ initCurrentPage (model, existingCmds) =
 
     in
     ( { model | page = currentPage
-    , initiatedPages = Dict.insert (Route.routeToString model.route) currentPage model.initiatedPages }
+    , initiatedPages = Dict.insert (Route.routeToString model.route) currentPage model.initiatedPages 
+    }
     , Cmd.batch [ existingCmds, mappedPageCmds ]
     )
 
@@ -187,24 +187,40 @@ update msg model =
             let 
                 route = Route.fromUrl url
             in
-                if Dict.member (Route.routeToString route) model.initiatedPages then
-                    case Dict.get (Route.routeToString route) model.initiatedPages of
-                        Just page ->
-                            ({ model | page = page }, Cmd.none) 
+            case Dict.get (Route.routeToString route) model.initiatedPages of
+                Just page ->
+                    ({ model | page = page, route = route }, Cmd.none) 
 
-                        Nothing ->
-                            ({ model | page = NotFoundPage }, Cmd.none)
+                Nothing ->
+                    initCurrentPage
+                      ({ model | route = route }, Cmd.none)
 
-                else 
-                    initCurrentPage 
-                        ( { model | route = route }, Cmd.none)
+                --else 
+                --    initCurrentPage 
+                --        ( { model | route = (Route.fromUrl url) }, Cmd.none)
 
         ( _ , LinkClicked urlRequest ) ->
-            case urlRequest of 
+            case urlRequest of
                 Browser.Internal url ->
-                    ( model
-                    , Nav.pushUrl model.navKey (Url.toString url)
-                    )
+                    let
+                        currentRoute = Route.routeToString model.route
+                    in
+                    case Dict.get currentRoute model.initiatedPages of
+                        Just page ->
+                            ( { model | initiatedPages = 
+                                            Dict.update 
+                                            currentRoute 
+                                            (\_ -> Just model.page) 
+                                            model.initiatedPages 
+                              }
+                            , Nav.pushUrl model.navKey (Url.toString url)
+                            --, Cmd.none
+                            )
+
+                        Nothing -> 
+                            ( model
+                            , Nav.pushUrl model.navKey (Url.toString url)
+                            )
 
                 Browser.External url ->
                     ( model, Nav.load url )
