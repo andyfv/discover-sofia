@@ -5,7 +5,8 @@ import Dict exposing (Dict)
 import Task
 import Http
 import Html exposing (..)
-import Html.Attributes exposing (id)
+import Html.Attributes exposing (id, class, alt, src, href)
+import Html.Events exposing (on, onClick)
 import Json.Decode as Decode exposing (Decoder, int, string, list, float)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt, hardcoded)
 import Json.Encode as Encode 
@@ -64,7 +65,7 @@ init =
         , isLandmarkSelected = False
         , landmarksList = []
         , selectedLandmarkSummary = Nothing
-        , landmarkSummaryList = Dict.empty        
+        , landmarkSummaryList = Dict.empty
         }
     , Cmd.batch [ initializeMap () ]
     )
@@ -87,17 +88,14 @@ type Msg
     = NoOp
     | InitMap
     | MapInitialized
-    --| GetLandmarks String
     | OpenLandmarkSummary Int
+    | CloseLandmarkSummary
     | ReceivedLandmarks (Result Http.Error (List Landmark))
     | ReceivedLandmarkSummary (Result Http.Error (LandmarkSummary))
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-    let
-        _ = Debug.log "message" msg 
-    in
     case msg of
         NoOp ->
             (model, Cmd.none)
@@ -113,7 +111,14 @@ update msg model =
         OpenLandmarkSummary id ->
             ( { model | isLandmarkSelected = True
               , selectedLandmarkSummary = Just id
-              } , Cmd.none)
+              } , Cmd.none
+            )
+
+        CloseLandmarkSummary ->
+            ( { model | isLandmarkSelected = False
+              , selectedLandmarkSummary = Nothing
+              } , Cmd.none
+            )
 
         MapInitialized ->
             ({ model | isMapLoaded = True }, getLandmarksRequest "/../assets/data.json")
