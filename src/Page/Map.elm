@@ -248,6 +248,86 @@ landmarkDecoder =
 -- VIEW
 
 
-view : Model -> Html msg
+view : Model -> Html Msg
 view model  =
-    div [ id "map-container" ] []
+    div [ id "map-container" ] 
+        [ viewSummary model ]
+        
+
+viewSummary : Model -> Html Msg
+viewSummary model =
+    case model.isLandmarkSelected of 
+        False ->
+            text ""
+
+        True ->
+            let 
+                landmark = getSelectedLandmark model
+            in
+            case landmark of 
+                Just landmarkSummary ->
+                    div [ id "summary-container" ]
+                        [ viewInfoControls
+                        , div [ id "summary"]
+                            [ viewTitle landmarkSummary.title
+                            , viewImage landmarkSummary
+                            , viewText landmarkSummary.extract
+                            , viewWikiLink landmarkSummary.wikiUrl
+                            ]
+                        ]
+
+                Nothing ->
+                    div [ id "summary-container" ] [ text "No info" ]
+
+
+getSelectedLandmark : Model -> Maybe LandmarkSummary
+getSelectedLandmark model =
+    case model.selectedLandmarkSummary of 
+        Just id ->
+            Dict.get id model.landmarkSummaryList
+
+        Nothing -> 
+            Nothing
+
+
+viewInfoControls : Html Msg
+viewInfoControls =
+    div [ id "info-controls-container" ] 
+        [ button [ class "info-control", class "directions"
+        --, onClick ShowDirectionsOptions 
+        ] [ text "Directions" ]
+        , button [ class "info-control", class "close", onClick CloseLandmarkSummary ] [ text "Close" ]
+        ]
+
+
+viewTitle : String -> Html msg
+viewTitle title =
+    h3 [ id "summary-title" ] [ text title ]
+
+
+viewImage : LandmarkSummary -> Html Msg
+viewImage landmark =
+    let
+        image = if (landmark.originalImage == "") then
+                    p [] [ text "No Image" ]
+                else
+                    img 
+                        [ id "summary-image"
+                        , alt landmark.title
+                        , src landmark.thumbnail 
+                        ]
+                        []       
+    in
+    div [ id "summary-image" ]
+        [ image ]
+
+
+viewText : String -> Html msg
+viewText summaryText =
+    div [ id "summary-text" ]
+        [ text summaryText ] 
+
+
+viewWikiLink : String -> Html msg
+viewWikiLink url =
+    a [ id "summary-wiki" ,href url  ] [ text "Open Wiki Page" ]
