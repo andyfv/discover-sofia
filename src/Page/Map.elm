@@ -121,16 +121,13 @@ update msg model =
             )
 
         MapInitialized ->
-            ({ model | isMapLoaded = True }, getLandmarksRequest "/../assets/data.json")
+            ( { model | isMapLoaded = True }
+            , getLandmarksRequest "/../assets/data.json"
+            )
 
-        --GetLandmarks url ->
-        --    (model, getLandmarksRequest url)
 
         ReceivedLandmarks (Ok landmarksList) ->
-            let
-                _ = Debug.log "landmarks" landmarksList
-            in
-            ({ model | landmarksList = landmarksList }
+            ( { model | landmarksList = landmarksList }
             , Cmd.batch (List.map getLandmarkWiki landmarksList)
             )
 
@@ -138,17 +135,22 @@ update msg model =
             (model, Cmd.none)
 
         ReceivedLandmarkSummary (Ok summary) ->
-            let
-                _ = Debug.log "summary" summary
-            in
-            ( { model | landmarkSummaryList = Dict.insert summary.id summary model.landmarkSummaryList }
-            , addMarker (encodeMarkerInfo summary))
+            (   { model |
+                    landmarkSummaryList = 
+                        Dict.insert 
+                        summary.id 
+                        summary 
+                        model.landmarkSummaryList 
+                }
+            , addMarker (encodeMarkerInfo summary)
+            )
 
         ReceivedLandmarkSummary (Err summary) ->
-            let 
-                _ = Debug.log "summary err" summary
-            in
             (model, Cmd.none)
+
+
+
+-- HELPERES
 
 
 encodeMarkerInfo : LandmarkSummary -> Encode.Value
@@ -167,8 +169,6 @@ encodeMarkerInfo summary =
         , ( "coords", encodedCoord ) 
         ]
 
-
---
 
 {-
     Uncomment when deploying to Github/GitLab
