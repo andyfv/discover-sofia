@@ -174,11 +174,10 @@ viewLink currentTab targetTab name link =
             else
                 []
     in
-    li [] 
+    li ( attrs )
         [ a 
-            ( href (internalLink link) 
-            :: attrs 
-            )
+            [ href (internalLink link) 
+            ]
             [ text name ] 
         ]
 
