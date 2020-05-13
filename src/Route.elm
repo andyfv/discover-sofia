@@ -16,7 +16,7 @@ type Route
 
 gitHubBase : String
 gitHubBase =
-    "z-context"
+    "discover-sofia"
 
 
 -- Ucomment when deploying to Github/Gitlab
