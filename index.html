@@ -38,6 +38,14 @@
         })
 
 
+        app.ports.mapSearch.subscribe((query) => {
+            HereMapsAPI.search(
+                query, 
+                app.ports.mapSearchResponse.send,
+                app.ports.mapSearchFailed.send
+                );
+        })
+
 
         // Get location if available on the device. Otherwise return error.
         app.ports.geoserviceLocationGet.subscribe(() => {

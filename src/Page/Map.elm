@@ -17,8 +17,10 @@ port mapLoad : () -> Cmd msg
 port mapLoaded : (() -> msg) -> Sub msg
 port mapLoadingFailed : (String -> msg) -> Sub msg
 
-port initializeMap : () -> Cmd msg
-port mapInitialized : (() -> msg) -> Sub msg
+-- Search
+port mapSearch : String -> Cmd msg
+port mapSearchResponse : (Value -> msg) -> Sub msg
+port mapSearchFailed : (String -> msg) -> Sub msg
 -- Directions ports
 port geoserviceLocationGet : () -> Cmd msg
 port geoserviceLocationReceive : (Value -> msg) -> Sub msg
@@ -30,6 +32,8 @@ port showLandmarkSummary : (Int -> msg) -> Sub msg
 
         [ mapLoaded (\_ -> MapLoadedOk)
         , mapLoadingFailed (\err -> MapLoadedErr err)
+        , mapSearchResponse (decodeValue itemListDecoder >> MapSearchResponse)
+        , mapSearchFailed (\err -> MapSearchError err)
         -- Geoservices
         , geoserviceLocationReceive (decodeValue positionDecoder >> GeoserviceLocationReceive)
         , geoserviceLocationError (\message -> GeoserviceLocationError message)
@@ -42,6 +46,7 @@ port showLandmarkSummary : (Int -> msg) -> Sub msg
 
       , startPoint = StartPointInvalid ""
       , endPoint = EndPointInvalid ""
+      , addressResults = AddressResultsEmpty
       , redactedRoutePoint = StartPoint
       }
     , Cmd.batch [ mapLoad () ]
@@ -54,6 +59,7 @@ type alias Model =
     , endPoint : RoutePoint
     , landmarksList : List Landmark
     , landmarkSummaryList : Dict Int LandmarkSummary
+    , addressResults : AddressResults
     , redactedRoutePoint : RedactedPoint
     }
 
@@ -93,7 +99,12 @@ type MapStatus
     )
 
 
--- SUBSCRIPTIONS
+type AddressResults
+    = AddressResultsEmpty
+    | AddressResultsLoading
+    | AddressResultsLoaded (List Item)
+    | AddressResultsErr String
+
 type RedactedPoint
     = StartPoint
     | EndPoint
@@ -122,9 +133,9 @@ type Msg
     | MapLoadedOk
     | MapLoadedErr String
     | CloseLandmarkSummary
-    | ReceivedLandmarks (Result Http.Error (List Landmark))
-    | ReceivedLandmarkSummary (Result Http.Error (LandmarkSummary))
-
+    | MapSearchResponse (Result Json.Decode.Error (List Item))
+    | MapSearchResponseClear
+    | MapSearchError String
 
 update : Msg -> Model -> (Model, Cmd Msg)
     | GeoserviceLocationReceive (Result Json.Decode.Error Position)
@@ -144,6 +155,18 @@ update msg model =
 
                 False ->
                     (model, initializeMap ())
+
+        MapSearchResponse (Ok items) ->
+            ( { model | addressResults = AddressResultsLoaded items }, Cmd.none )
+
+        MapSearchResponse (Err items) ->
+            let 
+                _ = Debug.log "items" items
+            in
+            ( { model | addressResults = AddressResultsErr "Response body is incorrect" }, Cmd.none )
+
+        MapSearchResponseClear ->
+            ( { model | addressResults = AddressResultsEmpty }, Cmd.none )
 
         OpenLandmarkSummary id ->
             ( { model | isLandmarkSelected = True
@@ -223,12 +246,20 @@ encodeMarkerInfo summary =
                 , ("lon", Encode.float summary.coordinates.lon)
                 ]
     in
-    Encode.object
-        [ ( "id", Encode.int summary.id )
-        , ( "title", Encode.string summary.title)
-        , ( "thumbnail", Encode.string summary.thumbnail )
-        , ( "coords", encodedCoord ) 
-        ]
+
+
+mapSearchHelper : String -> Model -> Cmd Msg
+mapSearchHelper address model =
+    if String.isEmpty address then
+        let 
+            (_, cmds) = update MapSearchResponseClear model
+        in
+        cmds
+    else 
+        mapSearch address
+
+
+-- HTTP REQUESTS
 
 
 {-
