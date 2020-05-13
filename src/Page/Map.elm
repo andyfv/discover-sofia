@@ -19,6 +19,10 @@ port mapLoadingFailed : (String -> msg) -> Sub msg
 
 port initializeMap : () -> Cmd msg
 port mapInitialized : (() -> msg) -> Sub msg
+-- Directions ports
+port geoserviceLocationGet : () -> Cmd msg
+port geoserviceLocationReceive : (Value -> msg) -> Sub msg
+port geoserviceLocationError : (String -> msg) -> Sub msg
 
 port addMarker : (Encode.Value) -> Cmd msg
 port showLandmarkSummary : (Int -> msg) -> Sub msg
@@ -26,21 +30,31 @@ port showLandmarkSummary : (Int -> msg) -> Sub msg
 
         [ mapLoaded (\_ -> MapLoadedOk)
         , mapLoadingFailed (\err -> MapLoadedErr err)
+        -- Geoservices
+        , geoserviceLocationReceive (decodeValue positionDecoder >> GeoserviceLocationReceive)
+        , geoserviceLocationError (\message -> GeoserviceLocationError message)
+        ]
 
 
 
 -- MODEL
 
 
+      , startPoint = StartPointInvalid ""
+      , endPoint = EndPointInvalid ""
+      , redactedRoutePoint = StartPoint
+      }
     , Cmd.batch [ mapLoad () ]
     )
 
 type alias Model =
     { isMapLoaded : Bool
     , isLandmarkSelected : Bool
-    , selectedLandmarkSummary : Maybe Int
+    , startPoint : RoutePoint
+    , endPoint : RoutePoint
     , landmarksList : List Landmark
     , landmarkSummaryList : Dict Int LandmarkSummary
+    , redactedRoutePoint : RedactedPoint
     }
 
 
@@ -80,6 +94,16 @@ type MapStatus
 
 
 -- SUBSCRIPTIONS
+type RedactedPoint
+    = StartPoint
+    | EndPoint
+
+
+type RoutePoint
+    = StartPointValid String Position
+    | StartPointInvalid String
+    | EndPointValid String Position
+    | EndPointInvalid String
 
 subscriptions : Sub Msg
 subscriptions =
@@ -103,6 +127,8 @@ type Msg
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
+    | GeoserviceLocationReceive (Result Json.Decode.Error Position)
+    | GeoserviceLocationError String
 update msg model =
     case msg of
         NoOp ->
@@ -131,13 +157,37 @@ update msg model =
               } , Cmd.none
             )
 
-        MapInitialized ->
-            ( { model | isMapLoaded = True }
-            , getLandmarksRequest "/../assets/data.json"
+        InfoUpdateMapRoute routePoint ->
+            case routePoint of
+                StartPointValid address position ->
+                    ({ model | startPoint = routePoint }, Cmd.none)
+
+                StartPointInvalid address ->
+                    ({ model | startPoint = routePoint }, mapSearchHelper address model)
+
+                EndPointValid _ _ ->
+                    ({ model | endPoint = routePoint }, Cmd.none)
+
+                EndPointInvalid address ->
+                    ({ model | endPoint = routePoint }, mapSearchHelper address model)
+
+        InfoUpdateRouteFocus redactedPoint ->
+            ( { model | redactedRoutePoint = redactedPoint}, Cmd.none )
+        -- Directions
+        GeoserviceLocationReceive (Ok currentPosition) ->
+            ( { model | startPoint = StartPointValid "Current Position" currentPosition }
+            , Cmd.none
             )
 
+        GeoserviceLocationReceive (Err invalidPosition) ->
+            ( { model | startPoint = StartPointInvalid "Invalid Position" }
+            , Cmd.none
+            )
 
-        ReceivedLandmarks (Ok landmarksList) ->
+        GeoserviceLocationError err ->
+            ( { model | startPoint = StartPointInvalid "" }
+            , Cmd.none
+            )
             ( { model | landmarksList = landmarksList }
             , Cmd.batch (List.map getLandmarkWiki landmarksList)
             )

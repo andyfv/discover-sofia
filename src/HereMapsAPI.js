@@ -189,6 +189,66 @@ export function addMarker(landmark, callback) {
 
   	// map.addObject(marker);
   	markerGroup.addObject(marker);
+}
+
+
+
+// Geoservices API 
+export function getGeolocation(onSuccess, onError) {
+    // Check if geoservices are supported
+    if (navigator.geolocation) {
+
+	    // If geoservices are supported get the current position
+	    navigator.geolocation.getCurrentPosition((position) => {
+
+	        // Filter just the coordinates
+	        let pos = {
+	            lat: position.coords.latitude,
+	            lng: position.coords.longitude
+	        };
+
+	        onSuccess(pos);
+	        monitorPosition(onSuccess, onError);
+	    },
+
+	    // Send message onError(app.ports.geoserviceLocationError.send) if there is problem with getting the current location 
+	    (error) => {
+	        onError("Couldn't get current position");
+	    },
+
+	    { enableHighaccuracy: true, timeout: 5000, maximumAge : 0 }
+	    );
+	}
+
+    // Browser doesn't support Geolocation
+    else {
+
+      // handleLocationError(false, infoWindow, map.getCenter());
+      onError("Your device doesn't support geolocation")
+    }
+}
+
+
+export function monitorPosition(onSuccess, onError) {
+
+    // Watch for changes
+    navigator.geolocation.watchPosition((p) => {
+
+        // Filter just the coordinates
+        let pos = {
+            lat: p.coords.latitude,
+            lng: p.coords.longitude
+        };
+
+        // Call the onSuccess(app.ports.geoserviceLocationReceive.send) callback with the current postion
+        onSuccess(pos);
+    }
+    , (error) => { 
+    	onError("Couldn't get current position") 
+    }
+    , { enableHighaccuracy : true, timeout: Infinity, maximumAge: 0 }
+    )
+}
 
   	updateMapHTML();
 }
