@@ -12,6 +12,10 @@ import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt
 import Json.Encode as Encode 
 --import Article exposing (Article, ArticleCard, Image)
 --import Page exposing (viewCards)
+-- Map ports
+port mapLoad : () -> Cmd msg
+port mapLoaded : (() -> msg) -> Sub msg
+port mapLoadingFailed : (String -> msg) -> Sub msg
 
 port initializeMap : () -> Cmd msg
 port mapInitialized : (() -> msg) -> Sub msg
@@ -20,11 +24,16 @@ port addMarker : (Encode.Value) -> Cmd msg
 port showLandmarkSummary : (Int -> msg) -> Sub msg
 
 
+        [ mapLoaded (\_ -> MapLoadedOk)
+        , mapLoadingFailed (\err -> MapLoadedErr err)
 
 
 
 -- MODEL
 
+
+    , Cmd.batch [ mapLoad () ]
+    )
 
 type alias Model =
     { isMapLoaded : Bool
@@ -59,11 +68,10 @@ type alias Coordinates =
     }
 
 
-init : (Model, Cmd Msg)
-init =
-    (   { isMapLoaded = False
-        , isLandmarkSelected = False
-        , landmarksList = []
+type MapStatus
+    = MapLoaded
+    | MapLoading
+    | MapNotLoaded String
         , selectedLandmarkSummary = Nothing
         , landmarkSummaryList = Dict.empty
         }
@@ -86,9 +94,9 @@ subscriptions =
 
 type Msg
     = NoOp
-    | InitMap
-    | MapInitialized
-    | OpenLandmarkSummary Int
+      -- MapStatus
+    | MapLoadedOk
+    | MapLoadedErr String
     | CloseLandmarkSummary
     | ReceivedLandmarks (Result Http.Error (List Landmark))
     | ReceivedLandmarkSummary (Result Http.Error (LandmarkSummary))
@@ -100,10 +108,13 @@ update msg model =
         NoOp ->
             (model, Cmd.none)
 
-        InitMap ->
-            case model.isMapLoaded of
-                True -> 
-                    (model, Cmd.none)
+        MapLoadedOk ->
+            ( { model | mapStatus = MapLoaded }
+            , getLandmarksRequest "/../assets/data.json"
+            )
+
+        MapLoadedErr err ->
+            ( { model | mapStatus = MapNotLoaded err }, Cmd.none )
 
                 False ->
                     (model, initializeMap ())
@@ -248,41 +259,34 @@ landmarkDecoder =
         |> required "wikiname" string
     
 
-
-
--- VIEW
-
-
 view : Model -> Html Msg
-view model  =
-    div [ id "map-container" ] 
-        [ viewSummary model ]
-        
+view model =
+    div [ id "map-page" ]
+        [ viewMode model ]
 
-viewSummary : Model -> Html Msg
-viewSummary model =
-    case model.isLandmarkSelected of 
-        False ->
-            text ""
 
-        True ->
-            let 
-                landmark = getSelectedLandmark model
-            in
-            case landmark of 
-                Just landmarkSummary ->
-                    div [ id "summary-container" ]
-                        [ viewInfoControls
-                        , div [ id "summary"]
-                            [ viewTitle landmarkSummary.title
-                            , viewImage landmarkSummary
-                            , viewText landmarkSummary.extract
-                            , viewWikiLink landmarkSummary.wikiUrl
-                            ]
-                        ]
+viewMode : Model -> Html Msg
+viewMode model =
+    case model.mapStatus of
+        MapLoading ->
+            text "Loading"
 
-                Nothing ->
-                    div [ id "summary-container" ] [ text "No info" ]
+        MapNotLoaded err ->
+            text err
+
+        MapLoaded ->
+            case model.infoMode of
+                Closed ->
+                    text ""
+
+                ViewDirections ->
+                    viewDirection model
+
+                ViewSummary ->
+                    viewSummary model.landmarkSummary
+
+                ViewRoute ->
+                    viewRoute model
 
 
 getSelectedLandmark : Model -> Maybe LandmarkSummary

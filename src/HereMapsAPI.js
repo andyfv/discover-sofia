@@ -16,14 +16,16 @@ const LIBS = {
         1) mapjsCore
         2) mapjsService, mapjsEvents, mapjsUI (dependent on mapjsCore)
         3) mapjsPlaces (dependent on mapjsCore, mapjsService)
+    Return error if the loading fails
 */
 export function loadMapLibs() {
     return loadLibrary(LIBS.mapsjsCore)
         .then(() => Promise.all([
             loadLibrary(LIBS.mapsjsService),
-            loadLibrary(LIBS.mapjsEvents)
+            loadLibrary(LIBS.mapjsEvents),
         ]))
-        .catch(error => new Error('Failed to load map: ' + error))
+        .then(() => loadLibrary(LIBS.mapjsUI))
+        .catch((error) => 'Failed to map libraries');
 }
 
 // Load library by adding it to the headTag
@@ -36,33 +38,43 @@ function loadLibrary(url) {
         scriptHTML.async = true;
         scriptHTML.src = url;
 
+        // Resolve callback if loading is successful
         scriptHTML.onload = function () {
             resolve(url);
         }
 
+        // Reject callback if loading has failed
         scriptHTML.onerror = function () {
             reject('Failed to load library: ' + url);
         }
 
+        // Append the script to the bodyTag
         bodyTag.appendChild(scriptHTML);
     })
 }
 
 
+// Create map HTML div and append it to the map-page element
 export function createMapHTML() {
  	let mapElement = document.createElement('div');
- 	mapElement.setAttribute("id", "map");
- 	document.getElementById('map-container').appendChild(mapElement);
+ 
+ 	// Add id "map"
+	mapElement.setAttribute("id", "map");
+
+	// Append the created mapElement to the map-page element
+ 	document.getElementById('map-page').appendChild(mapElement);
 }
 
+
+// Initialize the map using the apikey
 export function initMap() {
-	var platform = new H.service.Platform({
+	// Create new platform service using the apikey
+	platform = new H.service.Platform({
 		'apikey' : 'dP5zwyCeAD7lpfNYrPowSIoJajsYo5P4NQunUM10bw0'
 	});
 
 	// Obtain the default map types from the platform object:
-	var defaultLayers = platform.createDefaultLayers({lg: "eng", lg2 : "eng"});
-
+	let defaultLayers = platform.createDefaultLayers({ lg: ''});
 
 	// Instantiate (and display) a map object:
 	map = new H.Map(
@@ -70,38 +82,71 @@ export function initMap() {
 	    defaultLayers.vector.normal.map,
 	    {
 	      zoom: 15,
-	      center: { lat: 42.7, lng: 23.33 }
+	      center: sofiaPos
     	}
     );
-
-    // map.setBaseLayer(defaultLayers.normal.mapnight);
 
 	// Resize listener to make sure that the map occupies the whole container
     window.addEventListener('resize', () => map.getViewPort().resize());
 
 	// Make the map interactive
-    var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+    let behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 
     //Create a group that can hold map objects
     markerGroup = new H.map.Group();
 
     //Add the group to the map object
     map.addObject(markerGroup);
-
-    // return {map, behavior};
-    updateMapHTML();
 }
 
+
+export function search(query, onSuccess, onError) {
+	//	Get SearchService and create search paramaters
+	let service = platform.getSearchService(),
+		geocodingParamaters = {
+			searchText : query,
+			jsonattributes : 1 
+		};
+
+
+	// Get location of Sofia center 
+	let lat = sofiaPos.lat.toString(),
+		lng = sofiaPos.lng.toString(),
+		at = lat.concat(',', lng);
+
+
+	// Use [/browse] endpoint service to search for locations using the text query
+	service.autosuggest({
+		q: query,
+		at: at,
+		limit: 10,
+		lang: 'en-US'
+	}
+	, (results) => {
+		let items = results.items.map(i => 
+			({ address : i.address
+			, position : i.position
+			, resultType : i.resultType
+			, title : i.title
+			}));
+
+			onSuccess(items);
+	}
+	, (err) => {
+		onError(err);
+	}
+	)
+}
 
 
 
 export function addMarker(landmark, callback) {
 	let coords = {
 		lat : landmark.coords.lat,
-		lng : landmark.coords.lon
+		lng : landmark.coords.lng
 	}
 
-	var innerElement = document.createElement('img'),
+	let innerElement = document.createElement('img'),
 		outerElement = document.createElement('div'),
 		domIcon,
 		marker;

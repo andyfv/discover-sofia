@@ -20,11 +20,15 @@
         });
 
         // Load the libraries -> Initialize the map -> Notify the Elm runtime
-        app.ports.initializeMap.subscribe(() =>  {
+        app.ports.mapLoad.subscribe(() =>  {
             HereMapsAPI.loadMapLibs()
             .then(() => HereMapsAPI.createMapHTML())
             .then(() => HereMapsAPI.initMap())
-            .then(() => app.ports.mapInitialized.send(null))
+            .then(() => app.ports.mapLoaded.send(null))
+            .catch((error) => {
+                console.log(error);
+                app.ports.mapLoadingFailed.send(error)
+            });
         });
 
 
