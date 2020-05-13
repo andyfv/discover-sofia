@@ -1,17 +1,36 @@
-port module Page.Map exposing (Model, Msg(..), view, init, update, subscriptions)
+port module Page.Map exposing (Model, Msg(..), init, subscriptions, update, view)
 
-import Url.Builder as UrlBuilder exposing (crossOrigin, custom, QueryParameter)
-import Dict exposing (Dict)
-import Task
 import Http
+import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (id, class, alt, src, href)
-import Html.Events exposing (on, onClick)
-import Json.Decode as Decode exposing (Decoder, int, string, list, float)
-import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt, hardcoded)
-import Json.Encode as Encode 
---import Article exposing (Article, ArticleCard, Image)
---import Page exposing (viewCards)
+import Html.Attributes exposing (..)
+import Html.Events exposing (on, onClick, onInput, onMouseEnter, onMouseLeave, onFocus)
+import Json.Decode exposing (Error, Value, decodeValue)
+import Url.Builder as UrlBuilder exposing (crossOrigin)
+
+import Address
+    exposing
+        ( Item
+        , Position
+        , itemListDecoder
+        , positionDecoder
+        , positionEncoder
+        , positionToString
+        , routeParamEncoder
+        )
+
+import Landmark
+    exposing
+        ( Landmark
+        , Summary
+        , SummaryType(..)
+        , landmarkListDecoder
+        , markerInfoEncoder
+        , summaryDecoder
+        )
+
+
+
 -- Map ports
 port mapLoad : () -> Cmd msg
 port mapLoaded : (() -> msg) -> Sub msg
@@ -21,21 +40,35 @@ port mapLoadingFailed : (String -> msg) -> Sub msg
 port mapSearch : String -> Cmd msg
 port mapSearchResponse : (Value -> msg) -> Sub msg
 port mapSearchFailed : (String -> msg) -> Sub msg
+
 port mapRoutesCalculate : Value -> Cmd msg
 --port mapRoutesResponse : (Value -> msg) -> Sub msg
+
+
+-- Markers
+port mapMarkerAddCustom : Value -> Cmd msg
+port mapMarkerOpenSummary : (Int -> msg) -> Sub msg
+
 -- Directions ports
 port geoserviceLocationGet : () -> Cmd msg
 port geoserviceLocationReceive : (Value -> msg) -> Sub msg
 port geoserviceLocationError : (String -> msg) -> Sub msg
 
-port addMarker : (Encode.Value) -> Cmd msg
-port showLandmarkSummary : (Int -> msg) -> Sub msg
 
 
+-- SUBSCRIPTIONS
+
+
+subscriptions : Sub Msg
+subscriptions =
+    Sub.batch
         [ mapLoaded (\_ -> MapLoadedOk)
         , mapLoadingFailed (\err -> MapLoadedErr err)
+        , mapMarkerOpenSummary (\id -> InfoOpen id)
         , mapSearchResponse (decodeValue itemListDecoder >> MapSearchResponse)
         , mapSearchFailed (\err -> MapSearchError err)
+        --, mapRoutesResponse ()
+
         -- Geoservices
         , geoserviceLocationReceive (decodeValue positionDecoder >> GeoserviceLocationReceive)
         , geoserviceLocationError (\message -> GeoserviceLocationError message)
@@ -46,59 +79,61 @@ port showLandmarkSummary : (Int -> msg) -> Sub msg
 -- MODEL
 
 
+init : ( Model, Cmd Msg )
+init =
+    ( { infoMode = Closed 
+      , mapStatus = MapNotLoaded ""
       , startPoint = StartPointInvalid ""
       , endPoint = EndPointInvalid ""
+      , mapRoutes = RoutesUnavailable
+      , transport = Car
+      , landmarksList = []
+      , landmarkSummaryList = Dict.empty
+      , landmarkSummary = SummaryInvalid
       , addressResults = AddressResultsEmpty
       , redactedRoutePoint = StartPoint
       }
     , Cmd.batch [ mapLoad () ]
     )
 
+
 type alias Model =
-    { isMapLoaded : Bool
-    , isLandmarkSelected : Bool
+    { infoMode : InfoMode
+    , mapStatus : MapStatus
     , startPoint : RoutePoint
     , endPoint : RoutePoint
+    , mapRoutes : MapRoutes
+    , transport : Transport
     , landmarksList : List Landmark
-    , landmarkSummaryList : Dict Int LandmarkSummary
+    , landmarkSummary : SummaryType
+    , landmarkSummaryList : Dict Int Summary
     , addressResults : AddressResults
     , redactedRoutePoint : RedactedPoint
     }
 
 
-type alias Landmark =
-    { id : Int
-    , wikiPage : String
-    , wikiName : String
-    }
+type MapRoutes
+    = RoutesUnavailable
+    | RoutesCalculating
+    | RoutesResponse
 
 
-type alias LandmarkSummary =
-    { id : Int
-    , title : String
-    , extract : String
-    , thumbnail : String
-    , originalImage : String
-    , wikiUrl : String
-    , coordinates : Coordinates
-    }
+type Transport
+    = Car
+    | Walk
 
 
-type alias Coordinates =
-    { lat : Float
-    , lon : Float
-    }
+type InfoMode
+    = Closed
+    | ViewSummary
+    | ViewDirections
+    | ViewRoute
 
 
 type MapStatus
     = MapLoaded
     | MapLoading
     | MapNotLoaded String
-        , selectedLandmarkSummary = Nothing
-        , landmarkSummaryList = Dict.empty
-        }
-    , Cmd.batch [ initializeMap () ]
-    )
 
 
 type AddressResults
@@ -106,6 +141,7 @@ type AddressResults
     | AddressResultsLoading
     | AddressResultsLoaded (List Item)
     | AddressResultsErr String
+
 
 type RedactedPoint
     = StartPoint
@@ -118,12 +154,6 @@ type RoutePoint
     | EndPointValid String Position
     | EndPointInvalid String
 
-subscriptions : Sub Msg
-subscriptions =
-    Sub.batch 
-        [ mapInitialized (\_ -> (MapInitialized))
-        , showLandmarkSummary (\id -> OpenLandmarkSummary id)
-        ]
 
 
 -- UPDATE
@@ -134,18 +164,31 @@ type Msg
       -- MapStatus
     | MapLoadedOk
     | MapLoadedErr String
-    | CloseLandmarkSummary
+    | MapMarkerAddDefault Position
     | MapSearchResponse (Result Json.Decode.Error (List Item))
     | MapSearchResponseClear
     | MapSearchError String
-
-update : Msg -> Model -> (Model, Cmd Msg)
+      -- Info Element
+    | InfoOpen Int
+    | InfoOpenDirections String Position
+    | InfoOpenRoute
+    | InfoUpdateMapRoute RoutePoint 
+    | InfoUpdateRouteFocus RedactedPoint
+    | InfoClose
+      -- DirectionsView
     | GeoserviceLocationReceive (Result Json.Decode.Error Position)
     | GeoserviceLocationError String
+      -- Load data.json
+    | LoadLandmarksList (Result Http.Error (List Landmark))
+      -- Received Wikipedia summary pages
+    | LoadLandmarskWiki (Result Http.Error Summary)
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
-            (model, Cmd.none)
+            ( model, Cmd.none )
 
         MapLoadedOk ->
             ( { model | mapStatus = MapLoaded }
@@ -155,8 +198,8 @@ update msg model =
         MapLoadedErr err ->
             ( { model | mapStatus = MapNotLoaded err }, Cmd.none )
 
-                False ->
-                    (model, initializeMap ())
+        MapMarkerAddDefault position ->
+            ( model, Cmd.none )
 
         MapSearchResponse (Ok items) ->
             ( { model | addressResults = AddressResultsLoaded items }, Cmd.none )
@@ -170,16 +213,45 @@ update msg model =
         MapSearchResponseClear ->
             ( { model | addressResults = AddressResultsEmpty }, Cmd.none )
 
-        OpenLandmarkSummary id ->
-            ( { model | isLandmarkSelected = True
-              , selectedLandmarkSummary = Just id
-              } , Cmd.none
+        MapSearchError err ->
+            let
+                _ = Debug.log "err" err
+            in
+            ( { model | addressResults = AddressResultsErr err }, Cmd.none )
+
+        -- InfoView
+        InfoOpen id ->
+            case Dict.get id model.landmarkSummaryList of
+                Just landmarkSummary ->
+                    ( { model | infoMode = ViewSummary
+                      , landmarkSummary = SummaryValid landmarkSummary
+                      , addressResults = AddressResultsEmpty
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        InfoClose ->
+            ( { model | infoMode = Closed
+              , landmarkSummary = SummaryInvalid 
+              , addressResults = AddressResultsEmpty
+              }
+            , Cmd.none
             )
 
-        CloseLandmarkSummary ->
-            ( { model | isLandmarkSelected = False
-              , selectedLandmarkSummary = Nothing
-              } , Cmd.none
+        InfoOpenDirections address position ->
+            ( { model
+                | infoMode = ViewDirections
+                , endPoint = EndPointValid address position
+              }
+            , geoserviceLocationGet ()
+            )
+
+        InfoOpenRoute ->
+            ( { model | infoMode = ViewRoute, mapRoutes = RoutesCalculating }
+            , mapRoutesHelper model
             )
 
         InfoUpdateMapRoute routePoint ->
@@ -198,6 +270,7 @@ update msg model =
 
         InfoUpdateRouteFocus redactedPoint ->
             ( { model | redactedRoutePoint = redactedPoint}, Cmd.none )
+
         -- Directions
         GeoserviceLocationReceive (Ok currentPosition) ->
             ( { model | startPoint = StartPointValid "Current Position" currentPosition }
@@ -213,26 +286,28 @@ update msg model =
             ( { model | startPoint = StartPointInvalid "" }
             , Cmd.none
             )
+
+        -- Received data.json
+        LoadLandmarksList (Ok landmarksList) ->
             ( { model | landmarksList = landmarksList }
             , Cmd.batch (List.map getLandmarkWiki landmarksList)
             )
 
-        ReceivedLandmarks (Err landmarksList) ->
-            (model, Cmd.none)
+        LoadLandmarksList (Err landmarksList) ->
+            ( model, Cmd.none )
 
-        ReceivedLandmarkSummary (Ok summary) ->
-            (   { model |
-                    landmarkSummaryList = 
-                        Dict.insert 
-                        summary.id 
-                        summary 
-                        model.landmarkSummaryList 
-                }
-            , addMarker (encodeMarkerInfo summary)
+        -- Received Wikipedia summary pages
+        LoadLandmarskWiki (Ok summary) ->
+            ( { model
+                | landmarkSummaryList =
+                    model.landmarkSummaryList
+                        |> Dict.insert summary.id summary
+              }
+            , mapMarkerAddCustom (markerInfoEncoder summary)
             )
 
-        ReceivedLandmarkSummary (Err summary) ->
-            (model, Cmd.none)
+        LoadLandmarskWiki (Err summary) ->
+            ( model, Cmd.none )
 
 
 mapRoutesHelper : Model -> Cmd Msg
@@ -275,82 +350,49 @@ mapSearchHelper address model =
 
 
 {-
-    Uncomment when deploying to Github/GitLab
-    Wiki Link: https://en.wikipedia.org/api/rest_v1/page/summary/Stack_Overflow
+   Uncomment when deploying to Github/GitLab
+   Wiki Link: https://en.wikipedia.org/api/rest_v1/page/summary/Stack_Overflow
 -}
 --wikiUrlBuilder : String -> String
 --wikiUrlBuilder wikiName =
---    crossOrigin 
+--    crossOrigin
 --        "https://en.wikipedia.org"
---        ["rest_v1", "page", "summary", wikiName]
+--        [ "api" ,"rest_v1", "page", "summary", wikiName]
 --        []
-
-
-
 {-
-    Comment when deploying to Github/GitLab
-    With cors-anywhere (npm install cors-anywhere)
-    Link: url2 = "http://localhost:8080/https://en.wikipedia.org/api/rest_v1/page/summary/Stack_Overflow"
+   Comment when deploying to Github/GitLab
+   With cors-anywhere (npm install cors-anywhere)
+   Link: url2 = "http://localhost:8080/https://en.wikipedia.org/api/rest_v1/page/summary/Stack_Overflow"
 -}
+
+
 wikiUrlBuilder : String -> String
 wikiUrlBuilder wikiName =
-    crossOrigin 
+    crossOrigin
         "http://localhost:8080"
-        ["https://en.wikipedia.org/api/rest_v1/page/summary", wikiName]
+        [ "https://en.wikipedia.org/api/rest_v1/page/summary", wikiName ]
         []
-
 
 
 getLandmarkWiki : Landmark -> Cmd Msg
 getLandmarkWiki landmark =
     Http.get
         { url = wikiUrlBuilder landmark.wikiName
-        , expect = Http.expectJson ReceivedLandmarkSummary (summaryDecoder landmark.id)
+        , expect = Http.expectJson LoadLandmarskWiki (summaryDecoder landmark.id)
         }
-
-
-summaryDecoder : Int -> Decoder LandmarkSummary
-summaryDecoder id =
-    Decode.succeed LandmarkSummary
-        |> hardcoded id
-        |> required "title" string
-        |> required "extract" string
-        |> optionalAt [ "thumbnail", "source" ] string ""
-        |> optionalAt [ "originalimage", "source" ] string ""
-        |> requiredAt [ "content_urls", "desktop", "page" ] string
-        |> required "coordinates" coordinatesDecoder 
-
-
-coordinatesDecoder : Decoder Coordinates
-coordinatesDecoder =
-    Decode.succeed Coordinates
-        |> required "lat" float
-        |> required "lon" float
-
---
 
 
 getLandmarksRequest : String -> Cmd Msg
 getLandmarksRequest url =
     Http.get
         { url = url
-        , expect = Http.expectJson ReceivedLandmarks landmarkListDecoder
+        , expect = Http.expectJson LoadLandmarksList landmarkListDecoder
         }
 
 
-landmarkListDecoder : Decoder (List Landmark)
-landmarkListDecoder =
-    Decode.list landmarkDecoder
-        |> Decode.field "landmarks"
 
+-- VIEW
 
-landmarkDecoder : Decoder Landmark
-landmarkDecoder =
-    Decode.succeed Landmark
-        |> required "id" int
-        |> required "wikipage" string
-        |> required "wikiname" string
-    
 
 view : Model -> Html Msg
 view model =

@@ -33,8 +33,8 @@
 
 
         // Send @showLandmarkSummary as a callback function
-        app.ports.addMarker.subscribe((landmark) => {
-            HereMapsAPI.addMarker(landmark, app.ports.showLandmarkSummary.send)
+        app.ports.mapMarkerAddCustom.subscribe((landmark) => {
+            HereMapsAPI.addMarker(landmark, app.ports.mapMarkerOpenSummary.send)
         })
 
 
