@@ -1,4 +1,10 @@
-var map, markerGroup, mapHTML;
+var map,
+	platform,
+	markerGroup,
+	lineGroup,
+	mapHTML,
+	routes,
+	sofiaPos = { lat: 42.693, lng: 23.33 };
 
 const bodyTag = document.getElementsByTagName('body')[0];
 
@@ -158,7 +164,7 @@ export function addMarker(landmark, callback) {
 		outerElement.classList.add('marker-text');
 
 		//Create paragraph node and add the landmark title to it
-	  	var title = document.createElement('p');
+	  	let title = document.createElement('p');
   		title.innerHTML = landmark.title;
 
 	  	// Add the paragraph to the div
@@ -250,5 +256,116 @@ export function monitorPosition(onSuccess, onError) {
     )
 }
 
-  	updateMapHTML();
+
+export function routing(parameters) {
+	// Instantiate routing service
+	let router = platform.getRoutingService();
+
+	let originLat = parameters.origin.lat.toString(),
+		originLng = parameters.origin.lng.toString(),
+		originPos = originLat.concat(',', originLng);
+
+	let destinationLat = parameters.destination.lat.toString(),
+		destinationLng = parameters.destination.lng.toString(),
+		destinationPos = destinationLat.concat(',', destinationLng);
+
+
+	let routingParameter = {
+		// routingMode : 'fast',
+		mode : 'fastest;car',
+		transportMode : parameters.transportMode,
+		waypoint0 : originPos,
+		waypoint1 : destinationPos,
+		return : 'polyline',
+		alternatives : 6,
+		representation : 'display',
+		manueverattributes : 'direction,action',
+		routeattributes : 'waypoints,summary,shape,legs'
+	}
+
+	let onResult = function(result) {
+		// routes = result.routes;
+		console.log(result);
+
+		let route = result.response.route[0];
+		addRouteShapeToMap(route);
+	}
+
+
+	// Call the routing service with the parameters
+	router.calculateRoute( routingParameter, onResult,
+		function (error) {
+			console.log(error);
+		});
+}
+
+function addRouteShapeToMap(route) {
+	// Instantiate linestring and use it as a source for the route line
+	// let lineString = H.geo.LineString.fromFlexiblePolyline(section.polyline);
+	let lineString = new H.geo.LineString(),
+		routeShape = route.shape,
+		polyline;
+
+	// Push point to lineString
+	routeShape.forEach((point) =>{
+		let parts = point.split(',');
+		lineString.pushLatLngAlt(parts[0], parts[1]);
+	});
+
+	// Create a marker for the starting point 
+	let startPoint = routeShape[0].split(','),
+		startMarker = new H.map.Marker({lat:startPoint[0], lng:startPoint[1]});
+
+	// Create a marker for the end point
+	let endPoint = routeShape[routeShape.length - 1].split(','),
+		endMarker = new H.map.Marker({lat:endPoint[0], lng:endPoint[1]});
+
+
+	// Create polyline
+	polyline = new H.map.Polyline(lineString, {
+		style: 
+			{ strokeColor : 'rgba(255, 85, 93, 1)'
+			, lineWidth : 10
+			// , fillColor : 'rgba(0, 85, 170, 0.4)' 
+			, lineTailCap : 'arrow-tail'
+			, lineHeadCap : 'arrow-head'
+			}
+	});
+
+
+	// Patterned polyline
+	let routeArrows = new H.map.Polyline(lineString, {
+		style : 
+			{ lineWidth : 10
+			, fillColor : 'white'
+			, strokeColor : 'rgba(255, 255, 255, 1)'
+			, lineDash : [0, 2]
+			, lineTailCap : 'arrow-tail'
+			, lineHeadCap : 'arrow-head'
+			, metricSystem : 'metric'
+			, language : 'en-US'
+			}
+	});
+	
+
+	// Add the polyline and markers to the map;
+	map.addObjects([polyline, routeArrows, startMarker, endMarker])
+
+	// map.addObjects([polyline]);
+
+	// Instantiate polyline and use it to display the route
+	// let routeOutLine = new H.map.Polyline(lineString, {
+	// 	style: 
+	// 		{ strokeColor : 'rgba(255, 85, 93, 1)'
+	// 		, lineWidth : 10
+	// 		// , fillColor : 'rgba(0, 85, 170, 0.4)' 
+	// 		, lineTailCap : 'arrow-tail'
+	// 		, lineHeadCap : 'arrow-head'
+	// 		}
+	// });
+
+
+
+	// Set the map
+	map.getViewModel().setLookAtData({bounds: polyline.getBoundingBox()});
 }

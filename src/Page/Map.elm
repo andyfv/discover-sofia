@@ -21,6 +21,8 @@ port mapLoadingFailed : (String -> msg) -> Sub msg
 port mapSearch : String -> Cmd msg
 port mapSearchResponse : (Value -> msg) -> Sub msg
 port mapSearchFailed : (String -> msg) -> Sub msg
+port mapRoutesCalculate : Value -> Cmd msg
+--port mapRoutesResponse : (Value -> msg) -> Sub msg
 -- Directions ports
 port geoserviceLocationGet : () -> Cmd msg
 port geoserviceLocationReceive : (Value -> msg) -> Sub msg
@@ -233,19 +235,29 @@ update msg model =
             (model, Cmd.none)
 
 
+mapRoutesHelper : Model -> Cmd Msg
+mapRoutesHelper { startPoint, endPoint, transport }  =
+    case (startPoint, endPoint ) of 
+        (StartPointValid _ origin, EndPointValid _ destination ) ->
+            let 
+                transportMode = transportModeHelper transport
+                params = routeParamEncoder origin destination transportMode
+            in
+            mapRoutesCalculate params
 
--- HELPERES
+        _ ->
+            Cmd.none
 
 
-encodeMarkerInfo : LandmarkSummary -> Encode.Value
-encodeMarkerInfo summary =
-    let 
-        encodedCoord = 
-            Encode.object
-                [ ("lat", Encode.float summary.coordinates.lat)
-                , ("lon", Encode.float summary.coordinates.lon)
-                ]
-    in
+transportModeHelper : Transport -> String
+transportModeHelper transport =
+    case transport of 
+        Car ->
+            "car"
+
+        Walk ->
+            "pedestrian"
+
 
 
 mapSearchHelper : String -> Model -> Cmd Msg
