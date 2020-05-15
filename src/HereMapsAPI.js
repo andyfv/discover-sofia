@@ -125,7 +125,7 @@ export function search(query, onSuccess, onError) {
 
 
 	// Use [/browse] endpoint service to search for locations using the text query
-	service.autosuggest({
+	service.discover({
 		q: query,
 		at: at,
 		limit: 10,
