@@ -1,7 +1,7 @@
 var map,
 	platform,
 	markerGroup,
-	lineGroup,
+	routeGroup,
 	mapHTML,
 	routes,
 	sofiaPos = { lat: 42.693, lng: 23.33 };
@@ -98,11 +98,14 @@ export function initMap() {
 	// Make the map interactive
     let behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 
-    //Create a group that can hold map objects
+    //Create group that can hold map objects
     markerGroup = new H.map.Group();
 
+    //Create group that can hold route lines 
+    routeGroup = new H.map.Group();
+
     //Add the group to the map object
-    map.addObject(markerGroup);
+    map.addObjects([markerGroup, routeGroup]);
 }
 
 
@@ -257,38 +260,83 @@ export function monitorPosition(onSuccess, onError) {
 }
 
 
-export function routing(parameters) {
+export function routing(parameters, onResponse) {
 	// Instantiate routing service
-	let router = platform.getRoutingService();
+	let router = platform.getRoutingService(null, 8);
 
+	// Get the origin point
 	let originLat = parameters.origin.lat.toString(),
 		originLng = parameters.origin.lng.toString(),
 		originPos = originLat.concat(',', originLng);
 
+	// Get the destination point 
 	let destinationLat = parameters.destination.lat.toString(),
 		destinationLng = parameters.destination.lng.toString(),
 		destinationPos = destinationLat.concat(',', destinationLng);
 
-
+	// Create routing parameters
 	let routingParameter = {
-		// routingMode : 'fast',
-		mode : 'fastest;car',
-		transportMode : parameters.transportMode,
-		waypoint0 : originPos,
-		waypoint1 : destinationPos,
-		return : 'polyline',
-		alternatives : 6,
-		representation : 'display',
-		manueverattributes : 'direction,action',
-		routeattributes : 'waypoints,summary,shape,legs'
+		'transportMode' : parameters.transportMode,
+		'routingMode' : 'fast',
+		'origin' : originPos,
+		'destination' : destinationPos,
+		'alternatives' : 5,
+		'units' : 'metric',
+		'lang' : 'en-US',
+		'return' : ['polyline','summary','actions', 'instructions']
 	}
 
-	let onResult = function(result) {
-		// routes = result.routes;
-		console.log(result);
 
-		let route = result.response.route[0];
-		addRouteShapeToMap(route);
+	let onResult = function(result) {
+		console.log(result);
+		let arrival,
+			departure,
+			routeSummaryList = [];
+
+		result.routes.forEach((route) => {
+			// Create actions array
+			let actions = [],
+				duration,
+				distance;
+
+			// Take deparute and arrival points
+			departure = route.sections[0].departure.place.location,
+			arrival = route.sections[0].arrival.place.location;
+
+			// 
+			duration = getTime(route.sections[0].summary.duration);
+			distance = getDistance(route.sections[0].summary.length)
+
+			// Take action instructions for every route
+			route.sections[0].actions.forEach((action) => {
+				actions.push(action.instruction);
+			})
+
+			// Create routeObject 
+			let routeObject = {
+				id : route.sections[0].id,
+				polyline : route.sections[0].polyline,
+				actions : actions,
+				summary : route.sections[0].summary,
+				mode : route.sections[0].transport.mode,
+				duration : duration,
+				distance: distance
+			};
+
+			// Add routeObject to the list of Routes
+			routeSummaryList.push(routeObject);
+		})
+
+		console.log(getDistance(routeSummaryList[0].summary.length));
+		console.log(getTime(routeSummaryList[0].summary.duration));
+		console.log(routeSummaryList);
+		onResponse(routeSummaryList);
+
+		// Get the first route polyline 
+		let routePolyline = routeSummaryList[0].polyline;
+
+		// Show polyline on the map
+		addRouteShapeToMap(routePolyline, departure, arrival);
 	}
 
 
@@ -299,47 +347,39 @@ export function routing(parameters) {
 		});
 }
 
-function addRouteShapeToMap(route) {
-	// Instantiate linestring and use it as a source for the route line
-	// let lineString = H.geo.LineString.fromFlexiblePolyline(section.polyline);
-	let lineString = new H.geo.LineString(),
-		routeShape = route.shape,
-		polyline;
+function addRouteShapeToMap(route, startPoint, endPoint) {
+	// First clean the previous routes
+	cleanRouteGroup();
 
-	// Push point to lineString
-	routeShape.forEach((point) =>{
-		let parts = point.split(',');
-		lineString.pushLatLngAlt(parts[0], parts[1]);
-	});
+	// Instantiate linestring
+	let lineString = new H.geo.LineString.fromFlexiblePolyline(route);
+
 
 	// Create a marker for the starting point 
-	let startPoint = routeShape[0].split(','),
-		startMarker = new H.map.Marker({lat:startPoint[0], lng:startPoint[1]});
+	let	startMarker = new H.map.Marker(startPoint);
 
 	// Create a marker for the end point
-	let endPoint = routeShape[routeShape.length - 1].split(','),
-		endMarker = new H.map.Marker({lat:endPoint[0], lng:endPoint[1]});
+	let	endMarker = new H.map.Marker(endPoint);
 
 
 	// Create polyline
-	polyline = new H.map.Polyline(lineString, {
+	let polyline = new H.map.Polyline(lineString, {
 		style: 
-			{ strokeColor : 'rgba(255, 85, 93, 1)'
-			, lineWidth : 10
-			// , fillColor : 'rgba(0, 85, 170, 0.4)' 
+			{ strokeColor : 'rgba(156, 39, 176, 1)'
+			, lineWidth : 13
 			, lineTailCap : 'arrow-tail'
 			, lineHeadCap : 'arrow-head'
+			, lineJoin : 'round'
 			}
 	});
 
 
-	// Patterned polyline
+	// Create patterned polyline
 	let routeArrows = new H.map.Polyline(lineString, {
 		style : 
 			{ lineWidth : 10
-			, fillColor : 'white'
 			, strokeColor : 'rgba(255, 255, 255, 1)'
-			, lineDash : [0, 2]
+			, lineDash : [1, 2]
 			, lineTailCap : 'arrow-tail'
 			, lineHeadCap : 'arrow-head'
 			, metricSystem : 'metric'
@@ -349,23 +389,40 @@ function addRouteShapeToMap(route) {
 	
 
 	// Add the polyline and markers to the map;
-	map.addObjects([polyline, routeArrows, startMarker, endMarker])
-
-	// map.addObjects([polyline]);
-
-	// Instantiate polyline and use it to display the route
-	// let routeOutLine = new H.map.Polyline(lineString, {
-	// 	style: 
-	// 		{ strokeColor : 'rgba(255, 85, 93, 1)'
-	// 		, lineWidth : 10
-	// 		// , fillColor : 'rgba(0, 85, 170, 0.4)' 
-	// 		, lineTailCap : 'arrow-tail'
-	// 		, lineHeadCap : 'arrow-head'
-	// 		}
-	// });
-
+	routeGroup.addObjects([polyline, routeArrows, startMarker, endMarker])
 
 
 	// Set the map
 	map.getViewModel().setLookAtData({bounds: polyline.getBoundingBox()});
+}
+
+
+export function cleanRouteGroup() {
+	routeGroup.removeAll();
+}
+
+
+function getTime(seconds) {
+	let hours,
+		min;
+
+
+	if (seconds < 3600) {
+		return Math.floor(seconds / 60) + ' min';
+	}
+
+	else 
+		hours = Math.floor(seconds / (3600));
+		min = Math.floor(hours % 60);
+
+		return hours + ' h  ' + min + ' min' ;
+
+}
+
+function getDistance(meters) {
+	if (meters < 1000) {
+		return meters + ' m';
+	} else 
+		return (meters / 1000).toFixed(1) + ' km';
+
 }
