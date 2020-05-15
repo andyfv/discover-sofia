@@ -8,14 +8,17 @@ import Html.Events exposing (on, onClick, onInput, onMouseEnter, onMouseLeave, o
 import Json.Decode exposing (Error, Value, decodeValue)
 import Url.Builder as UrlBuilder exposing (crossOrigin)
 
-import Address
+import MapValues
     exposing
         ( Item
         , Position
+        , RouteSummary
+        , RoutePoint
         , itemListDecoder
         , positionDecoder
         , positionEncoder
         , positionToString
+        , routeSummaryListDecoder
         , routeParamEncoder
         )
 
@@ -30,6 +33,10 @@ import Landmark
         )
 
 
+import Page.MapView.RouteView as RouteView
+import Page.MapView.ViewSummary as ViewSummary
+
+
 
 -- Map ports
 port mapLoad : () -> Cmd msg
@@ -41,7 +48,7 @@ port mapSearch : String -> Cmd msg
 port mapSearchResponse : (Value -> msg) -> Sub msg
 port mapSearchFailed : (String -> msg) -> Sub msg
 
-port mapRoutesCalculate : Value -> Cmd msg
+--port mapRoutesCalculate : Value -> Cmd msg
 --port mapRoutesResponse : (Value -> msg) -> Sub msg
 
 
@@ -64,10 +71,10 @@ subscriptions =
     Sub.batch
         [ mapLoaded (\_ -> MapLoadedOk)
         , mapLoadingFailed (\err -> MapLoadedErr err)
-        , mapMarkerOpenSummary (\id -> InfoOpen id)
+        , mapMarkerOpenSummary (\id -> InfoOpen (Just id))
         , mapSearchResponse (decodeValue itemListDecoder >> MapSearchResponse)
         , mapSearchFailed (\err -> MapSearchError err)
-        --, mapRoutesResponse ()
+        --, mapRoutesResponse (decodeValue routeSummaryListDecoder >> MapRoutesResponse)
 
         -- Geoservices
         , geoserviceLocationReceive (decodeValue positionDecoder >> GeoserviceLocationReceive)
@@ -85,8 +92,6 @@ init =
       , mapStatus = MapNotLoaded ""
       , startPoint = StartPointInvalid ""
       , endPoint = EndPointInvalid ""
-      , mapRoutes = RoutesUnavailable
-      , transport = Car
       , landmarksList = []
       , landmarkSummaryList = Dict.empty
       , landmarkSummary = SummaryInvalid
@@ -102,8 +107,6 @@ type alias Model =
     , mapStatus : MapStatus
     , startPoint : RoutePoint
     , endPoint : RoutePoint
-    , mapRoutes : MapRoutes
-    , transport : Transport
     , landmarksList : List Landmark
     , landmarkSummary : SummaryType
     , landmarkSummaryList : Dict Int Summary
@@ -112,22 +115,11 @@ type alias Model =
     }
 
 
-type MapRoutes
-    = RoutesUnavailable
-    | RoutesCalculating
-    | RoutesResponse
-
-
-type Transport
-    = Car
-    | Walk
-
-
 type InfoMode
     = Closed
-    | ViewSummary
+    | ViewSummary ViewSummary.Model
     | ViewDirections
-    | ViewRoute
+    | ViewRoute RouteView.Model
 
 
 type MapStatus
@@ -161,18 +153,20 @@ type RoutePoint
 
 type Msg
     = NoOp
+    | ViewRouteMsg RouteView.Msg
       -- MapStatus
     | MapLoadedOk
     | MapLoadedErr String
     | MapMarkerAddDefault Position
     | MapSearchResponse (Result Json.Decode.Error (List Item))
-    | MapSearchResponseClear
+    | MapSearchClear
     | MapSearchError String
+    --
+    | MapRoutesUpdate RoutePoint
       -- Info Element
-    | InfoOpen Int
+    | InfoOpen (Maybe Int)
     | InfoOpenDirections String Position
     | InfoOpenRoute
-    | InfoUpdateMapRoute RoutePoint 
     | InfoUpdateRouteFocus RedactedPoint
     | InfoClose
       -- DirectionsView
@@ -184,64 +178,14 @@ type Msg
     | LoadLandmarskWiki (Result Http.Error Summary)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        NoOp ->
-            ( model, Cmd.none )
 
-        MapLoadedOk ->
-            ( { model | mapStatus = MapLoaded }
-            , getLandmarksRequest "/../assets/data.json"
-            )
+processOutMsg : RouteView.OutMsg -> Model -> (Model, Cmd Msg)
+processOutMsg outMsg model =
+    case outMsg of 
+        RouteView.NoOutMsg ->
+            (model, Cmd.none)
 
-        MapLoadedErr err ->
-            ( { model | mapStatus = MapNotLoaded err }, Cmd.none )
-
-        MapMarkerAddDefault position ->
-            ( model, Cmd.none )
-
-        MapSearchResponse (Ok items) ->
-            ( { model | addressResults = AddressResultsLoaded items }, Cmd.none )
-
-        MapSearchResponse (Err items) ->
-            let 
-                _ = Debug.log "items" items
-            in
-            ( { model | addressResults = AddressResultsErr "Response body is incorrect" }, Cmd.none )
-
-        MapSearchResponseClear ->
-            ( { model | addressResults = AddressResultsEmpty }, Cmd.none )
-
-        MapSearchError err ->
-            let
-                _ = Debug.log "err" err
-            in
-            ( { model | addressResults = AddressResultsErr err }, Cmd.none )
-
-        -- InfoView
-        InfoOpen id ->
-            case Dict.get id model.landmarkSummaryList of
-                Just landmarkSummary ->
-                    ( { model | infoMode = ViewSummary
-                      , landmarkSummary = SummaryValid landmarkSummary
-                      , addressResults = AddressResultsEmpty
-                      }
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        InfoClose ->
-            ( { model | infoMode = Closed
-              , landmarkSummary = SummaryInvalid 
-              , addressResults = AddressResultsEmpty
-              }
-            , Cmd.none
-            )
-
-        InfoOpenDirections address position ->
+        RouteView.BackToDirections address position ->
             ( { model
                 | infoMode = ViewDirections
                 , endPoint = EndPointValid address position
@@ -249,12 +193,54 @@ update msg model =
             , geoserviceLocationGet ()
             )
 
-        InfoOpenRoute ->
-            ( { model | infoMode = ViewRoute, mapRoutes = RoutesCalculating }
-            , mapRoutesHelper model
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case ( msg, model.infoMode) of
+        ( NoOp, _ ) ->
+            ( model, Cmd.none )
+
+        ( ViewRouteMsg childMsg, ViewRoute pageModel ) ->
+            let 
+                (newChild, childCmds, outMsg) = 
+                    RouteView.update childMsg pageModel
+
+                (newModel, cmdsFromChild) = 
+                    processOutMsg outMsg { model | infoMode = ViewRoute newChild }
+
+            in
+            (newModel, Cmd.batch[ Cmd.map ViewRouteMsg childCmds, cmdsFromChild ] ) 
+
+
+        ( MapLoadedOk, _ ) ->
+            ( { model | mapStatus = MapLoaded }
+            , getLandmarksRequest "/../assets/data.json"
             )
 
-        InfoUpdateMapRoute routePoint ->
+        ( MapLoadedErr err, _ ) ->
+            ( { model | mapStatus = MapNotLoaded err }, Cmd.none )
+
+        ( MapMarkerAddDefault position, _ ) ->
+            ( model, Cmd.none )
+
+        ( MapSearchResponse (Ok items), _ )  ->
+            ( { model | addressResults = AddressResultsLoaded items }, Cmd.none )
+
+        ( MapSearchResponse (Err items), _ ) ->
+            ( { model | addressResults = AddressResultsErr "Response body is incorrect" }, Cmd.none )
+
+        ( MapSearchClear, _ ) ->
+            ( { model | addressResults = AddressResultsEmpty }, Cmd.none )
+
+        ( MapSearchError err, _ ) ->
+            let
+                _ = Debug.log "err" err
+                --"Fetching suggestions has failed"
+            in
+            ( { model | addressResults = AddressResultsErr err }, Cmd.none )
+
+        ( MapRoutesUpdate routePoint, _ ) ->
             case routePoint of
                 StartPointValid address position ->
                     ({ model | startPoint = routePoint }, Cmd.none)
@@ -268,36 +254,81 @@ update msg model =
                 EndPointInvalid address ->
                     ({ model | endPoint = routePoint }, mapSearchHelper address model)
 
-        InfoUpdateRouteFocus redactedPoint ->
+
+        -- InfoView
+        ( InfoOpen (Just id), _ ) ->
+            case Dict.get id model.landmarkSummaryList of
+                Just landmarkSummary ->
+                    ( { model | infoMode = ViewSummary landmarkSummary
+                      , landmarkSummary = SummaryValid landmarkSummary
+                      , addressResults = AddressResultsEmpty
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        ( InfoOpen Nothing, _ ) ->
+            ( { model | infoMode = ViewSummary }, Cmd.none )
+
+        ( InfoClose, _ ) ->
+            ( { model | infoMode = Closed
+              , landmarkSummary = SummaryInvalid 
+              , addressResults = AddressResultsEmpty
+              }
+            , Cmd.none
+            )
+
+        ( InfoOpenDirections address position, _ ) ->
+            ( { model
+                | infoMode = ViewDirections
+                , endPoint = EndPointValid address position
+              }
+            , geoserviceLocationGet ()
+            )
+
+        ( InfoOpenRoute, _ ) ->
+            ( model
+                --{ model | 
+                --infoMode = ViewRoute RouteView.
+                -- mapRoutes = RoutesCalculating 
+                --}
+            --, mapRoutesHelper model
+            , Cmd.none
+            )
+
+        ( InfoUpdateRouteFocus redactedPoint, _ ) ->
             ( { model | redactedRoutePoint = redactedPoint}, Cmd.none )
 
+
         -- Directions
-        GeoserviceLocationReceive (Ok currentPosition) ->
+        ( GeoserviceLocationReceive (Ok currentPosition), _ ) ->
             ( { model | startPoint = StartPointValid "Current Position" currentPosition }
             , Cmd.none
             )
 
-        GeoserviceLocationReceive (Err invalidPosition) ->
-            ( { model | startPoint = StartPointInvalid "Invalid Position" }
+        ( GeoserviceLocationReceive (Err invalidPosition), _ ) ->
+            ( { model | addressResults = AddressResultsErr "Invalid Position" }
             , Cmd.none
             )
 
-        GeoserviceLocationError err ->
-            ( { model | startPoint = StartPointInvalid "" }
+        ( GeoserviceLocationError err, _ ) ->
+            ( { model | addressResults = AddressResultsErr err }
             , Cmd.none
             )
 
         -- Received data.json
-        LoadLandmarksList (Ok landmarksList) ->
+        ( LoadLandmarksList (Ok landmarksList), _ )  ->
             ( { model | landmarksList = landmarksList }
             , Cmd.batch (List.map getLandmarkWiki landmarksList)
             )
 
-        LoadLandmarksList (Err landmarksList) ->
+        ( LoadLandmarksList (Err landmarksList), _ ) ->
             ( model, Cmd.none )
 
         -- Received Wikipedia summary pages
-        LoadLandmarskWiki (Ok summary) ->
+        ( LoadLandmarskWiki (Ok summary), _ ) ->
             ( { model
                 | landmarkSummaryList =
                     model.landmarkSummaryList
@@ -306,32 +337,14 @@ update msg model =
             , mapMarkerAddCustom (markerInfoEncoder summary)
             )
 
-        LoadLandmarskWiki (Err summary) ->
+        ( LoadLandmarskWiki (Err summary), _ ) ->
             ( model, Cmd.none )
 
 
-mapRoutesHelper : Model -> Cmd Msg
-mapRoutesHelper { startPoint, endPoint, transport }  =
-    case (startPoint, endPoint ) of 
-        (StartPointValid _ origin, EndPointValid _ destination ) ->
-            let 
-                transportMode = transportModeHelper transport
-                params = routeParamEncoder origin destination transportMode
-            in
-            mapRoutesCalculate params
+        -- FALLBACK
+        ( _, _ ) -> 
+            ( model, Cmd.none )
 
-        _ ->
-            Cmd.none
-
-
-transportModeHelper : Transport -> String
-transportModeHelper transport =
-    case transport of 
-        Car ->
-            "car"
-
-        Walk ->
-            "pedestrian"
 
 
 
@@ -339,7 +352,7 @@ mapSearchHelper : String -> Model -> Cmd Msg
 mapSearchHelper address model =
     if String.isEmpty address then
         let 
-            (_, cmds) = update MapSearchResponseClear model
+            (_, cmds) = update MapSearchClear model
         in
         cmds
     else 
@@ -417,96 +430,11 @@ viewMode model =
                 ViewDirections ->
                     viewDirection model
 
-                ViewSummary ->
+                ViewSummary pageModel ->
                     viewSummary model.landmarkSummary
 
-                ViewRoute ->
-                    viewRoute model
-
-
-
--- ROUTE
-
-
-viewRoute : Model -> Html Msg
-viewRoute model =
-    div [ class "info-container" ] 
-        [ viewRouteViewControls
-        , viewTransportControls model.transport
-        , viewRouteResults model.mapRoutes
-        ]
-
-
-viewRouteViewControls : Html Msg
-viewRouteViewControls =
-    div [ class "info-controls-container"]
-        [ button 
-            [ classList 
-                [ ( "info-control", True )
-                , ( "close", True )
-                ]
-            ]
-            [ text "Cancel" ]
-        , button
-            [ classList
-                [ ( "info-control", True )
-                , ( "start-navigation", True )
-                , ( "button-disabled", True )
-                ]
-            , disabled True
-            ]
-            [ text "Go" ]
-        ]
-
-
-viewTransportControls : Transport -> Html Msg
-viewTransportControls transport =
-    let 
-        isCarChosen = 
-            case transport of
-                Car ->
-                    True
-
-                Walk ->
-                    False
-    in
-    div [ class "info-controls-container"]
-        [ button 
-            [ classList 
-                [ ( "info-control", True )
-                , ( "transport", True )
-                , ( "selected-transport", not isCarChosen )
-                ]
-            ]
-            [ text "Car" ]
-        , button
-            [ classList
-                [ ( "info-control", True )
-                , ( "transport", True )
-                , ( "selected-transport", isCarChosen )
-                ]
-            ]
-            [ text "Walk" ]
-        ]
-
-viewRouteResults : MapRoutes -> Html Msg
-viewRouteResults mapRoute =
-    case mapRoute of 
-        RoutesUnavailable ->
-            p [ style "text-align" "center" ] [ text "No Routes available" ]
-
-        RoutesCalculating ->
-            p [ style "text-align" "center" ] [ text "Calculating Routes..." ]
-
-        RoutesResponse ->
-            ul [ id "routes-results" ] []
-                --(List.map (viewRouteSuggestion "" )
-
-viewRouteSuggestion : Html Msg
-viewRouteSuggestion =
-    div [] []
-
-
+                ViewRoute pageModel ->
+                    Html.map ViewRouteMsg (RouteView.view pageModel)
 
 
 
@@ -518,6 +446,7 @@ viewDirection { startPoint, endPoint, redactedRoutePoint, addressResults } =
     div [ class "info-container" ]
         [ viewDirectionsControls (startPoint, endPoint)
         , viewAddressInputs (startPoint, endPoint)
+        , hr [ style "heigth" "1px", style "width" "100%" ] []
         , viewAddressResults addressResults redactedRoutePoint
         ]
 
@@ -540,9 +469,9 @@ infoControlsContainer routeAccess =
                 [ ( "info-control", True )
                 , ( "close", True )
                 ]
-            , onClick InfoClose
+            , onClick (InfoOpen Nothing)
             ]
-            [ text "Cancel" ]
+            [ text "Back" ]
         , button
             [ classList
                 [ ( "info-control", True )
@@ -550,7 +479,7 @@ infoControlsContainer routeAccess =
                 , ( "button-disabled", routeAccess )
                 ]
             , disabled routeAccess
-            , onClick InfoOpenRoute
+            --, onClick InfoOpenRoute (model, )
             ]
             [ text "Route" ]
         ]
@@ -584,7 +513,7 @@ inputWrapperFrom startPoint =
             ] 
             [ text "From" ]
         , input
-            [ onInput (\text -> InfoUpdateMapRoute (StartPointInvalid text))
+            [ onInput (\text -> MapRoutesUpdate (StartPointInvalid text))
             , onFocus (InfoUpdateRouteFocus StartPoint)
             , autofocus True
             , placeholder "Search"
@@ -615,7 +544,7 @@ inputWrapperTo endPoint =
             ] 
             [ text "To" ]
         , input
-            [ onInput (\text -> InfoUpdateMapRoute (EndPointInvalid text))
+            [ onInput (\text -> MapRoutesUpdate (EndPointInvalid text))
             , onFocus (InfoUpdateRouteFocus EndPoint)
             , placeholder "Search"
             , value (pointToString endPoint)
@@ -639,13 +568,12 @@ viewAddressResults results redactedPoint =
             p [ style "text-align" "center" ] [ text "Loading..." ]
 
         AddressResultsErr err ->
-            p [ style "text-align" "center" ] [ text "Fetching suggestions has failed" ]
+            p [ style "text-align" "center" ] [ text err ]
 
 
 viewAddressSuggestion : RedactedPoint -> Item -> Html Msg
 viewAddressSuggestion redactedPoint item =
     let 
-        _ = Debug.log "item" item
         point =
             case redactedPoint of
                 StartPoint ->
@@ -659,7 +587,7 @@ viewAddressSuggestion redactedPoint item =
         , attribute "data-lan" (String.fromFloat item.position.lat)
         , attribute "data-lng" (String.fromFloat item.position.lng)
         , attribute "data-title" item.address.label
-        , onClick (InfoUpdateMapRoute point)
+        , onClick (MapRoutesUpdate point)
         --, onMouseEnter (MapMarkerAddDefault item.position)
         ]
         [ p [ class "address-name" ] [ text item.address.label ]
@@ -683,6 +611,7 @@ viewSummary summaryType =
         SummaryValid summary ->
             div [ class "info-container" ]
                 [ viewInfoControls summary
+                , hr [ style "heigth" "1px", style "width" "100%" ] []
                 , div [ id "summary" ]
                     [ viewTitle summary.title
                     , viewImage summary
@@ -698,7 +627,14 @@ viewSummary summaryType =
 viewInfoControls : Summary -> Html Msg
 viewInfoControls landmark =
     div [ class "info-controls-container" ]
-        [ button [ class "info-control", class "close", onClick InfoClose ] [ text "Close" ]
+        [ button 
+            [ classList
+                [ ( "info-control", True )
+                , ( "close", True )
+                ]
+            , onClick InfoClose 
+            ] 
+            [ text "Close" ]
         , button
             [ class "info-control"
             , class "directions"
