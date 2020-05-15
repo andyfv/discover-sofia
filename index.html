@@ -27,7 +27,7 @@
             .then(() => app.ports.mapLoaded.send(null))
             .catch((error) => {
                 console.log(error);
-                app.ports.mapLoadingFailed.send(error)
+                app.ports.mapLoadingFailed.send("Loading the map Failed")
             });
         });
 
