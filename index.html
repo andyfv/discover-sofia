@@ -32,19 +32,19 @@
         });
 
 
-        // Send @showLandmarkSummary as a callback function
+        // Send showLandmarkSummary port as a callback function
         app.ports.mapMarkerAddCustom.subscribe((landmark) => {
             HereMapsAPI.addMarker(landmark, app.ports.mapMarkerOpenSummary.send)
-        })
+        });
 
-
+        // Search communication
         app.ports.mapSearch.subscribe((query) => {
             HereMapsAPI.search(
                 query, 
                 app.ports.mapSearchResponse.send,
                 app.ports.mapSearchFailed.send
                 );
-        })
+        });
 
 
         // Get location if available on the device. Otherwise return error.
@@ -53,15 +53,22 @@
                 app.ports.geoserviceLocationReceive.send,
                 app.ports.geoserviceLocationError.send
             );
-        })
+        });
 
-
+        // Map Routes communication 
         app.ports.mapRoutesCalculate.subscribe((params) => {
             HereMapsAPI.routing(
                 params,
                 app.ports.mapRoutesResponse.send
             );
-        })
+        });
+
+        app.ports.mapRoutesShowSelected.subscribe((route) => {
+            HereMapsAPI.addRouteShapeToMap(
+                route
+                )
+        });
+
 
 
     </script>

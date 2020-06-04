@@ -12,6 +12,7 @@ module MapValues exposing
     , positionToString
     , routeSummaryListDecoder
     , routeParamEncoder
+    , routeSummaryEncoder
     )
 
 import Json.Encode as Encode exposing (Value, object)
@@ -27,6 +28,8 @@ type alias RouteSummary =
     , mode : String
     , distance : String
     , duration : String
+    , departure : Position
+    , arrival : Position
     }
 
 
@@ -100,19 +103,19 @@ positionDecoder =
         |> required "lng" float
 
 
-positionEncoder : Float -> Float -> Encode.Value
-positionEncoder lat lng =
+positionEncoder : Position -> Encode.Value
+positionEncoder position =
     Encode.object
-        [ ("lat", Encode.float lat)
-        , ("lng", Encode.float lng)
+        [ ("lat", Encode.float position.lat)
+        , ("lng", Encode.float position.lng)
         ]
 
 
 routeParamEncoder : Position -> Position -> String -> Encode.Value
 routeParamEncoder origin destination transportMode = 
     Encode.object
-        [ ("origin", positionEncoder origin.lat origin.lng)
-        , ("destination", positionEncoder destination.lat destination.lng)
+        [ ("origin", positionEncoder origin)
+        , ("destination", positionEncoder destination)
         , ("transportMode", Encode.string transportMode)
         ]
 
@@ -132,12 +135,24 @@ routeSummaryDecoder =
         |> optional "mode" string ""
         |> optional "distance" string "Distance not available"
         |> optional "duration" string "Duration not available"
+        |> required "departure" positionDecoder
+        |> required "arrival" positionDecoder
 
 
 actionListDecoder : Decoder (List String)
 actionListDecoder =
     Decode.list string
 
+
+
+
+routeSummaryEncoder : RouteSummary -> Encode.Value
+routeSummaryEncoder routeSummary =
+    Encode.object
+        [ ( "polyline", Encode.string routeSummary.polyline )
+        , ( "departure", positionEncoder routeSummary.departure)
+        , ( "arrival", positionEncoder routeSummary.arrival)
+        ]
 
 --routeSummaryObjectDecoder : Decoder RouteSummaryObject
 --routeSummaryObjectDecoder =

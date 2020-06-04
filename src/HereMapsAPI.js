@@ -320,7 +320,9 @@ export function routing(parameters, onResponse) {
 				summary : route.sections[0].summary,
 				mode : route.sections[0].transport.mode,
 				duration : duration,
-				distance: distance
+				distance: distance,
+				departure : departure,
+				arrival : arrival
 			};
 
 			// Add routeObject to the list of Routes
@@ -333,10 +335,10 @@ export function routing(parameters, onResponse) {
 		onResponse(routeSummaryList);
 
 		// Get the first route polyline 
-		let routePolyline = routeSummaryList[0].polyline;
+		let route = routeSummaryList[0];
 
 		// Show polyline on the map
-		addRouteShapeToMap(routePolyline, departure, arrival);
+		addRouteShapeToMap(route);
 	}
 
 
@@ -347,19 +349,21 @@ export function routing(parameters, onResponse) {
 		});
 }
 
-function addRouteShapeToMap(route, startPoint, endPoint) {
+export function addRouteShapeToMap(route) {
 	// First clean the previous routes
 	cleanRouteGroup();
-
+	hideMarkerGroup();
+	console.log(route.departure);
+	console.log(route.arrival);
 	// Instantiate linestring
-	let lineString = new H.geo.LineString.fromFlexiblePolyline(route);
+	let lineString = new H.geo.LineString.fromFlexiblePolyline(route.polyline);
 
 
 	// Create a marker for the starting point 
-	let	startMarker = new H.map.Marker(startPoint);
+	let	startMarker = new H.map.Marker(route.departure);
 
 	// Create a marker for the end point
-	let	endMarker = new H.map.Marker(endPoint);
+	let	endMarker = new H.map.Marker(route.arrival);
 
 
 	// Create polyline
@@ -399,6 +403,11 @@ function addRouteShapeToMap(route, startPoint, endPoint) {
 
 export function cleanRouteGroup() {
 	routeGroup.removeAll();
+}
+
+
+export function hideMarkerGroup() {
+	markerGroup.setVisibility(false);
 }
 
 

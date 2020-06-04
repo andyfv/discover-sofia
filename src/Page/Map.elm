@@ -13,13 +13,13 @@ import MapValues
         ( Item
         , Position
         , RouteSummary
-        , RoutePoint
         , itemListDecoder
         , positionDecoder
         , positionEncoder
         , positionToString
         , routeSummaryListDecoder
         , routeParamEncoder
+        , routeSummaryEncoder
         )
 
 import Landmark
@@ -33,10 +33,6 @@ import Landmark
         )
 
 
-import Page.MapView.RouteView as RouteView
-import Page.MapView.ViewSummary as ViewSummary
-
-
 
 -- Map ports
 port mapLoad : () -> Cmd msg
@@ -48,8 +44,10 @@ port mapSearch : String -> Cmd msg
 port mapSearchResponse : (Value -> msg) -> Sub msg
 port mapSearchFailed : (String -> msg) -> Sub msg
 
---port mapRoutesCalculate : Value -> Cmd msg
---port mapRoutesResponse : (Value -> msg) -> Sub msg
+port mapRoutesCalculate : Value -> Cmd msg
+port mapRoutesResponse : (Value -> msg) -> Sub msg
+port mapRoutesErr : (String -> msg ) -> Sub msg
+port mapRoutesShowSelected : Value -> Cmd msg
 
 
 -- Markers
@@ -74,7 +72,7 @@ subscriptions =
         , mapMarkerOpenSummary (\id -> InfoOpen (Just id))
         , mapSearchResponse (decodeValue itemListDecoder >> MapSearchResponse)
         , mapSearchFailed (\err -> MapSearchError err)
-        --, mapRoutesResponse (decodeValue routeSummaryListDecoder >> MapRoutesResponse)
+        , mapRoutesResponse (decodeValue routeSummaryListDecoder >> MapRoutesResponse)
 
         -- Geoservices
         , geoserviceLocationReceive (decodeValue positionDecoder >> GeoserviceLocationReceive)
@@ -92,6 +90,9 @@ init =
       , mapStatus = MapNotLoaded ""
       , startPoint = StartPointInvalid ""
       , endPoint = EndPointInvalid ""
+      , mapRoutes = RoutesUnavailable
+      , selectedRoute = Nothing
+      , transport = Car
       , landmarksList = []
       , landmarkSummaryList = Dict.empty
       , landmarkSummary = SummaryInvalid
@@ -107,6 +108,9 @@ type alias Model =
     , mapStatus : MapStatus
     , startPoint : RoutePoint
     , endPoint : RoutePoint
+    , mapRoutes : MapRoutes
+    , selectedRoute : Maybe RouteSummary
+    , transport : Transport
     , landmarksList : List Landmark
     , landmarkSummary : SummaryType
     , landmarkSummaryList : Dict Int Summary
@@ -115,11 +119,23 @@ type alias Model =
     }
 
 
+type MapRoutes
+    = RoutesUnavailable
+    | RoutesCalculating
+    | RoutesResponse (List RouteSummary)
+    | RoutesResponseErr String
+
+
+type Transport
+    = Car
+    | Walk
+
+
 type InfoMode
     = Closed
-    | ViewSummary ViewSummary.Model
+    | ViewSummary
     | ViewDirections
-    | ViewRoute RouteView.Model
+    | ViewRoute
 
 
 type MapStatus
@@ -153,7 +169,6 @@ type RoutePoint
 
 type Msg
     = NoOp
-    | ViewRouteMsg RouteView.Msg
       -- MapStatus
     | MapLoadedOk
     | MapLoadedErr String
@@ -161,8 +176,11 @@ type Msg
     | MapSearchResponse (Result Json.Decode.Error (List Item))
     | MapSearchClear
     | MapSearchError String
-    --
+    | MapRoutesResponse (Result Json.Decode.Error (List RouteSummary))
     | MapRoutesUpdate RoutePoint
+    | MapRoutesTransport Transport
+    | MapRouteSelected RouteSummary
+    | MapRouteShowOnMap RouteSummary
       -- Info Element
     | InfoOpen (Maybe Int)
     | InfoOpenDirections String Position
@@ -178,69 +196,40 @@ type Msg
     | LoadLandmarskWiki (Result Http.Error Summary)
 
 
-
-processOutMsg : RouteView.OutMsg -> Model -> (Model, Cmd Msg)
-processOutMsg outMsg model =
-    case outMsg of 
-        RouteView.NoOutMsg ->
-            (model, Cmd.none)
-
-        RouteView.BackToDirections address position ->
-            ( { model
-                | infoMode = ViewDirections
-                , endPoint = EndPointValid address position
-              }
-            , geoserviceLocationGet ()
-            )
-
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( msg, model.infoMode) of
-        ( NoOp, _ ) ->
+    case msg of
+        NoOp ->
             ( model, Cmd.none )
 
-        ( ViewRouteMsg childMsg, ViewRoute pageModel ) ->
-            let 
-                (newChild, childCmds, outMsg) = 
-                    RouteView.update childMsg pageModel
-
-                (newModel, cmdsFromChild) = 
-                    processOutMsg outMsg { model | infoMode = ViewRoute newChild }
-
-            in
-            (newModel, Cmd.batch[ Cmd.map ViewRouteMsg childCmds, cmdsFromChild ] ) 
-
-
-        ( MapLoadedOk, _ ) ->
+        MapLoadedOk ->
             ( { model | mapStatus = MapLoaded }
             , getLandmarksRequest "/../assets/data.json"
             )
 
-        ( MapLoadedErr err, _ ) ->
+        MapLoadedErr err ->
             ( { model | mapStatus = MapNotLoaded err }, Cmd.none )
 
-        ( MapMarkerAddDefault position, _ ) ->
+        MapMarkerAddDefault position ->
             ( model, Cmd.none )
 
-        ( MapSearchResponse (Ok items), _ )  ->
+        MapSearchResponse (Ok items) ->
             ( { model | addressResults = AddressResultsLoaded items }, Cmd.none )
 
-        ( MapSearchResponse (Err items), _ ) ->
+        MapSearchResponse (Err items) ->
             ( { model | addressResults = AddressResultsErr "Response body is incorrect" }, Cmd.none )
 
-        ( MapSearchClear, _ ) ->
+        MapSearchClear ->
             ( { model | addressResults = AddressResultsEmpty }, Cmd.none )
 
-        ( MapSearchError err, _ ) ->
+        MapSearchError err ->
             let
                 _ = Debug.log "err" err
                 --"Fetching suggestions has failed"
             in
             ( { model | addressResults = AddressResultsErr err }, Cmd.none )
 
-        ( MapRoutesUpdate routePoint, _ ) ->
+        MapRoutesUpdate routePoint ->
             case routePoint of
                 StartPointValid address position ->
                     ({ model | startPoint = routePoint }, Cmd.none)
@@ -254,12 +243,34 @@ update msg model =
                 EndPointInvalid address ->
                     ({ model | endPoint = routePoint }, mapSearchHelper address model)
 
+        MapRoutesResponse (Ok routesList) ->
+            ( { model | mapRoutes = RoutesResponse routesList }, Cmd.none)
+
+        MapRoutesResponse (Err routesList) ->
+            ( { model | mapRoutes = RoutesResponseErr "There is something wrong with the resonse" }
+            , Cmd.none 
+            )
+
+        MapRoutesTransport transport ->
+            let
+                newModel = { model | transport = transport }
+            in
+            ( newModel, mapRoutesHelper newModel )
+
+        MapRouteSelected selectedRoute ->
+            ( { model | selectedRoute = (Just selectedRoute) }
+            , mapRoutesShowSelected (routeSummaryEncoder selectedRoute) 
+            )
+
+        MapRouteShowOnMap routeSummary ->
+            (model, Cmd.none )
+
 
         -- InfoView
-        ( InfoOpen (Just id), _ ) ->
+        InfoOpen (Just id) ->
             case Dict.get id model.landmarkSummaryList of
                 Just landmarkSummary ->
-                    ( { model | infoMode = ViewSummary landmarkSummary
+                    ( { model | infoMode = ViewSummary
                       , landmarkSummary = SummaryValid landmarkSummary
                       , addressResults = AddressResultsEmpty
                       }
@@ -269,10 +280,10 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        ( InfoOpen Nothing, _ ) ->
+        InfoOpen Nothing ->
             ( { model | infoMode = ViewSummary }, Cmd.none )
 
-        ( InfoClose, _ ) ->
+        InfoClose ->
             ( { model | infoMode = Closed
               , landmarkSummary = SummaryInvalid 
               , addressResults = AddressResultsEmpty
@@ -280,7 +291,7 @@ update msg model =
             , Cmd.none
             )
 
-        ( InfoOpenDirections address position, _ ) ->
+        InfoOpenDirections address position ->
             ( { model
                 | infoMode = ViewDirections
                 , endPoint = EndPointValid address position
@@ -288,47 +299,42 @@ update msg model =
             , geoserviceLocationGet ()
             )
 
-        ( InfoOpenRoute, _ ) ->
-            ( model
-                --{ model | 
-                --infoMode = ViewRoute RouteView.
-                -- mapRoutes = RoutesCalculating 
-                --}
-            --, mapRoutesHelper model
-            , Cmd.none
+        InfoOpenRoute ->
+            ( { model | infoMode = ViewRoute, mapRoutes = RoutesCalculating }
+            , mapRoutesHelper model
             )
 
-        ( InfoUpdateRouteFocus redactedPoint, _ ) ->
+        InfoUpdateRouteFocus redactedPoint ->
             ( { model | redactedRoutePoint = redactedPoint}, Cmd.none )
 
 
         -- Directions
-        ( GeoserviceLocationReceive (Ok currentPosition), _ ) ->
+        GeoserviceLocationReceive (Ok currentPosition) ->
             ( { model | startPoint = StartPointValid "Current Position" currentPosition }
             , Cmd.none
             )
 
-        ( GeoserviceLocationReceive (Err invalidPosition), _ ) ->
+        GeoserviceLocationReceive (Err invalidPosition) ->
             ( { model | addressResults = AddressResultsErr "Invalid Position" }
             , Cmd.none
             )
 
-        ( GeoserviceLocationError err, _ ) ->
+        GeoserviceLocationError err ->
             ( { model | addressResults = AddressResultsErr err }
             , Cmd.none
             )
 
         -- Received data.json
-        ( LoadLandmarksList (Ok landmarksList), _ )  ->
+        LoadLandmarksList (Ok landmarksList) ->
             ( { model | landmarksList = landmarksList }
             , Cmd.batch (List.map getLandmarkWiki landmarksList)
             )
 
-        ( LoadLandmarksList (Err landmarksList), _ ) ->
+        LoadLandmarksList (Err landmarksList) ->
             ( model, Cmd.none )
 
         -- Received Wikipedia summary pages
-        ( LoadLandmarskWiki (Ok summary), _ ) ->
+        LoadLandmarskWiki (Ok summary) ->
             ( { model
                 | landmarkSummaryList =
                     model.landmarkSummaryList
@@ -337,14 +343,32 @@ update msg model =
             , mapMarkerAddCustom (markerInfoEncoder summary)
             )
 
-        ( LoadLandmarskWiki (Err summary), _ ) ->
+        LoadLandmarskWiki (Err summary) ->
             ( model, Cmd.none )
 
 
-        -- FALLBACK
-        ( _, _ ) -> 
-            ( model, Cmd.none )
+mapRoutesHelper : Model -> Cmd Msg
+mapRoutesHelper { startPoint, endPoint, transport }  =
+    case (startPoint, endPoint ) of 
+        (StartPointValid _ origin, EndPointValid _ destination ) ->
+            let 
+                transportMode = transportModeHelper transport
+                params = routeParamEncoder origin destination transportMode
+            in
+            mapRoutesCalculate params
 
+        _ ->
+            Cmd.none
+
+
+transportModeHelper : Transport -> String
+transportModeHelper transport =
+    case transport of 
+        Car ->
+            "car"
+
+        Walk ->
+            "pedestrian"
 
 
 
@@ -430,11 +454,168 @@ viewMode model =
                 ViewDirections ->
                     viewDirection model
 
-                ViewSummary pageModel ->
+                ViewSummary ->
                     viewSummary model.landmarkSummary
 
-                ViewRoute pageModel ->
-                    Html.map ViewRouteMsg (RouteView.view pageModel)
+                ViewRoute ->
+                    viewRoute model
+
+
+
+-- ROUTE
+
+
+viewRoute : Model -> Html Msg
+viewRoute model =
+    div [ class "info-container" ] 
+        [ viewRouteViewControls model.startPoint model.endPoint model.selectedRoute
+        , viewTransportControls model.transport
+        , hr [ style "heigth" "1px", style "width" "100%" ] []
+        , viewRouteResults model.mapRoutes model.selectedRoute
+        ]
+
+
+viewRouteViewControls : RoutePoint -> RoutePoint -> Maybe RouteSummary -> Html Msg
+viewRouteViewControls startPoint endPoint maybeRouteSummary =
+    case ( startPoint, endPoint, maybeRouteSummary ) of 
+        ( _ , EndPointValid address position, Nothing ) ->
+            div [ class "info-controls-container"]
+                [ button 
+                    [ classList 
+                        [ ( "info-control", True )
+                        , ( "close", True )
+                        ]
+                    , onClick (InfoOpenDirections address position)
+                    ]
+                    [ text "Back" ]
+                --, button
+                --    [ classList
+                --        [ ( "info-control", True )
+                --        , ( "start-navigation", True )
+                --        , ( "button-disabled", True )
+                --        ]
+                --    , disabled True
+                --    ]
+                --    [ text "Go" ]
+                ]
+
+        ( StartPointValid _ startPosition, EndPointValid endAddress endPosition, Just routeSummary ) ->
+            div [ class "info-controls-container"]
+                [ button 
+                    [ classList 
+                        [ ( "info-control", True )
+                        , ( "close", True )
+                        ]
+                    , onClick (InfoOpenDirections endAddress endPosition)
+                    ]
+                    [ text "Back" ]
+                , button
+                    [ classList
+                        [ ( "info-control", True )
+                        , ( "start-navigation", True )
+                        , ( "button-disabled", False )
+                        ]
+                    , disabled False
+                    , onClick (MapRouteShowOnMap routeSummary)
+                    ]
+                    [ text "Go" ]
+                ]
+
+        ( _, _ , _ ) ->
+            let 
+                _ = Debug.log "startPoint" startPoint
+                _ = Debug.log "endPoint" endPoint
+                _ = Debug.log "maybeRouteSummary" maybeRouteSummary
+            in
+            text ""
+
+
+viewTransportControls : Transport -> Html Msg
+viewTransportControls transport =
+    let 
+
+        isCarChosen = 
+            case transport of
+                Car ->
+                    True
+
+                Walk ->
+                    False
+
+        isWalkChosen = not isCarChosen 
+    in
+    div [ class "info-controls-container"]
+        [ button 
+            [ classList 
+                [ ( "info-control", True )
+                , ( "transport", True )
+                , ( "selected-transport", isCarChosen )
+                ]
+            , onClick (MapRoutesTransport Car)
+            ]
+            [ text "Car" ]
+        , button
+            [ classList
+                [ ( "info-control", True )
+                , ( "transport", True )
+                , ( "selected-transport", isWalkChosen )
+                ]
+            , onClick (MapRoutesTransport Walk)
+            ]
+            [ text "Walk" ]
+        ]
+
+
+viewRouteResults : MapRoutes -> Maybe RouteSummary -> Html Msg
+viewRouteResults mapRoute routeId =
+    case mapRoute of 
+        RoutesUnavailable ->
+            p [ style "text-align" "center" ] [ text "No Routes available" ]
+
+        RoutesCalculating ->
+            p [ style "text-align" "center" ] [ text "Calculating Routes..." ]
+
+        RoutesResponseErr err ->
+            p [ style "text-align" "center" ] [ text err ]
+
+        RoutesResponse routesList ->
+            div [ id "routes-results" ]
+                (List.map (viewRouteSuggestion routeId) routesList )
+
+
+viewRouteSuggestion : Maybe RouteSummary -> RouteSummary ->  Html Msg
+viewRouteSuggestion maybeRoute routeSummary =
+    let
+        isSelected =
+            case maybeRoute of
+                Just route ->
+                    if route.id == routeSummary.id then
+                        True
+
+                    else
+                        False
+
+                Nothing ->
+                    False
+    in
+    div 
+        [ classList 
+            [ ( "route-suggestion", True) 
+            ]
+        , onClick (MapRouteSelected routeSummary)
+        ] 
+        [ div 
+            [ classList 
+                [ ( "route-indicator", True )
+                , ( "selected-route", isSelected )
+                ] 
+            ] 
+            []
+        , p [] [ text routeSummary.duration ]
+        , p [] [ text routeSummary.distance ]
+        ]
+
+
 
 
 
@@ -479,7 +660,7 @@ infoControlsContainer routeAccess =
                 , ( "button-disabled", routeAccess )
                 ]
             , disabled routeAccess
-            --, onClick InfoOpenRoute (model, )
+            , onClick InfoOpenRoute
             ]
             [ text "Route" ]
         ]
