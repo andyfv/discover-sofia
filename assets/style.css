@@ -353,7 +353,8 @@ body {
         padding: 10px;
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: flex-start;
+        align-items: center; 
     }
 
     .route-suggestion:checked {
@@ -371,6 +372,7 @@ body {
         font-size: 1.1em;
         color: #424242;
         font-weight: lighter;
+        flex: 1 0 auto;
     }
 
     .route-suggestion:hover {
@@ -379,14 +381,24 @@ body {
         --webkit-box-shadow: 0px 0px 0px 4px #40ff82;
     }
 
-    .vertical-line {
-        border-left: 1px solid gray;
-        width: 0px;
+    .route-indicator {
+        border-radius: 50%;
+        width: 10px;
         height: inherit;
+        height: 10px;
+        background-color: grey;
+        margin-right: 20px;
+
     }
 
     .selected-route {
+        background-color: lime;
+    }
 
+
+    .start-navigation {
+        background-color: #00dba8;
+        color: #fff;
     }
 }
 
