@@ -1,12 +1,15 @@
 module Main exposing (main)
 
-import Html 
+import Html
+import Html.Lazy exposing (lazy)
+
 import Dict exposing (Dict)
 import Url exposing (Url)
 import Browser.Navigation as Nav
 import Browser.Events exposing (onResize)
 import Browser exposing (UrlRequest, Document)
 --
+import TF as TF
 import Route as Route exposing (Route)
 import Viewport as Viewport exposing (view, viewNotFound)
 import NavBar as NavBar
@@ -14,9 +17,6 @@ import NavBar as NavBar
 import Page.Map as Map
 import Page.Camera as Camera
 import Page.Photos as Photos
-
-
---port mapInitialized : (() -> msg) -> Sub msg
 
 
 
@@ -39,7 +39,8 @@ type alias Model =
     , route : Route
     , navKey : Nav.Key
     , navBarModel : NavBar.Model
-    , initiatedPages : Dict String Page
+    --, initiatedPages : Dict String Page
+    , tfStatus : TF.TFStatus
     }
 
 
@@ -63,6 +64,7 @@ type Msg
     | NavBarMsg NavBar.Msg
 
     -- 
+    | TFStatusMsg Bool
 
 
 
@@ -71,8 +73,11 @@ type Msg
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch 
-        [ onResize (\_ _ -> NavBarMsg NavBar.ViewportChanged) 
+        [ onResize (\_ _ -> NavBarMsg NavBar.ViewportChanged)
+        , Sub.map TFStatusMsg (TF.tfStatus (\statusMsg -> statusMsg) )
         , Sub.map MapMsg Map.subscriptions
+        , Sub.map PhotosMsg Photos.subscriptions
+        , Sub.map CameraMsg Camera.subscriptions
         ]
 
 
@@ -86,10 +91,11 @@ init flags url navKey =
         (navBarModel, headerCmds) = NavBar.init
         model =
             { route = route
-            , initiatedPages = Dict.empty
+            --, initiatedPages = Dict.empty
             , page = NotFoundPage
             , navKey = navKey
             , navBarModel = navBarModel
+            , tfStatus = TF.NotLoaded
             }
     in
     initCurrentPage (model, Cmd.batch [ Cmd.map NavBarMsg headerCmds ])
@@ -108,17 +114,17 @@ initCurrentPage (model, existingCmds) =
                     updateWith MapPage MapMsg Map.init
 
                 Route.Camera ->
-                    updateWith CameraPage CameraMsg Camera.init
+                    updateWith CameraPage CameraMsg (Camera.init model.tfStatus)
 
                 Route.Photos ->
-                    updateWith PhotosPage PhotosMsg Photos.init
+                    updateWith PhotosPage PhotosMsg (Photos.init model.tfStatus)
 
                 Route.MapLandmark landmark ->
                     updateWith MapPage MapMsg Map.init
 
     in
     ( { model | page = currentPage
-    , initiatedPages = Dict.insert (Route.routeToString model.route) currentPage model.initiatedPages 
+    --, initiatedPages = Dict.insert (Route.routeToString model.route) currentPage model.initiatedPages 
     }
     , Cmd.batch [ existingCmds, mappedPageCmds ]
     )
@@ -165,8 +171,16 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case ( model.page, msg ) of 
         ( MapPage pageModel, MapMsg subMsg ) ->
-            (Map.update subMsg pageModel)
+            ( Map.update subMsg pageModel )
             |> updateWithModel MapPage MapMsg model
+
+        ( PhotosPage pageModel, PhotosMsg subMsg ) ->
+            ( Photos.update subMsg pageModel )
+            |> updateWithModel PhotosPage PhotosMsg model
+
+        ( CameraPage pageModel, CameraMsg subMsg ) ->
+            ( Camera.update subMsg pageModel )
+            |> updateWithModel CameraPage CameraMsg model
 
         --( _, MapMsg subMsg) ->
         --    (Map.update submsg pageModel)
@@ -182,16 +196,26 @@ update msg model =
 
 
 
+        -- TF Status 
+        ( _ , TFStatusMsg statusMsg ) ->
+            case statusMsg of 
+                True ->
+                    ( { model | tfStatus = TF.Loaded }, Cmd.none )
+
+                False ->
+                    ( { model | tfStatus = TF.NotLoaded}, Cmd.none )
+
+
         -- URL UPDATES
         ( _ , UrlChanged url ) ->
             let 
                 route = Route.fromUrl url
             in
-            case Dict.get (Route.routeToString route) model.initiatedPages of
-                Just page ->
-                    ({ model | page = page, route = route }, Cmd.none) 
+            --case Dict.get (Route.routeToString route) model.initiatedPages of
+            --    Just page ->
+            --        ({ model | page = page, route = route }, Cmd.none) 
 
-                Nothing ->
+            --    Nothing ->
                     initCurrentPage
                       ({ model | route = route }, Cmd.none)
 
@@ -202,22 +226,22 @@ update msg model =
         ( _ , LinkClicked urlRequest ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    let
-                        currentRoute = Route.routeToString model.route
-                    in
-                    case Dict.get currentRoute model.initiatedPages of
-                        Just page ->
-                            ( { model | initiatedPages = 
-                                            Dict.update 
-                                            currentRoute 
-                                            (\_ -> Just model.page) 
-                                            model.initiatedPages 
-                              }
-                            , Nav.pushUrl model.navKey (Url.toString url)
-                            --, Cmd.none
-                            )
+                    --let
+                    --    currentRoute = Route.routeToString model.route
+                    --in
+                    --case Dict.get currentRoute model.initiatedPages of
+                    --    Just page ->
+                    --        ( { model | initiatedPages = 
+                    --                        Dict.update 
+                    --                        currentRoute 
+                    --                        (\_ -> Just model.page) 
+                    --                        model.initiatedPages 
+                    --          }
+                    --        , Nav.pushUrl model.navKey (Url.toString url)
+                    --        --, Cmd.none
+                    --        )
 
-                        Nothing -> 
+                    --    Nothing -> 
                             ( model
                             , Nav.pushUrl model.navKey (Url.toString url)
                             )
