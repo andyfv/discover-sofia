@@ -13,7 +13,8 @@
 	<div id="app"></div>
 
     <script type="module">
-        import * as HereMapsAPI from '/src/HereMapsAPI.js'
+        import * as HereMapsAPI from '/src/HereMapsAPI.js';
+        import * as TF from '/src/TensorFlow.js';
 
         var app = Elm.Main.init({
             node: document.getElementById("app")
@@ -24,38 +25,42 @@
             HereMapsAPI.loadMapLibs()
             .then(() => HereMapsAPI.createMapHTML())
             .then(() => HereMapsAPI.initMap())
-            .then(() => app.ports.mapLoaded.send(null))
-            .catch((error) => {
-                console.log(error);
-                app.ports.mapLoadingFailed.send("Loading the map Failed")
-            });
+            .then(() => app.ports.mapLoadingStatus.send("loaded"))
+            .catch((error) => app.ports.mapLoadingStatus.send("failed"));
         });
 
 
         // Send showLandmarkSummary port as a callback function
         app.ports.mapMarkerAddCustom.subscribe((landmark) => {
-            HereMapsAPI.addMarker(landmark, app.ports.mapMarkerOpenSummary.send)
+            HereMapsAPI.addMarker(
+                landmark, 
+                app.ports.mapMarkerOpenSummary.send
+            );
         });
 
-        // Search communication
+
+        app.ports.mapMarkerShowAll.subscribe(async () => {
+            await HereMapsAPI.cleanRouteGroup();
+            await HereMapsAPI.showMarkerGroup();
+        })
+
+
+        // Get location if available on the device. Otherwise return error.
+        app.ports.geoserviceLocationCall.subscribe(() => {
+            HereMapsAPI.getGeolocation(app.ports.geoserviceLocationReceive.send);
+        });
+
+
+        // Address search communication
         app.ports.mapSearch.subscribe((query) => {
             HereMapsAPI.search(
-                query, 
-                app.ports.mapSearchResponse.send,
-                app.ports.mapSearchFailed.send
+                query
+                , app.ports.mapSearchResponse.send
                 );
         });
 
 
-        // Get location if available on the device. Otherwise return error.
-        app.ports.geoserviceLocationGet.subscribe(() => {
-            HereMapsAPI.getGeolocation(
-                app.ports.geoserviceLocationReceive.send,
-                app.ports.geoserviceLocationError.send
-            );
-        });
-
-        // Map Routes communication 
+        // Map Routes Communication
         app.ports.mapRoutesCalculate.subscribe((params) => {
             HereMapsAPI.routing(
                 params,
@@ -63,6 +68,7 @@
             );
         });
 
+        // Send the selected route to be displayed
         app.ports.mapRoutesShowSelected.subscribe((route) => {
             HereMapsAPI.addRouteShapeToMap(
                 route
@@ -70,6 +76,32 @@
         });
 
 
+        // Load the TF.js model
+        app.ports.tfLoad.subscribe(() => {
+            TF.loadLibs()
+            // .then(() => TF.loadJSModel())
+            .then(() => TF.loadModel(
+                    app.ports.tfStatus.send, 
+                    app.ports.tfPredictResult.send
+                )
+            )
+            // .then(() => app.ports.status.send(true))
+            .catch(() => app.ports.tfStatus.send(false))
+        });
+
+
+        // Tell the model to predict the loaded image
+        app.ports.tfImagePredict.subscribe((imgSrc) => {
+            TF.predictImage(imgSrc);
+        });
+
+
+        // Tell the model to predict the video stream from the camera
+        app.ports.tfVideoPredict.subscribe(() => {
+            TF.createVideoElement()
+            .then((values) => TF.predictVideo(values))
+            .catch((err) => console.log(err.message));
+        });
 
     </script>
 </body>
