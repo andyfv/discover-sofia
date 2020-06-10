@@ -5,6 +5,29 @@ const stringDecoder = new TextDecoder;
 var model,
     worker;
 
+const classes = {
+    0: 'Alexander Nevski',
+    1: 'Holy Synod',
+    2: 'Ivan Vazov Theater',
+    3: 'Monument to the Soviet Army',
+    4: 'National Gallery for Foreign Art',
+    5: 'National Opera and Ballet',
+    6: 'National Palace of Culture',
+    7: 'Regional History Museum',
+    8: 'Russian Church',
+    9: 'Church of Saint George',
+    10: 'Cathedral of St Joseph',
+    11: 'Saint Sofia Church',
+    12: 'Seven Saints Church',
+    13: 'Slaveykov Square',
+    14: 'Sofia Synagogue',
+    15: 'Sofia University',
+    16: 'St Nedelya Church',
+    17: 'Church of St Paraskeva',
+    18: 'Monument to the Tsar Liberator ',
+    19: 'Vasil Levski Monument'
+}
+
 // Load the TensorFlow library or return error
 export function loadLibs() {
     return loadLibrary(LIBS)
@@ -130,52 +153,37 @@ function loadWorkerModel(onLoad, onResult) {
     let worker = new Worker("src/worker.js");
 
     worker.onmessage = (e) => {
-        let msg = e.data.msg;
-        if (msg == "modelReady") { onLoad(true) }
-        else if (msg == "modelFailed" ) { onLoad(false) }
-        else { console.log(modelReady) }
-        // let msg = e.data;
-        // switch(msg) {
-        //     case (1) : 
-        //         onLoad(true);
-        //         break;
 
-        //     case (2) :
-        //         onLoad(false);
-        //         break;
 
-        //     case (3) :
-        //         console.log(e.data);
-        //         onResult({ result : e.data.result });
-        //         break;
+        let msg = new Uint8Array(e.data.slice(0,1));
 
-        //     default :
-        //         onResult({ error: "Message from Web Worker not understood"});
-        //         console.log("Message not understood: " + e.data);
-        //         break;           
-        // };
+        if (msg[0] == 1) { onLoad(true) }
+        else if (msg[0] == 2 ) { onLoad(false) }
+        else if (msg[0] == 3 ) {
+            let indexBuffer = new Uint8Array(e.data.slice(1,2));
+            let percBuffer = new Uint8Array(e.data.slice(2,9));
+
+            // console.log(
+            //     { result : 
+            //         { 
+            //             className : classes[indexBuffer],
+            //             percentage: decodeBuffer(percBuffer)
+            //         }
+            //     });
+
+            onResult(JSON.stringify(
+                { result : 
+                    { 
+                        className : classes[indexBuffer],
+                        percentage: decodeBuffer(percBuffer)
+                    }
+                })
+            );
+        }
+        else { 
+            console.log("command not underestood");
+        }
     };
-
-    // worker.onmessage = (e) => {
-    //     let msg = decodeBuffer(e.data[0]);
-
-    //     if (msg == "result") {
-    //         onResult({ result : { 
-    //             className : e.data.className,
-    //             percentage: e.data.percentage
-    //             } 
-    //         });
-    //     }
-    //     else if (msg == "modelLoaded") {
-    //         onLoad(true);
-    //     }
-    //     else if (msg == "modelFailed") {
-    //         onLoad(false);
-    //     }
-    //     else {
-    //         console.log("command not recognized");
-    //     }
-    // }
 
     return worker;
 }
@@ -200,8 +208,9 @@ export async function predictImage(imgSrc, callback) {
             tf.image.resizeBilinear(tf.browser.fromPixels(imgEl), [224,224])
         )
 
-        let imgArr = await tensor.array();
-            worker.postMessage(JSON.stringify(imgArr));
+        let imgArr = await tensor.buffer();
+
+        worker.postMessage(imgArr.values, [imgArr.values.buffer]);
 
         // Dispose the tensors to free the memory
         tensor.dispose();

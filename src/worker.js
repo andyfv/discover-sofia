@@ -6,46 +6,23 @@ try {
 
 var model;
 const stringEncoder = new TextEncoder;
-const classes = {
-    0: 'Alexander Nevski',
-    1: 'Holy Synod',
-    2: 'Ivan Vazov Theater',
-    3: 'Monument to the Soviet Army',
-    4: 'National Gallery for Foreign Art',
-    5: 'National Opera and Ballet',
-    6: 'National Palace of Culture',
-    7: 'Regional History Museum',
-    8: 'Russian Church',
-    9: 'Church of Saint George',
-    10: 'Cathedral of St Joseph',
-    11: 'Saint Sofia Church',
-    12: 'Seven Saints Church',
-    13: 'Slaveykov Square',
-    14: 'Sofia Synagogue',
-    15: 'Sofia University',
-    16: 'St Nedelya Church',
-    17: 'Church of St Paraskeva',
-    18: 'Monument to the Tsar Liberator ',
-    19: 'Vasil Levski Monument'
-}
-
 
 async function app() {
     try {
         model = await tf.loadGraphModel('/assets/tfjs_model_quantized_2/model.json');
     } catch (e) {
-        // let msg = new Uint8Array([1]);
-        // postMessage([msg], [msg.buffer]);
-        postMessage({ msg : "modelFailed"});
+        let msg = new Uint8Array([2]);
+        postMessage(msg, [msg.buffer]);
+        // postMessage(JSON.stringify({ msg : "modelFailed"}));
     }
 
     tf.enableProdMode();
 
     warmUp();
 
-    // let msg = new Uint8Array([2]);
-    // postMessage([msg], [msg.buffer]);
-    postMessage({ msg : "modelReady"});
+    let msg = new Uint8Array([1]);
+    postMessage(msg, [msg.buffer]);
+    // postMessage(JSON.stringify({ msg : "modelReady"}));
 }
 
 async function warmUp() {
@@ -82,41 +59,33 @@ onmessage = async function(e) {
 
 
     // Get the predicted class
-    let index = tf.argMax(predictionArr);
-    let predictedClassIndex = await index.data()
-        .then((indexArr) => indexArr[0])
+    let indexTensor = tf.argMax(predictionArr);
+    let predictedIndex = await indexTensor.data()
+        .then((index) => index[0])
 
-    // console.log({ result : { 
-    //             className : predictedClass, 
-    //             percentage : Math.round((predictedPerc + Number.EPSILON) * 10000) / 10000
-    //         }
-    //     });
 
-    // console.log();
 
     let resultPerc = encodeString(predictedPerc.toFixed(4));
-    let resultClass = new  Uint8Array([predictedClassIndex]);
-    // let result = new Uint8Array([0]);
-    let msgArray = new Uint32Array([result.buffer, resultPerc.buffer, resultClass.buffer]);
+    let resultClass = new Uint8Array([predictedIndex]);
+    let result = new Uint8Array([3]);
 
-    // console.log(msgArray);
 
-    postMessage(JSON.stringify(
-        { msg : "result" 
-        , resultClass: resultClass
-        , resultPerc: resultPerc 
-        }
-        )
-    );
-        // [ result.buffer, resultClass.buffer, resultPerc.buffer]
+
+    let full = new Uint8Array([...result, ...resultClass, ...resultPerc,]);
+
+    // console.log(full);
+
+    postMessage(full, [full.buffer]);
+    
+
 
     // postMessage(JSON.stringify(
-    //     { result : { 
-    //             className : predictedClass, 
-    //             percentage : Math.round((predictedPerc + Number.EPSILON) * 10000) / 10000
-    //         }
-    //     }
-    // ));
+    //     { msg : "result" 
+    //     , className: predictedClass
+    //     , percentage: predictedPerc.toFixed(4) 
+    //     })
+    //     );
+        // [ result.buffer, resultClass.buffer, resultPerc.buffer]
 
 
     // Dispose the tensors to free the memory
@@ -124,7 +93,7 @@ onmessage = async function(e) {
     prediction.dispose();
     scaled.dispose();
     expanded.dispose();
-    index.dispose();
+    indexTensor.dispose();
     img.dispose();
 
 
