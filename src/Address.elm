@@ -2,6 +2,7 @@ module Address exposing
     ( Item
     , Address
     , Position
+    , AddressResults(..)
     , itemListDecoder
     , itemDecoder
     , addressDecoder
@@ -14,6 +15,14 @@ module Address exposing
 import Json.Encode as Encode exposing (Value, object)
 import Json.Decode as Decode exposing (Decoder,  int, string, list, float, decodeValue)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt, hardcoded)
+
+
+type AddressResults
+    = AddressResultsEmpty
+    | AddressResultsLoading
+    | AddressResultsLoaded (List Address)
+    | AddressResultsErr String
+
 
 type alias Item = 
     { address : Address

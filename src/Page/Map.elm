@@ -4,60 +4,40 @@ import Http
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, onClick, onInput, onMouseEnter, onMouseLeave, onFocus)
-import Json.Decode exposing (Error, Value, decodeValue)
+import Html.Events exposing (..)
+import Html.Lazy exposing (lazy)
+import Json.Decode as Decode exposing (Error, Value, decodeValue)
+import Json.Decode.Pipeline as DecodePipe
 import Url.Builder as UrlBuilder exposing (crossOrigin)
 
-import MapValues
-    exposing
-        ( Item
-        , Position
-        , RouteSummary
-        , itemListDecoder
-        , positionDecoder
-        , positionEncoder
-        , positionToString
-        , routeSummaryListDecoder
-        , routeParamEncoder
-        , routeSummaryEncoder
-        )
+import Page.MapView.RouteView
 
-import Landmark
-    exposing
-        ( Landmark
-        , Summary
-        , SummaryType(..)
-        , landmarkListDecoder
-        , markerInfoEncoder
-        , summaryDecoder
-        )
+import MapHelper as MH exposing (Position, RouteSummary, MapRoutes)
+import Landmark as Landmark exposing ( Landmark, Summary, SummaryType )
 
 
 
 -- Map ports
 port mapLoad : () -> Cmd msg
-port mapLoaded : (() -> msg) -> Sub msg
-port mapLoadingFailed : (String -> msg) -> Sub msg
+port mapLoadingStatus : (String -> msg) -> Sub msg
+
+-- Markers
+port mapMarkerAddCustom : Value -> Cmd msg
+port mapMarkerShowAll : () -> Cmd msg
+port mapMarkerOpenSummary : (Int -> msg) -> Sub msg
 
 -- Search
 port mapSearch : String -> Cmd msg
 port mapSearchResponse : (Value -> msg) -> Sub msg
-port mapSearchFailed : (String -> msg) -> Sub msg
 
 port mapRoutesCalculate : Value -> Cmd msg
 port mapRoutesResponse : (Value -> msg) -> Sub msg
-port mapRoutesErr : (String -> msg ) -> Sub msg
 port mapRoutesShowSelected : Value -> Cmd msg
 
 
--- Markers
-port mapMarkerAddCustom : Value -> Cmd msg
-port mapMarkerOpenSummary : (Int -> msg) -> Sub msg
-
 -- Directions ports
-port geoserviceLocationGet : () -> Cmd msg
+port geoserviceLocationCall : () -> Cmd msg
 port geoserviceLocationReceive : (Value -> msg) -> Sub msg
-port geoserviceLocationError : (String -> msg) -> Sub msg
 
 
 
@@ -67,16 +47,13 @@ port geoserviceLocationError : (String -> msg) -> Sub msg
 subscriptions : Sub Msg
 subscriptions =
     Sub.batch
-        [ mapLoaded (\_ -> MapLoadedOk)
-        , mapLoadingFailed (\err -> MapLoadedErr err)
+        [ mapLoadingStatus (\mapStatus -> MapStatusMsg mapStatus)
         , mapMarkerOpenSummary (\id -> InfoOpen (Just id))
-        , mapSearchResponse (decodeValue itemListDecoder >> MapSearchResponse)
-        , mapSearchFailed (\err -> MapSearchError err)
-        , mapRoutesResponse (decodeValue routeSummaryListDecoder >> MapRoutesResponse)
+        , mapSearchResponse (decodeValue MH.itemListDecoder >> MapSearchResponse)
+        , mapRoutesResponse (decodeValue MH.routeSummaryListDecoder >> MapRoutesResponse)
 
         -- Geoservices
-        , geoserviceLocationReceive (decodeValue positionDecoder >> GeoserviceLocationReceive)
-        , geoserviceLocationError (\message -> GeoserviceLocationError message)
+        , geoserviceLocationReceive (decodeValue MH.positionDecoder >> GeoserviceLocationReceive)
         ]
 
 
@@ -87,17 +64,17 @@ subscriptions =
 init : ( Model, Cmd Msg )
 init =
     ( { infoMode = Closed 
-      , mapStatus = MapNotLoaded ""
-      , startPoint = StartPointInvalid ""
-      , endPoint = EndPointInvalid ""
-      , mapRoutes = RoutesUnavailable
+      , mapStatus = MH.MapLoading
+      , startPoint = MH.StartPointInvalid ""
+      , endPoint = MH.EndPointInvalid ""
+      , mapRoutes = MH.RoutesUnavailable
       , selectedRoute = Nothing
-      , transport = Car
+      , transport = MH.Car
       , landmarksList = []
       , landmarkSummaryList = Dict.empty
-      , landmarkSummary = SummaryInvalid
-      , addressResults = AddressResultsEmpty
-      , redactedRoutePoint = StartPoint
+      , landmarkSummary = Landmark.SummaryInvalid
+      , addressResults = MH.AddressResultsEmpty
+      , redactedRoutePoint = MH.StartPoint
       }
     , Cmd.batch [ mapLoad () ]
     )
@@ -105,62 +82,63 @@ init =
 
 type alias Model =
     { infoMode : InfoMode
-    , mapStatus : MapStatus
-    , startPoint : RoutePoint
-    , endPoint : RoutePoint
+    , mapStatus : MH.MapStatus
+    , startPoint : MH.RoutePoint
+    , endPoint : MH.RoutePoint
     , mapRoutes : MapRoutes
     , selectedRoute : Maybe RouteSummary
-    , transport : Transport
+    , transport : MH.Transport
     , landmarksList : List Landmark
     , landmarkSummary : SummaryType
     , landmarkSummaryList : Dict Int Summary
-    , addressResults : AddressResults
-    , redactedRoutePoint : RedactedPoint
+    , addressResults : MH.AddressResults
+    , redactedRoutePoint : MH.RedactedPoint
     }
 
 
-type MapRoutes
-    = RoutesUnavailable
-    | RoutesCalculating
-    | RoutesResponse (List RouteSummary)
-    | RoutesResponseErr String
+--type MapRoutes
+--    = RoutesUnavailable
+--    | RoutesCalculating
+--    | RoutesResponse (List RouteSummary)
+--    | RoutesResponseErr String
 
 
-type Transport
-    = Car
-    | Walk
+--type Transport
+--    = Car
+--    | Walk
 
 
 type InfoMode
     = Closed
     | ViewSummary
-    | ViewDirections
+    | ViewDirections MH.RoutePoint MH.RoutePoint
     | ViewRoute
+    | Hide
 
 
-type MapStatus
-    = MapLoaded
-    | MapLoading
-    | MapNotLoaded String
+--type MapStatus
+--    = MapLoaded
+--    | MapLoading
+--    | MapLoadingFialed String
 
 
-type AddressResults
-    = AddressResultsEmpty
-    | AddressResultsLoading
-    | AddressResultsLoaded (List Item)
-    | AddressResultsErr String
+--type AddressResults
+--    = AddressResultsEmpty
+--    | AddressResultsLoading
+--    | AddressResultsLoaded (List MH.Address)
+--    | AddressResultsErr String
 
 
-type RedactedPoint
-    = StartPoint
-    | EndPoint
+--type RedactedPoint
+--    = StartPoint
+--    | EndPoint
 
 
-type RoutePoint
-    = StartPointValid String Position
-    | StartPointInvalid String
-    | EndPointValid String Position
-    | EndPointInvalid String
+--type RoutePoint
+--    = StartPointValid String Position
+--    | StartPointInvalid String
+--    | EndPointValid String Position
+--    | EndPointInvalid String
 
 
 
@@ -170,26 +148,22 @@ type RoutePoint
 type Msg
     = NoOp
       -- MapStatus
-    | MapLoadedOk
-    | MapLoadedErr String
-    | MapMarkerAddDefault Position
-    | MapSearchResponse (Result Json.Decode.Error (List Item))
+    | MapStatusMsg String
+    | MapSearchResponse (Result Decode.Error (List MH.Address))
     | MapSearchClear
-    | MapSearchError String
-    | MapRoutesResponse (Result Json.Decode.Error (List RouteSummary))
-    | MapRoutesUpdate RoutePoint
-    | MapRoutesTransport Transport
+    | MapRoutesResponse (Result Decode.Error (List RouteSummary))
+    | MapRoutesUpdate MH.RoutePoint
+    | MapRoutesTransport MH.Transport
     | MapRouteSelected RouteSummary
-    | MapRouteShowOnMap RouteSummary
       -- Info Element
     | InfoOpen (Maybe Int)
     | InfoOpenDirections String Position
     | InfoOpenRoute
-    | InfoUpdateRouteFocus RedactedPoint
+    | InfoUpdateRouteFocus MH.RedactedPoint
     | InfoClose
+    | InfoHide
       -- DirectionsView
-    | GeoserviceLocationReceive (Result Json.Decode.Error Position)
-    | GeoserviceLocationError String
+    | GeoserviceLocationReceive (Result Decode.Error Position)
       -- Load data.json
     | LoadLandmarksList (Result Http.Error (List Landmark))
       -- Received Wikipedia summary pages
@@ -202,54 +176,93 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        MapLoadedOk ->
-            ( { model | mapStatus = MapLoaded }
-            , getLandmarksRequest "/../assets/data.json"
-            )
+        MapStatusMsg status -> 
+            case status of 
+                "loaded" ->
+                    ( { model | mapStatus = MH.MapLoaded }
+                    , getLandmarksRequest "/../assets/data.json" 
+                    )
 
-        MapLoadedErr err ->
-            ( { model | mapStatus = MapNotLoaded err }, Cmd.none )
+                "failed" ->
+                    ( { model | mapStatus = MH.MapLoadingFialed "Failed Loading the Map" }
+                    , Cmd.none 
+                    )
 
-        MapMarkerAddDefault position ->
-            ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
 
         MapSearchResponse (Ok items) ->
-            ( { model | addressResults = AddressResultsLoaded items }, Cmd.none )
+            ( { model | addressResults = MH.AddressResultsLoaded items }, Cmd.none )
 
         MapSearchResponse (Err items) ->
-            ( { model | addressResults = AddressResultsErr "Response body is incorrect" }, Cmd.none )
+            case items of
+                Decode.Failure _ value ->
+                    case Decode.decodeValue decodeErrorValue value of 
+                        Ok errString ->
+                            ( { model | 
+                                addressResults = MH.AddressResultsErr errString.status 
+                              }
+                            , Cmd.none
+                            )
+
+                        _ ->
+                            ( { model | 
+                                addressResults = MH.AddressResultsErr 
+                                    "Response body is incorrect" 
+                              }
+                            , Cmd.none 
+                            )
+
+                _ ->
+                    ( { model | addressResults = MH.AddressResultsErr "Response body is incorrect" }
+                    , Cmd.none 
+                    )
 
         MapSearchClear ->
-            ( { model | addressResults = AddressResultsEmpty }, Cmd.none )
+            ( { model | addressResults = MH.AddressResultsEmpty }, Cmd.none )
 
-        MapSearchError err ->
-            let
-                _ = Debug.log "err" err
-                --"Fetching suggestions has failed"
-            in
-            ( { model | addressResults = AddressResultsErr err }, Cmd.none )
 
         MapRoutesUpdate routePoint ->
             case routePoint of
-                StartPointValid address position ->
+                MH.StartPointValid address position ->
                     ({ model | startPoint = routePoint }, Cmd.none)
 
-                StartPointInvalid address ->
+                MH.StartPointInvalid address ->
                     ({ model | startPoint = routePoint }, mapSearchHelper address model)
 
-                EndPointValid _ _ ->
+                MH.EndPointValid _ _ ->
                     ({ model | endPoint = routePoint }, Cmd.none)
 
-                EndPointInvalid address ->
+                MH.EndPointInvalid address ->
                     ({ model | endPoint = routePoint }, mapSearchHelper address model)
 
         MapRoutesResponse (Ok routesList) ->
-            ( { model | mapRoutes = RoutesResponse routesList }, Cmd.none)
-
-        MapRoutesResponse (Err routesList) ->
-            ( { model | mapRoutes = RoutesResponseErr "There is something wrong with the resonse" }
-            , Cmd.none 
+            ( { model | mapRoutes = MH.RoutesResponse routesList }
+            , Cmd.none
             )
+
+        MapRoutesResponse (Err mapRouteErr) ->
+            case mapRouteErr of 
+                Decode.Failure _ value ->
+                    case Decode.decodeValue decodeErrorValue value of
+                        Ok errString ->
+                            ( { model | mapRoutes 
+                                = MH.RoutesResponseErr errString.status 
+                              }
+                            , Cmd.none
+                            )
+
+                        _ -> 
+                            ( { model | mapRoutes 
+                                = MH.RoutesResponseErr "There is something wrong with the response" }
+                            , Cmd.none 
+                            )            
+
+                _ ->
+                    ( { model | mapRoutes 
+                        = MH.RoutesResponseErr "There is something wrong with the response" }
+                    , Cmd.none 
+                    )
 
         MapRoutesTransport transport ->
             let
@@ -259,20 +272,16 @@ update msg model =
 
         MapRouteSelected selectedRoute ->
             ( { model | selectedRoute = (Just selectedRoute) }
-            , mapRoutesShowSelected (routeSummaryEncoder selectedRoute) 
+            , mapRoutesShowSelected (MH.routeSummaryEncoder selectedRoute) 
             )
-
-        MapRouteShowOnMap routeSummary ->
-            (model, Cmd.none )
-
 
         -- InfoView
         InfoOpen (Just id) ->
             case Dict.get id model.landmarkSummaryList of
                 Just landmarkSummary ->
                     ( { model | infoMode = ViewSummary
-                      , landmarkSummary = SummaryValid landmarkSummary
-                      , addressResults = AddressResultsEmpty
+                      , landmarkSummary = Landmark.SummaryValid landmarkSummary
+                      , addressResults = MH.AddressResultsEmpty
                       }
                     , Cmd.none
                     )
@@ -284,23 +293,33 @@ update msg model =
             ( { model | infoMode = ViewSummary }, Cmd.none )
 
         InfoClose ->
+            --let
+                 
+            --in
             ( { model | infoMode = Closed
-              , landmarkSummary = SummaryInvalid 
-              , addressResults = AddressResultsEmpty
+              , landmarkSummary = Landmark.SummaryInvalid 
+              , addressResults = MH.AddressResultsEmpty
               }
+            , mapMarkerShowAll ()
+            )
+
+        InfoHide ->
+            ( { model | infoMode = Hide }
             , Cmd.none
             )
 
         InfoOpenDirections address position ->
             ( { model
-                | infoMode = ViewDirections
-                , endPoint = EndPointValid address position
+                | infoMode = ViewDirections 
+                    (MH.StartPointInvalid "empty") 
+                    (MH.EndPointValid address position)
+                , endPoint = MH.EndPointValid address position
               }
-            , geoserviceLocationGet ()
+            , geoserviceLocationCall ()
             )
 
         InfoOpenRoute ->
-            ( { model | infoMode = ViewRoute, mapRoutes = RoutesCalculating }
+            ( { model | infoMode = ViewRoute, mapRoutes = MH.RoutesCalculating }
             , mapRoutesHelper model
             )
 
@@ -310,17 +329,13 @@ update msg model =
 
         -- Directions
         GeoserviceLocationReceive (Ok currentPosition) ->
-            ( { model | startPoint = StartPointValid "Current Position" currentPosition }
+            ( { model | startPoint = MH.StartPointValid "Current Position" currentPosition
+              }
             , Cmd.none
             )
 
         GeoserviceLocationReceive (Err invalidPosition) ->
-            ( { model | addressResults = AddressResultsErr "Invalid Position" }
-            , Cmd.none
-            )
-
-        GeoserviceLocationError err ->
-            ( { model | addressResults = AddressResultsErr err }
+            ( { model | addressResults = MH.AddressResultsErr "Couldn't get position" }
             , Cmd.none
             )
 
@@ -340,20 +355,35 @@ update msg model =
                     model.landmarkSummaryList
                         |> Dict.insert summary.id summary
               }
-            , mapMarkerAddCustom (markerInfoEncoder summary)
+            , mapMarkerAddCustom (Landmark.markerInfoEncoder summary)
             )
 
         LoadLandmarskWiki (Err summary) ->
             ( model, Cmd.none )
 
 
+
+type alias ErrorValue =
+    { status : String }
+
+
+
+decodeErrorValue : Decode.Decoder ErrorValue
+decodeErrorValue =
+    Decode.succeed ErrorValue
+        |> DecodePipe.optional "error" Decode.string ""
+
+
+
+
+
 mapRoutesHelper : Model -> Cmd Msg
 mapRoutesHelper { startPoint, endPoint, transport }  =
     case (startPoint, endPoint ) of 
-        (StartPointValid _ origin, EndPointValid _ destination ) ->
+        (MH.StartPointValid _ origin, MH.EndPointValid _ destination ) ->
             let 
                 transportMode = transportModeHelper transport
-                params = routeParamEncoder origin destination transportMode
+                params = MH.routeParamEncoder origin destination transportMode
             in
             mapRoutesCalculate params
 
@@ -361,13 +391,13 @@ mapRoutesHelper { startPoint, endPoint, transport }  =
             Cmd.none
 
 
-transportModeHelper : Transport -> String
+transportModeHelper : MH.Transport -> String
 transportModeHelper transport =
     case transport of 
-        Car ->
+        MH.Car ->
             "car"
 
-        Walk ->
+        MH.Walk ->
             "pedestrian"
 
 
@@ -415,7 +445,8 @@ getLandmarkWiki : Landmark -> Cmd Msg
 getLandmarkWiki landmark =
     Http.get
         { url = wikiUrlBuilder landmark.wikiName
-        , expect = Http.expectJson LoadLandmarskWiki (summaryDecoder landmark.id)
+        , expect = 
+            Http.expectJson LoadLandmarskWiki (Landmark.summaryDecoder landmark.id)
         }
 
 
@@ -423,7 +454,7 @@ getLandmarksRequest : String -> Cmd Msg
 getLandmarksRequest url =
     Http.get
         { url = url
-        , expect = Http.expectJson LoadLandmarksList landmarkListDecoder
+        , expect = Http.expectJson LoadLandmarksList Landmark.landmarkListDecoder
         }
 
 
@@ -440,18 +471,18 @@ view model =
 viewMode : Model -> Html Msg
 viewMode model =
     case model.mapStatus of
-        MapLoading ->
-            text "Loading"
+        MH.MapLoading ->
+            p [ style "text-align" "center" ] [ text "Loading..." ]
 
-        MapNotLoaded err ->
+        MH.MapLoadingFialed err ->
             text err
 
-        MapLoaded ->
+        MH.MapLoaded ->
             case model.infoMode of
                 Closed ->
                     text ""
 
-                ViewDirections ->
+                ViewDirections startPosition endPosition ->
                     viewDirection model
 
                 ViewSummary ->
@@ -459,6 +490,14 @@ viewMode model =
 
                 ViewRoute ->
                     viewRoute model
+
+                Hide ->
+                    button 
+                        [ class "show-routes-btn"
+                        , onClick InfoOpenRoute 
+                        ] 
+                        [ text "Show Routes" ] 
+
 
 
 
@@ -475,10 +514,10 @@ viewRoute model =
         ]
 
 
-viewRouteViewControls : RoutePoint -> RoutePoint -> Maybe RouteSummary -> Html Msg
+viewRouteViewControls : MH.RoutePoint -> MH.RoutePoint -> Maybe RouteSummary -> Html Msg
 viewRouteViewControls startPoint endPoint maybeRouteSummary =
     case ( startPoint, endPoint, maybeRouteSummary ) of 
-        ( _ , EndPointValid address position, Nothing ) ->
+        ( _ , MH.EndPointValid address position, Nothing ) ->
             div [ class "info-controls-container"]
                 [ button 
                     [ classList 
@@ -488,18 +527,17 @@ viewRouteViewControls startPoint endPoint maybeRouteSummary =
                     , onClick (InfoOpenDirections address position)
                     ]
                     [ text "Back" ]
-                --, button
-                --    [ classList
-                --        [ ( "info-control", True )
-                --        , ( "start-navigation", True )
-                --        , ( "button-disabled", True )
-                --        ]
-                --    , disabled True
-                --    ]
-                --    [ text "Go" ]
+                , button
+                    [ classList
+                        [ ( "info-control", True )
+                        , ( "start-navigation", True )
+                        ]
+                    , onClick InfoHide
+                    ]
+                    [ text "Hide" ]
                 ]
 
-        ( StartPointValid _ startPosition, EndPointValid endAddress endPosition, Just routeSummary ) ->
+        ( MH.StartPointValid _ startPosition, MH.EndPointValid endAddress endPosition, Just routeSummary ) ->
             div [ class "info-controls-container"]
                 [ button 
                     [ classList 
@@ -515,10 +553,9 @@ viewRouteViewControls startPoint endPoint maybeRouteSummary =
                         , ( "start-navigation", True )
                         , ( "button-disabled", False )
                         ]
-                    , disabled False
-                    , onClick (MapRouteShowOnMap routeSummary)
+                    , onClick InfoHide
                     ]
-                    [ text "Go" ]
+                    [ text "Hide" ]
                 ]
 
         ( _, _ , _ ) ->
@@ -530,16 +567,16 @@ viewRouteViewControls startPoint endPoint maybeRouteSummary =
             text ""
 
 
-viewTransportControls : Transport -> Html Msg
+viewTransportControls : MH.Transport -> Html Msg
 viewTransportControls transport =
     let 
 
         isCarChosen = 
             case transport of
-                Car ->
+                MH.Car ->
                     True
 
-                Walk ->
+                MH.Walk ->
                     False
 
         isWalkChosen = not isCarChosen 
@@ -551,7 +588,7 @@ viewTransportControls transport =
                 , ( "transport", True )
                 , ( "selected-transport", isCarChosen )
                 ]
-            , onClick (MapRoutesTransport Car)
+            , onClick (MapRoutesTransport MH.Car)
             ]
             [ text "Car" ]
         , button
@@ -560,7 +597,7 @@ viewTransportControls transport =
                 , ( "transport", True )
                 , ( "selected-transport", isWalkChosen )
                 ]
-            , onClick (MapRoutesTransport Walk)
+            , onClick (MapRoutesTransport MH.Walk)
             ]
             [ text "Walk" ]
         ]
@@ -569,18 +606,23 @@ viewTransportControls transport =
 viewRouteResults : MapRoutes -> Maybe RouteSummary -> Html Msg
 viewRouteResults mapRoute routeId =
     case mapRoute of 
-        RoutesUnavailable ->
+        MH.RoutesUnavailable ->
             p [ style "text-align" "center" ] [ text "No Routes available" ]
 
-        RoutesCalculating ->
+        MH.RoutesCalculating ->
             p [ style "text-align" "center" ] [ text "Calculating Routes..." ]
 
-        RoutesResponseErr err ->
+        MH.RoutesResponseErr err ->
             p [ style "text-align" "center" ] [ text err ]
 
-        RoutesResponse routesList ->
-            div [ id "routes-results" ]
-                (List.map (viewRouteSuggestion routeId) routesList )
+        MH.RoutesResponse routesList ->
+            case routesList of
+                [] ->
+                    p [ style "text-align" "center" ] [ text "No Routes available" ]
+
+                _ ->
+                    div [ id "routes-results" ]
+                        (List.map (viewRouteSuggestion routeId) routesList )
 
 
 viewRouteSuggestion : Maybe RouteSummary -> RouteSummary ->  Html Msg
@@ -632,10 +674,10 @@ viewDirection { startPoint, endPoint, redactedRoutePoint, addressResults } =
         ]
 
 
-viewDirectionsControls : ( RoutePoint, RoutePoint ) -> Html Msg
+viewDirectionsControls : ( MH.RoutePoint, MH.RoutePoint ) -> Html Msg
 viewDirectionsControls ( startPoint, endPoint ) =
     case ( startPoint, endPoint ) of
-        ( StartPointValid _ _, EndPointValid _ _ ) ->
+        ( MH.StartPointValid _ _, MH.EndPointValid _ _ ) ->
             infoControlsContainer False
 
         ( _, _ ) ->
@@ -666,7 +708,7 @@ infoControlsContainer routeAccess =
         ]
 
 
-viewAddressInputs : (RoutePoint, RoutePoint) -> Html Msg
+viewAddressInputs : (MH.RoutePoint, MH.RoutePoint) -> Html Msg
 viewAddressInputs ( startPoint, endPoint ) =
     div [ id "address-inputs" ]
         [ inputWrapperFrom startPoint
@@ -674,12 +716,12 @@ viewAddressInputs ( startPoint, endPoint ) =
         ]
 
 
-inputWrapperFrom : RoutePoint -> Html Msg
+inputWrapperFrom : MH.RoutePoint -> Html Msg
 inputWrapperFrom startPoint =
     let
         isValidAdrress = 
             case startPoint of
-                StartPointValid _ _ ->
+                MH.StartPointValid _ _ ->
                     True
 
                 _ ->
@@ -694,8 +736,8 @@ inputWrapperFrom startPoint =
             ] 
             [ text "From" ]
         , input
-            [ onInput (\text -> MapRoutesUpdate (StartPointInvalid text))
-            , onFocus (InfoUpdateRouteFocus StartPoint)
+            [ onInput (\text -> MapRoutesUpdate (MH.StartPointInvalid text))
+            , onFocus (InfoUpdateRouteFocus MH.StartPoint)
             , autofocus True
             , placeholder "Search"
             , value (pointToString startPoint)
@@ -705,12 +747,12 @@ inputWrapperFrom startPoint =
         ]
 
 
-inputWrapperTo : RoutePoint -> Html Msg
+inputWrapperTo : MH.RoutePoint -> Html Msg
 inputWrapperTo endPoint =
     let
         isValidAdrress = 
             case endPoint of
-                EndPointValid _ _ ->
+                MH.EndPointValid _ _ ->
                     True
 
                 _ ->
@@ -725,8 +767,8 @@ inputWrapperTo endPoint =
             ] 
             [ text "To" ]
         , input
-            [ onInput (\text -> MapRoutesUpdate (EndPointInvalid text))
-            , onFocus (InfoUpdateRouteFocus EndPoint)
+            [ onInput (\text -> MapRoutesUpdate (MH.EndPointInvalid text))
+            , onFocus (InfoUpdateRouteFocus MH.EndPoint)
             , placeholder "Search"
             , value (pointToString endPoint)
             , type_ "search"
@@ -735,33 +777,38 @@ inputWrapperTo endPoint =
         ]
 
 
-viewAddressResults : AddressResults -> RedactedPoint -> Html Msg
+viewAddressResults : MH.AddressResults -> MH.RedactedPoint -> Html Msg
 viewAddressResults results redactedPoint =
     case results of
-        AddressResultsLoaded items ->
-            ul [ id "address-results" ]
-                (List.map (viewAddressSuggestion redactedPoint) items )
+        MH.AddressResultsLoaded items ->
+            case items of 
+                [] ->
+                    p [ style "text-align" "center" ] [ text "No results" ]
 
-        AddressResultsEmpty ->
+                _ ->
+                    ul [ id "address-results" ]
+                        (List.map (viewAddressSuggestion redactedPoint) items )
+
+        MH.AddressResultsEmpty ->
             p [ style "text-align" "center" ] [ text "No results" ]
 
-        AddressResultsLoading ->
+        MH.AddressResultsLoading ->
             p [ style "text-align" "center" ] [ text "Loading..." ]
 
-        AddressResultsErr err ->
+        MH.AddressResultsErr err ->
             p [ style "text-align" "center" ] [ text err ]
 
 
-viewAddressSuggestion : RedactedPoint -> Item -> Html Msg
+viewAddressSuggestion : MH.RedactedPoint -> MH.Address -> Html Msg
 viewAddressSuggestion redactedPoint item =
     let 
         point =
             case redactedPoint of
-                StartPoint ->
-                    StartPointValid item.address.label item.position
+                MH.StartPoint ->
+                    MH.StartPointValid item.address.label item.position
 
-                EndPoint -> 
-                    EndPointValid item.address.label item.position
+                MH.EndPoint -> 
+                    MH.EndPointValid item.address.label item.position
     in
     li
         [ class "address-suggestion"
@@ -769,16 +816,15 @@ viewAddressSuggestion redactedPoint item =
         , attribute "data-lng" (String.fromFloat item.position.lng)
         , attribute "data-title" item.address.label
         , onClick (MapRoutesUpdate point)
-        --, onMouseEnter (MapMarkerAddDefault item.position)
         ]
         [ p [ class "address-name" ] [ text item.address.label ]
         , p [ class "address-details" ] 
-            [ text 
-                ( item.address.county 
-                    ++ " | "
-                    ++ item.address.district
-                    ++ " | "  
-                    ++ item.address.countryName) ]
+            [ span [ class "text-with-background" ] [ text item.address.county ]
+            , text " "
+            , span [ class "text-with-background" ] [ text item.address.district ]
+            , text " "
+            , span [ class "text-with-background" ] [ text item.address.countryName ]
+            ]
         ]
 
 
@@ -789,7 +835,7 @@ viewAddressSuggestion redactedPoint item =
 viewSummary : SummaryType -> Html Msg
 viewSummary summaryType =
     case summaryType of
-        SummaryValid summary ->
+        Landmark.SummaryValid summary ->
             div [ class "info-container" ]
                 [ viewInfoControls summary
                 , hr [ style "heigth" "1px", style "width" "100%" ] []
@@ -801,7 +847,7 @@ viewSummary summaryType =
                     ]
                 ]
 
-        SummaryInvalid ->
+        Landmark.SummaryInvalid ->
             div [ id "summary-container" ] [ text "No info" ]
 
 
@@ -862,17 +908,17 @@ viewWikiLink url =
 -- HELPERS
 
 
-pointToString : RoutePoint -> String
+pointToString : MH.RoutePoint -> String
 pointToString point =
     case point of
-        StartPointInvalid title ->
+        MH.StartPointInvalid title ->
             title
 
-        StartPointValid title position ->
-            title ++ ", " ++ positionToString position
+        MH.StartPointValid title position ->
+            title ++ ", " ++ MH.positionToString position
 
-        EndPointInvalid title ->
+        MH.EndPointInvalid title ->
             title
 
-        EndPointValid title position ->
-            title ++ ", " ++ positionToString position
+        MH.EndPointValid title position ->
+            title ++ ", " ++ MH.positionToString position
