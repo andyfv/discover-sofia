@@ -9,14 +9,30 @@ import Html.Events exposing (on, onClick, onInput, onMouseEnter, onMouseLeave, o
 import Landmark exposing ( Landmark, Summary, SummaryType(..))
 import MapValues exposing ( Position )
 
+
+
+--port mapMarkerOpenSummary : (Int -> msg) -> Sub msg
+
+
+
+
+
+--subscriptions : Sub Msg 
+--subscriptions =
+--    Sub.batch 
+--        [ mapMarkerOpenSummary (\id -> InfoOpen (Just id))
+--        ]
+
+
 -- MODEL
 
-init : SummaryType -> (Model, Cmd Msg)
+init : SummaryType -> (Model, Cmd Msg, OutMsg)
 init summary =
     (
-    { landmarkSummary = SummaryInvalid
+    { landmarkSummary = summary
     }
     , Cmd.none
+    , NoOutMsg
     )
 
 
@@ -35,7 +51,8 @@ type Msg
 
 
 type OutMsg 
-    = CloseInfo 
+    = NoOutMsg
+    | CloseInfo 
     | OpenDirections String Position
 
  
@@ -54,9 +71,9 @@ update msg model =
 
 -- VIEW
 
-view : SummaryType -> Html Msg
-view summaryType =
-    case summaryType of
+view : Model -> Html Msg
+view model =
+    case model.landmarkSummary of
         SummaryValid summary ->
             div [ class "info-container" ]
                 [ viewInfoControls summary

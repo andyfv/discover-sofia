@@ -4,27 +4,30 @@ port module Page.MapView.RouteView exposing (Model, Msg, OutMsg(..), view, updat
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onInput, onMouseEnter, onMouseLeave, onFocus)
-import Json.Decode exposing (Error, Value, decodeValue)
+import Json.Decode as Decode exposing (Error(..), Value, decodeValue)
+import Json.Decode.Pipeline as DecodePipe
 
---import Page.Map exposing (RoutePoint)
 
-import MapValues
-    exposing
-        ( Item
-        , Position
-        , RouteSummary
-        , RoutePoint(..)
-        , itemListDecoder
-        , positionDecoder
-        , positionEncoder
-        , positionToString
-        , routeSummaryListDecoder
-        , routeParamEncoder
-        )
+import MapHelper as MH exposing (Position, RouteSummary, MapRoutes)
+
+--import MapValues
+--    exposing
+--        ( Item
+--        , Position
+--        , RouteSummary
+--        , RoutePoint(..)
+--        , itemListDecoder
+--        , positionDecoder
+--        , positionEncoder
+--        , positionToString
+--        , routeSummaryListDecoder
+--        , routeParamEncoder
+--        )
 
 
 port mapRoutesCalculate : Value -> Cmd msg
 port mapRoutesResponse : (Value -> msg) -> Sub msg
+port mapRoutesShowSelected : Value -> Cmd msg
 
 
 
@@ -35,20 +38,20 @@ port mapRoutesResponse : (Value -> msg) -> Sub msg
 subscriptions : Sub Msg
 subscriptions =
     Sub.batch
-        [ mapRoutesResponse (decodeValue routeSummaryListDecoder >> MapRoutesResponse)
+        [ mapRoutesResponse (decodeValue MH.routeSummaryListDecoder >> MapRoutesResponse)
         ]
 
 
 
 -- MODEL
 
-init : RoutePoint -> RoutePoint -> ( Model, Cmd Msg, OutMsg )
+init : MH.RoutePoint -> MH.RoutePoint -> ( Model, Cmd Msg, OutMsg )
 init startPoint endPoint =
-    ( { mapRoutes = RoutesUnavailable
-      , selectedRoute = RouteNotSelected
+    ( { mapRoutes = MH.RoutesUnavailable
+      , selectedRoute = Nothing
       , transport = Car
-      , startPoint = StartPointInvalid ""
-      , endPoint = EndPointInvalid ""
+      , startPoint = MH.StartPointInvalid ""
+      , endPoint = MH.EndPointInvalid ""
       }
     , Cmd.none
     , NoOutMsg
@@ -56,26 +59,26 @@ init startPoint endPoint =
 
 
 type alias Model = 
-    { mapRoutes : MapRoutesResponse
-    , selectedRoute : MapRoute
+    { mapRoutes : MH.MapRoutes
+    , selectedRoute : Maybe RouteSummary
     , transport : Transport
-    , startPoint : RoutePoint
-    , endPoint : RoutePoint
+    , startPoint : MH.RoutePoint
+    , endPoint : MH.RoutePoint
     }
 
 
 
-type MapRoute
-    = RouteNotSelected
-    | RouteSelected RouteSummary String
+--type MapRoute
+--    = RouteNotSelected
+--    | RouteSelected RouteSummary String
 
 
 
-type MapRoutesResponse
-    = RoutesUnavailable
-    | RoutesCalculating
-    | RoutesResponse (List RouteSummary)
-    | RoutesResponseErr String
+--type MapRoutesResponse
+--    = RoutesUnavailable
+--    | RoutesCalculating
+--    | RoutesResponse (List RouteSummary)
+--    | RoutesResponseErr String
 
 
 type Transport
@@ -91,9 +94,9 @@ type Transport
 
 type Msg 
     = NoOp
-    | MapRoutesResponse (Result Json.Decode.Error (List RouteSummary))
+    | MapRoutesResponse (Result Decode.Error (List RouteSummary))
     | MapRoutesTransport Transport
-    | MapRouteSelected MapRoute String
+    | MapRouteSelected MH.RouteSummary
     | PreviousPage String Position
 
 
@@ -111,13 +114,40 @@ update msg model =
             ( model, Cmd.none, NoOutMsg )
 
         MapRoutesResponse (Ok routesList) ->
-            ( { model | mapRoutes = RoutesResponse routesList }, Cmd.none, NoOutMsg )
-
-        MapRoutesResponse (Err routesList) ->
-            ( { model | mapRoutes = RoutesResponseErr "There is something wrong with the resonse" }
+            ( { model | mapRoutes = MH.RoutesResponse routesList }
             , Cmd.none
-            , NoOutMsg
+            , NoOutMsg 
             )
+
+        MapRoutesResponse (Err mapRoutesErr) ->
+            --( { model | mapRoutes = RoutesResponseErr "There is something wrong with the resonse" }
+            --, Cmd.none
+            --, NoOutMsg
+            --)
+            case mapRoutesErr of 
+                Decode.Failure _ value ->
+                    case Decode.decodeValue decodeErrorValue value of
+                        Ok errString ->
+                            ( { model | mapRoutes 
+                                = MH.RoutesResponseErr errString.status 
+                              }
+                            , Cmd.none
+                            , NoOutMsg
+                            )
+
+                        _ -> 
+                            ( { model | mapRoutes 
+                                = MH.RoutesResponseErr "There is something wrong with the response" }
+                            , Cmd.none
+                            , NoOutMsg 
+                            )            
+
+                _ ->
+                    ( { model | mapRoutes 
+                        = MH.RoutesResponseErr "There is something wrong with the response" }
+                    , Cmd.none 
+                    , NoOutMsg
+                    )
 
         MapRoutesTransport transport ->
             let
@@ -125,26 +155,41 @@ update msg model =
             in
             ( newModel, mapRoutesHelper newModel, NoOutMsg )
 
-        MapRouteSelected route id ->
-            case route of 
-                RouteSelected selectedRoute _ ->
-                    ( { model | selectedRoute = route }, Cmd.none, NoOutMsg )
+        MapRouteSelected selectedRoute ->
+            ( { model | selectedRoute = (Just selectedRoute) }
+            , mapRoutesShowSelected (MH.routeSummaryEncoder selectedRoute)
+            , NoOutMsg 
+            )
+            --case selectedRoute of 
+            --    RouteSelected selectedRoute _ ->
+            --        ( { model | selectedRoute = route }, Cmd.none, NoOutMsg )
 
-                RouteNotSelected ->
-                    ( model, Cmd.none, NoOutMsg )
+            --    RouteNotSelected ->
+            --        ( model, Cmd.none, NoOutMsg )
 
         PreviousPage address position ->
             ( model, Cmd.none, BackToDirections address position )
+
+
+type alias ErrorValue =
+    { status : String }
+
+
+
+decodeErrorValue : Decode.Decoder ErrorValue
+decodeErrorValue =
+    Decode.succeed ErrorValue
+        |> DecodePipe.optional "error" Decode.string ""
 
 
 
 mapRoutesHelper : Model -> Cmd Msg
 mapRoutesHelper { startPoint, endPoint, transport }  =
     case (startPoint, endPoint ) of 
-        (StartPointValid _ origin, EndPointValid _ destination ) ->
+        (MH.StartPointValid _ origin, MH.EndPointValid _ destination ) ->
             let 
                 transportMode = transportModeHelper transport
-                params = routeParamEncoder origin destination transportMode
+                params = MH.routeParamEncoder origin destination transportMode
             in
             mapRoutesCalculate params
 
@@ -165,14 +210,14 @@ transportModeHelper transport =
 
 
 
-getMapRouteId : MapRoute -> String
-getMapRouteId mapRoute =
-    case mapRoute of 
-        RouteNotSelected ->
-            ""
+--getMapRouteId : MapRoute -> String
+--getMapRouteId mapRoute =
+--    case mapRoute of 
+--        RouteNotSelected ->
+--            ""
 
-        RouteSelected route id ->
-            id
+--        RouteSelected route id ->
+--            id
 
 
 -- VIEW
@@ -183,14 +228,14 @@ view model =
         [ viewRouteViewControls model.endPoint
         , viewTransportControls model.transport
         , hr [ style "heigth" "1px", style "width" "100%" ] []
-        , viewRouteResults model.mapRoutes ( getMapRouteId model.selectedRoute )
+        , viewRouteResults model.mapRoutes model.selectedRoute
         ]
 
 
-viewRouteViewControls : RoutePoint -> Html Msg
+viewRouteViewControls : MH.RoutePoint -> Html Msg
 viewRouteViewControls routePoint =
     case routePoint of 
-        EndPointValid address position ->
+        MH.EndPointValid address position ->
             div [ class "info-controls-container"]
                 [ button 
                     [ classList 
@@ -252,44 +297,51 @@ viewTransportControls transport =
         ]
 
 
-viewRouteResults : MapRoutesResponse -> String -> Html Msg
+viewRouteResults : MH.MapRoutes -> Maybe RouteSummary -> Html Msg
 viewRouteResults response selectedRouteId =
     case response of 
-        RoutesUnavailable ->
+        MH.RoutesUnavailable ->
             p [ style "text-align" "center" ] [ text "No Routes available" ]
 
-        RoutesCalculating ->
+        MH.RoutesCalculating ->
             p [ style "text-align" "center" ] [ text "Calculating Routes..." ]
 
-        RoutesResponseErr err ->
+        MH.RoutesResponseErr err ->
             p [ style "text-align" "center" ] [ text err ]
 
-        RoutesResponse routesList ->
+        MH.RoutesResponse routesList ->
             div [ id "routes-results" ]
                 (List.map (viewRouteSuggestion selectedRouteId) routesList )
 
 
-viewRouteSuggestion : String -> RouteSummary -> Html Msg
-viewRouteSuggestion routeId routeSummary =
+viewRouteSuggestion : Maybe RouteSummary -> RouteSummary -> Html Msg
+viewRouteSuggestion maybeRoute routeSummary =
     let
-        isSelected = 
-            if routeId == routeSummary.id then
-                True
+        isSelected =
+            case maybeRoute of
+                Just route ->
+                    if route.id == routeSummary.id then
+                        True
 
-            else
-                False
+                    else
+                        False
+
+                Nothing ->
+                    False
     in
     div 
-        [ class "route-suggestion" 
-        , onClick (MapRouteSelected (RouteSelected routeSummary routeSummary.id) routeSummary.id)
+        [ classList 
+            [ ( "route-suggestion", True) 
+            ]
+        , onClick (MapRouteSelected routeSummary)
         ] 
-        [ p [] [ text routeSummary.duration ]
-        , div 
+        [ div 
             [ classList 
-                [ ( "vertical-line", True )
+                [ ( "route-indicator", True )
                 , ( "selected-route", isSelected )
                 ] 
             ] 
             []
+        , p [] [ text routeSummary.duration ]
         , p [] [ text routeSummary.distance ]
         ]
