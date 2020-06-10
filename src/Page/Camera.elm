@@ -1,33 +1,51 @@
-module Page.Camera exposing (Model, Msg, view, init, update)
+module Page.Camera exposing (Model, Msg, view, init, update, subscriptions)
 
-import Html exposing (Html, div)
-import Html.Attributes exposing (id)
---import Article exposing (Article, ArticleCard, Image)
---import Page exposing (viewCards)
+import Html exposing (Html, div, video, p ,text)
+import Html.Attributes exposing (id, autoplay, attribute, style)
+import Html.Events
+import Json.Decode as D
+import TF as TF 
 
---import Projects.NeighborhoodHere as NH exposing (..)
---import Projects.SymbolRecognition as SR exposing (..)
---import Projects.SailfishOS as SOS exposing (..)
 
+
+-- SUBSCRIPTIONS
+
+subscriptions : Sub Msg
+subscriptions =
+    Sub.batch
+        [ Sub.map TFStatusMsg (TF.tfStatus (\statusMsg -> statusMsg))
+        , Sub.map TFPrediction (TF.tfPredictResult (D.decodeValue TF.predictionDecoder))
+        ]
 
 
 -- MODEL
 
-
 type alias Model =
-    { isMapLoaded : Bool
-    , isLandmarkSelected : Bool
+    { tfStatus : TF.TFStatus
+    , prediction : TF.PredictionResult
     }
 
 
-init : (Model, Cmd msg)
-init =
-    ( { isMapLoaded = False
-      , isLandmarkSelected = False
-      }
-    , Cmd.none    
-    )
+init : TF.TFStatus ->  (Model, Cmd msg)
+init tfStatus =
 
+    let 
+        (cmds, newTFStatus) = case tfStatus of
+                            TF.NotLoaded ->
+                                (TF.tfLoad (), TF.Loading)
+
+                            TF.Loaded -> 
+                                (TF.tfVideoPredict (), tfStatus)
+
+                            _ ->
+                                (Cmd.none, tfStatus)
+
+    in
+    ( { tfStatus = newTFStatus
+      , prediction = TF.Empty
+      }
+    , Cmd.batch [ cmds ]  
+    )
 
 
 -- UPDATE
@@ -35,6 +53,8 @@ init =
 
 type Msg
     = NoOp
+    | TFStatusMsg Bool
+    | TFPrediction (Result D.Error TF.PredictionResult)
 
 
 update : Msg -> Model -> (Model, Cmd msg)
@@ -43,11 +63,58 @@ update msg model =
         NoOp ->
             (model, Cmd.none)
 
+        TFStatusMsg statusMsg ->
+            case statusMsg of 
+                True ->
+                    ( { model | tfStatus = TF.Loaded }, TF.tfVideoPredict ())
+
+                False ->
+                    ( { model | tfStatus = TF.NotLoaded}, Cmd.none )
+
+        TFPrediction (Ok result) ->
+            ( { model | prediction = result }, Cmd.none )
+
+        TFPrediction (Err err) ->
+            ( { model | prediction = TF.PredictionErr "Error parsing the prediction" }, Cmd.none)
 
 
 -- VIEW
 
 
-view : Model -> Html msg
+view : Model -> Html Msg
 view model  =
-    div [ id "mapContainer" ] []
+    div [ id "camera-page"]
+        [ div [ id "camera-results-wrapper" ] 
+            [ viewCamera
+            , viewPrediction model.prediction
+            ]
+        ]
+
+
+viewCamera : Html Msg
+viewCamera =
+    video 
+        [ id "camera"
+        , autoplay True
+        , attribute "playsinline" "true"
+        , attribute "muted" "true"
+        ]
+        []
+
+
+viewPrediction : TF.PredictionResult -> Html Msg
+viewPrediction result =
+    case result of
+        TF.Prediction data ->
+            div [ style "text-align" "center"] 
+                [ p [] [ text (data.className) ]
+                , p [] 
+                    [ text ("Accuracy: " ++ data.percentage)
+                    ]
+                ]
+
+        TF.PredictionErr err ->
+            div [] [ text err ]
+
+        _ ->
+            text ""
