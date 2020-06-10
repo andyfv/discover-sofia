@@ -31,7 +31,7 @@ export function loadMapLibs() {
             loadLibrary(LIBS.mapjsEvents),
         ]))
         .then(() => loadLibrary(LIBS.mapjsUI))
-        .catch((error) => 'Failed to map libraries');
+        .catch((error) => 'Failed to load map libraries');
 }
 
 // Load library by adding it to the headTag
@@ -109,7 +109,7 @@ export function initMap() {
 }
 
 
-export function search(query, onSuccess, onError) {
+export function search(query, callback) {
 	//	Get SearchService and create search paramaters
 	let service = platform.getSearchService(),
 		geocodingParamaters = {
@@ -139,12 +139,10 @@ export function search(query, onSuccess, onError) {
 			, title : i.title
 			}));
 
-			onSuccess(items);
+			callback( items );
 	}
-	, (err) => {
-		onError(err);
-	}
-	)
+	, (err) => callback( { error : err } )
+	);
 }
 
 
@@ -203,7 +201,7 @@ export function addMarker(landmark, callback) {
 
 
 // Geoservices API 
-export function getGeolocation(onSuccess, onError) {
+export function getGeolocation(callback) {
     // Check if geoservices are supported
     if (navigator.geolocation) {
 
@@ -216,16 +214,15 @@ export function getGeolocation(onSuccess, onError) {
 	            lng: position.coords.longitude
 	        };
 
-	        onSuccess(pos);
-	        monitorPosition(onSuccess, onError);
-	    },
+	        callback(pos);
+	        monitorPosition(callback);
+	    }
 
 	    // Send message onError(app.ports.geoserviceLocationError.send) if there is problem with getting the current location 
-	    (error) => {
-	        onError("Couldn't get current position");
-	    },
+	    , (error) => callback("Couldn't get current position")
 
-	    { enableHighaccuracy: true, timeout: 5000, maximumAge : 0 }
+        // Apply options 
+	    , { enableHighaccuracy: true, timeout: Infinity, maximumAge : 0 }
 	    );
 	}
 
@@ -238,7 +235,7 @@ export function getGeolocation(onSuccess, onError) {
 }
 
 
-export function monitorPosition(onSuccess, onError) {
+export function monitorPosition(callback) {
 
     // Watch for changes
     navigator.geolocation.watchPosition((p) => {
@@ -250,11 +247,9 @@ export function monitorPosition(onSuccess, onError) {
         };
 
         // Call the onSuccess(app.ports.geoserviceLocationReceive.send) callback with the current postion
-        onSuccess(pos);
+        callback(pos);
     }
-    , (error) => { 
-    	onError("Couldn't get current position") 
-    }
+    , (error) => callback("Couldn't get current position")
     , { enableHighaccuracy : true, timeout: Infinity, maximumAge: 0 }
     )
 }
@@ -288,7 +283,7 @@ export function routing(parameters, onResponse) {
 
 
 	let onResult = function(result) {
-		console.log(result);
+		// console.log(result);
 		let arrival,
 			departure,
 			routeSummaryList = [];
@@ -329,32 +324,33 @@ export function routing(parameters, onResponse) {
 			routeSummaryList.push(routeObject);
 		})
 
-		console.log(getDistance(routeSummaryList[0].summary.length));
-		console.log(getTime(routeSummaryList[0].summary.duration));
-		console.log(routeSummaryList);
+		// console.log(getDistance(routeSummaryList[0].summary.length));
+		// console.log(getTime(routeSummaryList[0].summary.duration));
+		// console.log(routeSummaryList);
 		onResponse(routeSummaryList);
 
-		// Get the first route polyline 
-		let route = routeSummaryList[0];
+		// // Get the first route polyline 
+		// let route = routeSummaryList[0];
 
-		// Show polyline on the map
-		addRouteShapeToMap(route);
+		// // Show polyline on the map
+		// addRouteShapeToMap(route);
 	}
 
 
 	// Call the routing service with the parameters
-	router.calculateRoute( routingParameter, onResult,
-		function (error) {
-			console.log(error);
-		});
+	router.calculateRoute( 
+        routingParameter,
+        onResult,
+		(error) => onResponse({ error : error })
+    );
 }
 
 export function addRouteShapeToMap(route) {
 	// First clean the previous routes
 	cleanRouteGroup();
 	hideMarkerGroup();
-	console.log(route.departure);
-	console.log(route.arrival);
+	// console.log(route.departure);
+	// console.log(route.arrival);
 	// Instantiate linestring
 	let lineString = new H.geo.LineString.fromFlexiblePolyline(route.polyline);
 
@@ -408,6 +404,10 @@ export function cleanRouteGroup() {
 
 export function hideMarkerGroup() {
 	markerGroup.setVisibility(false);
+}
+
+export function showMarkerGroup() {
+    markerGroup.setVisibility(true);
 }
 
 
