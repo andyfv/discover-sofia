@@ -69,13 +69,14 @@ update msg model =
 
 view : Route -> Model -> Html Msg
 view route ({ viewport, isMenuOpen }) =
-    case isMenuOpen of
-        True ->
-            showMenu route
-        False ->
-            if viewport.viewport.width > 650 
-            then viewDesktopHeader route
-            else viewMobileHeader route
+    viewDesktopHeader route
+    --case isMenuOpen of
+    --    True ->
+    --        showMenu route
+    --    False ->
+    --        if viewport.viewport.width > 650 
+    --        then viewDesktopHeader route
+    --        else viewMobileHeader route
 
 
 -- MOBILE
