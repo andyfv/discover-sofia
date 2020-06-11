@@ -1,7 +1,6 @@
 module Main exposing (main)
 
 import Html
-import Html.Lazy exposing (lazy)
 
 import Dict exposing (Dict)
 import Url exposing (Url)
