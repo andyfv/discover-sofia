@@ -12,8 +12,8 @@ async function app() {
         model = await tf.loadGraphModel('/assets/tfjs_model_quantized_2/model.json');
     } catch (e) {
         let msg = new Uint8Array([2]);
-        postMessage(msg, [msg.buffer]);
-        // postMessage(JSON.stringify({ msg : "modelFailed"}));
+        // postMessage(msg, [msg.buffer]);
+        postMessage({ msg : "modelFailed"});
     }
 
     tf.enableProdMode();
@@ -21,8 +21,8 @@ async function app() {
     warmUp();
 
     let msg = new Uint8Array([1]);
-    postMessage(msg, [msg.buffer]);
-    // postMessage(JSON.stringify({ msg : "modelReady"}));
+    // postMessage(msg, [msg.buffer]);
+    postMessage({ msg : "modelReady"});
 }
 
 async function warmUp() {
@@ -46,46 +46,34 @@ onmessage = async function(e) {
     const scaled = img.div(255.0);
     const expanded = scaled.expandDims(0);
 
+
     let prediction = await model.execute(expanded);
 
+
     // Get the data as an array from the tensor
-    let predictionArr = await prediction.data()
-        .then((data) => tf.softmax(data));
+    let predictionArr = await prediction.buffer()
+        .then((dataBuffer) => tf.softmax(dataBuffer.values));
 
 
     //Get the highest predicted percentage
-    let predictedPerc = await predictionArr.data()
-        .then((data) => Math.max(...data) * 100);
+    let predictedPerc = await predictionArr.buffer()
+        .then((dataBuffer) => Math.max(...dataBuffer.values) * 100);
 
 
-    // Get the predicted class
+    // Get the predicted class index
     let indexTensor = tf.argMax(predictionArr);
-    let predictedIndex = await indexTensor.data()
-        .then((index) => index[0])
-
+    let predictedIndex = await indexTensor.buffer()
+        .then((indexBuffer) => indexBuffer)
 
 
     let resultPerc = encodeString(predictedPerc.toFixed(4));
-    let resultClass = new Uint8Array([predictedIndex]);
-    let result = new Uint8Array([3]);
 
-
-
-    let full = new Uint8Array([...result, ...resultClass, ...resultPerc,]);
-
-    // console.log(full);
-
-    postMessage(full, [full.buffer]);
-    
-
-
-    // postMessage(JSON.stringify(
-    //     { msg : "result" 
-    //     , className: predictedClass
-    //     , percentage: predictedPerc.toFixed(4) 
-    //     })
-    //     );
-        // [ result.buffer, resultClass.buffer, resultPerc.buffer]
+    postMessage({ 
+        msg : "result", 
+        classIndex: predictedIndex.values[0], 
+        percentage : resultPerc
+    }, [predictedIndex.values.buffer, resultPerc.buffer]
+    )
 
 
     // Dispose the tensors to free the memory
