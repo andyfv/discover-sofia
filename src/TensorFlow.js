@@ -3,7 +3,9 @@ const bodyTag = document.getElementsByTagName('body')[0];
 const stringDecoder = new TextDecoder;
 
 var model,
-    worker;
+    worker,
+    onLoadFunction,
+    onResultFunction;
 
 const classes = {
     0: 'Alexander Nevski',
@@ -35,6 +37,7 @@ export function loadLibs() {
 }
 
 
+
 // Load library by adding it to the headTag
 function loadLibrary(url) {
     return new Promise((resolve, reject) => {
@@ -62,8 +65,8 @@ function loadLibrary(url) {
 
 export function createVideoElement() {
     return new Promise((resolve, reject) => {
-        // const videoWrapper = document.getElementById('camera-results-wrapper');
         const video = document.getElementById('camera');
+
         const constraints =
             {
                 audio : false,
@@ -95,8 +98,6 @@ export function createVideoElement() {
             video.play();
         };
 
-        // videoWrapper.appendChild(video);
-
         navigator.mediaDevices.getUserMedia(constraints)
         .then((mediaStream) => {
             video.srcObject = mediaStream;
@@ -116,21 +117,20 @@ export async function predictVideo (videoEl) {
         facingMode: 'environment' 
     };
 
+
     const videoCam = await tf.data.webcam(videoEl, videoConfig);
-
-    // let img, imgArr;
-
 
     let interval = setInterval(async () => {
         if (!videoEl.paused) {
+
             const img = await videoCam.capture();
+            const imgBuffer = await img.buffer();
 
-            const imgArr = await img.buffer();
-
-            worker.postMessage(imgArr.values, [imgArr.values.buffer]);
+            worker.postMessage(imgBuffer.values, [imgBuffer.values.buffer]);
 
             img.dispose();
-        } else {
+        } 
+        else {
             clearInterval(interval);
         }
     }, 800);
@@ -150,34 +150,23 @@ export async function loadModel(onLoad, onResult) {
 
 
 function loadWorkerModel(onLoad, onResult) {
-    let worker = new Worker("src/worker.js");
+    let webWorker = new Worker("src/worker.js");
 
-    worker.onmessage = (e) => {
+    webWorker.onmessage = (e) => {
 
+        // let msg = new Uint8Array(e.data.slice(0,1));
+        let msg = e.data.msg
+        if (msg == "modelReady") { onLoad(true) }
+        else if (msg == "modelFailed") { onLoad(false) }
+        else if (msg == "result") {
 
-        let msg = new Uint8Array(e.data.slice(0,1));
-
-        if (msg[0] == 1) { onLoad(true) }
-        else if (msg[0] == 2 ) { onLoad(false) }
-        else if (msg[0] == 3 ) {
-            let indexBuffer = new Uint8Array(e.data.slice(1,2));
-            let percBuffer = new Uint8Array(e.data.slice(2,9));
-
-            // console.log(
-            //     { result : 
-            //         { 
-            //             className : classes[indexBuffer],
-            //             percentage: decodeBuffer(percBuffer)
-            //         }
-            //     });
-
-            onResult(JSON.stringify(
+            onResult(
                 { result : 
                     { 
-                        className : classes[indexBuffer],
-                        percentage: decodeBuffer(percBuffer)
+                        className : classes[e.data.classIndex],
+                        percentage: decodeBuffer(e.data.percentage)
                     }
-                })
+                }
             );
         }
         else { 
@@ -185,7 +174,7 @@ function loadWorkerModel(onLoad, onResult) {
         }
     };
 
-    return worker;
+    return webWorker;
 }
 
 function decodeBuffer(buffer) {
@@ -208,9 +197,9 @@ export async function predictImage(imgSrc, callback) {
             tf.image.resizeBilinear(tf.browser.fromPixels(imgEl), [224,224])
         )
 
-        let imgArr = await tensor.buffer();
+        let imgBuffer = await tensor.buffer();
 
-        worker.postMessage(imgArr.values, [imgArr.values.buffer]);
+        worker.postMessage(imgBuffer.values, [imgBuffer.values.buffer]);
 
         // Dispose the tensors to free the memory
         tensor.dispose();
