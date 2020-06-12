@@ -11,8 +11,6 @@ async function app() {
     try {
         model = await tf.loadGraphModel('/assets/tfjs_model_quantized_2/model.json');
     } catch (e) {
-        let msg = new Uint8Array([2]);
-        // postMessage(msg, [msg.buffer]);
         postMessage({ msg : "modelFailed"});
     }
 
@@ -20,8 +18,6 @@ async function app() {
 
     warmUp();
 
-    let msg = new Uint8Array([1]);
-    // postMessage(msg, [msg.buffer]);
     postMessage({ msg : "modelReady"});
 }
 
@@ -50,7 +46,7 @@ onmessage = async function(e) {
     let prediction = await model.execute(expanded);
 
 
-    // Get the data as an array from the tensor
+    // Get the prediction data as an array
     let predictionArr = await prediction.buffer()
         .then((dataBuffer) => tf.softmax(dataBuffer.values));
 

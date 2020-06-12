@@ -1,8 +1,6 @@
 module Main exposing (main)
 
 import Html
-
-import Dict exposing (Dict)
 import Url exposing (Url)
 import Browser.Navigation as Nav
 import Browser.Events exposing (onResize)
@@ -38,7 +36,6 @@ type alias Model =
     , route : Route
     , navKey : Nav.Key
     , navBarModel : NavBar.Model
-    --, initiatedPages : Dict String Page
     , tfStatus : TF.TFStatus
     }
 
@@ -90,7 +87,6 @@ init flags url navKey =
         (navBarModel, headerCmds) = NavBar.init
         model =
             { route = route
-            --, initiatedPages = Dict.empty
             , page = NotFoundPage
             , navKey = navKey
             , navBarModel = navBarModel
@@ -122,9 +118,7 @@ initCurrentPage (model, existingCmds) =
                     updateWith MapPage MapMsg Map.init
 
     in
-    ( { model | page = currentPage
-    --, initiatedPages = Dict.insert (Route.routeToString model.route) currentPage model.initiatedPages 
-    }
+    ( { model | page = currentPage }
     , Cmd.batch [ existingCmds, mappedPageCmds ]
     )
 
@@ -181,9 +175,6 @@ update msg model =
             ( Camera.update subMsg pageModel )
             |> updateWithModel CameraPage CameraMsg model
 
-        --( _, MapMsg subMsg) ->
-        --    (Map.update submsg pageModel)
-
 
         -- NAVBAR
         ( _ , NavBarMsg subMsg) ->
@@ -210,40 +201,14 @@ update msg model =
             let 
                 route = Route.fromUrl url
             in
-            --case Dict.get (Route.routeToString route) model.initiatedPages of
-            --    Just page ->
-            --        ({ model | page = page, route = route }, Cmd.none) 
-
-            --    Nothing ->
-                    initCurrentPage
-                      ({ model | route = route }, Cmd.none)
-
-                --else 
-                --    initCurrentPage 
-                --        ( { model | route = (Route.fromUrl url) }, Cmd.none)
+            initCurrentPage ({ model | route = route }, Cmd.none)
 
         ( _ , LinkClicked urlRequest ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    --let
-                    --    currentRoute = Route.routeToString model.route
-                    --in
-                    --case Dict.get currentRoute model.initiatedPages of
-                    --    Just page ->
-                    --        ( { model | initiatedPages = 
-                    --                        Dict.update 
-                    --                        currentRoute 
-                    --                        (\_ -> Just model.page) 
-                    --                        model.initiatedPages 
-                    --          }
-                    --        , Nav.pushUrl model.navKey (Url.toString url)
-                    --        --, Cmd.none
-                    --        )
-
-                    --    Nothing -> 
-                            ( model
-                            , Nav.pushUrl model.navKey (Url.toString url)
-                            )
+                    ( model
+                    , Nav.pushUrl model.navKey (Url.toString url)
+                    )
 
                 Browser.External url ->
                     ( model, Nav.load url )
@@ -265,8 +230,4 @@ updateWithModel toModel toMsg model (subModel, subCmd) =
     ( { model | page = toModel subModel }
     , Cmd.map toMsg subCmd
     )
-
-
-
-
 

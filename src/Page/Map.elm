@@ -10,10 +10,9 @@ import Json.Decode as Decode exposing (Error, Value, decodeValue)
 import Json.Decode.Pipeline as DecodePipe
 import Url.Builder as UrlBuilder exposing (crossOrigin)
 
-import Page.MapView.RouteView
+--import Page.MapView.RouteView
 
 import MapHelper as MH exposing (Position, RouteSummary, MapRoutes)
-import Landmark as Landmark exposing ( Landmark, Summary, SummaryType )
 
 
 
@@ -72,7 +71,7 @@ init =
       , transport = MH.Car
       , landmarksList = []
       , landmarkSummaryList = Dict.empty
-      , landmarkSummary = Landmark.SummaryInvalid
+      , landmarkSummary = MH.SummaryInvalid
       , addressResults = MH.AddressResultsEmpty
       , redactedRoutePoint = MH.StartPoint
       }
@@ -88,24 +87,12 @@ type alias Model =
     , mapRoutes : MapRoutes
     , selectedRoute : Maybe RouteSummary
     , transport : MH.Transport
-    , landmarksList : List Landmark
-    , landmarkSummary : SummaryType
-    , landmarkSummaryList : Dict Int Summary
+    , landmarksList : List MH.Landmark
+    , landmarkSummary : MH.SummaryType
+    , landmarkSummaryList : Dict Int MH.Summary
     , addressResults : MH.AddressResults
     , redactedRoutePoint : MH.RedactedPoint
     }
-
-
---type MapRoutes
---    = RoutesUnavailable
---    | RoutesCalculating
---    | RoutesResponse (List RouteSummary)
---    | RoutesResponseErr String
-
-
---type Transport
---    = Car
---    | Walk
 
 
 type InfoMode
@@ -114,32 +101,6 @@ type InfoMode
     | ViewDirections MH.RoutePoint MH.RoutePoint
     | ViewRoute
     | Hide
-
-
---type MapStatus
---    = MapLoaded
---    | MapLoading
---    | MapLoadingFialed String
-
-
---type AddressResults
---    = AddressResultsEmpty
---    | AddressResultsLoading
---    | AddressResultsLoaded (List MH.Address)
---    | AddressResultsErr String
-
-
---type RedactedPoint
---    = StartPoint
---    | EndPoint
-
-
---type RoutePoint
---    = StartPointValid String Position
---    | StartPointInvalid String
---    | EndPointValid String Position
---    | EndPointInvalid String
-
 
 
 -- UPDATE
@@ -165,9 +126,9 @@ type Msg
       -- DirectionsView
     | GeoserviceLocationReceive (Result Decode.Error Position)
       -- Load data.json
-    | LoadLandmarksList (Result Http.Error (List Landmark))
+    | LoadLandmarksList (Result Http.Error (List MH.Landmark))
       -- Received Wikipedia summary pages
-    | LoadLandmarskWiki (Result Http.Error Summary)
+    | LoadLandmarskWiki (Result Http.Error MH.Summary)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -280,7 +241,7 @@ update msg model =
             case Dict.get id model.landmarkSummaryList of
                 Just landmarkSummary ->
                     ( { model | infoMode = ViewSummary
-                      , landmarkSummary = Landmark.SummaryValid landmarkSummary
+                      , landmarkSummary = MH.SummaryValid landmarkSummary
                       , addressResults = MH.AddressResultsEmpty
                       }
                     , Cmd.none
@@ -293,11 +254,8 @@ update msg model =
             ( { model | infoMode = ViewSummary }, Cmd.none )
 
         InfoClose ->
-            --let
-                 
-            --in
             ( { model | infoMode = Closed
-              , landmarkSummary = Landmark.SummaryInvalid 
+              , landmarkSummary = MH.SummaryInvalid 
               , addressResults = MH.AddressResultsEmpty
               }
             , mapMarkerShowAll ()
@@ -355,7 +313,7 @@ update msg model =
                     model.landmarkSummaryList
                         |> Dict.insert summary.id summary
               }
-            , mapMarkerAddCustom (Landmark.markerInfoEncoder summary)
+            , mapMarkerAddCustom (MH.markerInfoEncoder summary)
             )
 
         LoadLandmarskWiki (Err summary) ->
@@ -441,12 +399,12 @@ wikiUrlBuilder wikiName =
         []
 
 
-getLandmarkWiki : Landmark -> Cmd Msg
+getLandmarkWiki : MH.Landmark -> Cmd Msg
 getLandmarkWiki landmark =
     Http.get
         { url = wikiUrlBuilder landmark.wikiName
         , expect = 
-            Http.expectJson LoadLandmarskWiki (Landmark.summaryDecoder landmark.id)
+            Http.expectJson LoadLandmarskWiki (MH.summaryDecoder landmark.id)
         }
 
 
@@ -454,7 +412,7 @@ getLandmarksRequest : String -> Cmd Msg
 getLandmarksRequest url =
     Http.get
         { url = url
-        , expect = Http.expectJson LoadLandmarksList Landmark.landmarkListDecoder
+        , expect = Http.expectJson LoadLandmarksList MH.landmarkListDecoder
         }
 
 
@@ -832,10 +790,10 @@ viewAddressSuggestion redactedPoint item =
 -- Summary
 
 
-viewSummary : SummaryType -> Html Msg
+viewSummary : MH.SummaryType -> Html Msg
 viewSummary summaryType =
     case summaryType of
-        Landmark.SummaryValid summary ->
+        MH.SummaryValid summary ->
             div [ class "info-container" ]
                 [ viewInfoControls summary
                 , hr [ style "heigth" "1px", style "width" "100%" ] []
@@ -847,11 +805,11 @@ viewSummary summaryType =
                     ]
                 ]
 
-        Landmark.SummaryInvalid ->
+        MH.SummaryInvalid ->
             div [ id "summary-container" ] [ text "No info" ]
 
 
-viewInfoControls : Summary -> Html Msg
+viewInfoControls : MH.Summary -> Html Msg
 viewInfoControls landmark =
     div [ class "info-controls-container" ]
         [ button 
@@ -876,7 +834,7 @@ viewTitle title =
     h3 [ id "summary-title" ] [ text title ]
 
 
-viewImage : Summary -> Html Msg
+viewImage : MH.Summary -> Html Msg
 viewImage landmark =
     let
         image =

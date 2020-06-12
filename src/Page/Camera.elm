@@ -1,6 +1,6 @@
 module Page.Camera exposing (Model, Msg, view, init, update, subscriptions)
 
-import Html exposing (Html, div, video, p ,text)
+import Html exposing (Html, div, video, p, text)
 import Html.Attributes exposing (..)
 import Html.Events
 import Json.Decode as D

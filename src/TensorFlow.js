@@ -129,6 +129,8 @@ export async function predictVideo (videoEl) {
             worker.postMessage(imgBuffer.values, [imgBuffer.values.buffer]);
 
             img.dispose();
+
+            await tf.nextFrame();
         } 
         else {
             clearInterval(interval);
