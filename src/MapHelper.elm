@@ -9,6 +9,9 @@ module MapHelper exposing
     , MapStatus(..)
     , AddressResults(..)
     , RedactedPoint(..)
+    , Landmark
+    , Summary
+    , SummaryType(..)
     , itemListDecoder
     , itemDecoder
     , addressDecoder
@@ -18,12 +21,14 @@ module MapHelper exposing
     , routeSummaryListDecoder
     , routeParamEncoder
     , routeSummaryEncoder
+    , summaryDecoder
+    , landmarkListDecoder
+    , markerInfoEncoder
     )
 
 import Json.Encode as Encode exposing (Value, object)
 import Json.Decode as Decode exposing (Decoder, bool, int, string, list, float, decodeValue)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt, hardcoded)
-
 
 
 type RedactedPoint
@@ -68,27 +73,12 @@ type alias RouteSummary =
     }
 
 
-type alias RouteSummaryObject =
-    { baseDuration : Int
-    , duration : Int
-    , length : Int
-    }
-
-
-
 type RoutePoint
     = StartPointValid String Position
     | StartPointInvalid String
     | EndPointValid String Position
     | EndPointInvalid String
 
-
-
---type RoutePoint
---    = StartPointValid String Position
---    | StartPointInvalid String
---    | EndPointValid String Position
---    | EndPointInvalid String
 
 
 type alias Address = 
@@ -112,6 +102,28 @@ type alias Position =
     }
 
 
+
+type alias Landmark =
+    { id : Int
+    , wikiPage : String
+    , wikiName : String
+    }
+
+
+type alias Summary =
+    { id : Int
+    , title : String
+    , extract : String
+    , thumbnail : String
+    , originalImage : String
+    , wikiUrl : String
+    , coordinates : Position
+    }
+
+
+type SummaryType
+    = SummaryValid Summary
+    | SummaryInvalid
 
 
 
@@ -147,30 +159,28 @@ positionDecoder =
         |> required "lng" float
 
 
-positionEncoder : Position -> Encode.Value
-positionEncoder position =
+positionEncoder : Float -> Float -> Encode.Value
+positionEncoder lat lng =
     Encode.object
-        [ ("lat", Encode.float position.lat)
-        , ("lng", Encode.float position.lng)
+        [ ("lat", Encode.float lat)
+        , ("lng", Encode.float lng)
         ]
 
 
 routeParamEncoder : Position -> Position -> String -> Encode.Value
 routeParamEncoder origin destination transportMode = 
     Encode.object
-        [ ("origin", positionEncoder origin)
-        , ("destination", positionEncoder destination)
+        [ ("origin", (positionEncoder origin.lat origin.lng))
+        , ("destination", (positionEncoder destination.lat destination.lng))
         , ("transportMode", Encode.string transportMode)
         ]
 
 
---routeSummaryResponseDecoder : Decoder 
 
 
 routeSummaryListDecoder : Decoder (List RouteSummary)
 routeSummaryListDecoder =
     Decode.list routeSummaryDecoder
-    --Decode.succeed 
 
 
 
@@ -198,16 +208,65 @@ routeSummaryEncoder : RouteSummary -> Encode.Value
 routeSummaryEncoder routeSummary =
     Encode.object
         [ ( "polyline", Encode.string routeSummary.polyline )
-        , ( "departure", positionEncoder routeSummary.departure)
-        , ( "arrival", positionEncoder routeSummary.arrival)
+        , ( "departure", (positionEncoder routeSummary.departure.lat routeSummary.departure.lng))
+        , ( "arrival", (positionEncoder routeSummary.arrival.lat routeSummary.arrival.lng))
         ]
 
---routeSummaryObjectDecoder : Decoder RouteSummaryObject
---routeSummaryObjectDecoder =
---    Decode.succeed RouteSummaryObject
---        |> required "baseDuration" int
---        |> required "duration" int
---        |> required "length" int
+
+
+markerInfoEncoder : Summary -> Value
+markerInfoEncoder summary =
+    let 
+        encodedCoord = positionEncoder summary.coordinates.lat summary.coordinates.lng
+    in
+    Encode.object
+        [ ( "id", Encode.int summary.id )
+        , ( "title", Encode.string summary.title)
+        , ( "thumbnail", Encode.string summary.thumbnail )
+        , ( "coords", encodedCoord ) 
+        ]
+
+
+-- DECODERS
+
+
+-- Summary Decoder
+summaryDecoder : Int -> Decoder Summary
+summaryDecoder id =
+    Decode.succeed Summary
+        |> hardcoded id
+        |> required "title" string
+        |> required "extract" string
+        |> optionalAt [ "thumbnail", "source" ] string ""
+        |> optionalAt [ "originalimage", "source" ] string ""
+        |> requiredAt [ "content_urls", "desktop", "page" ] string
+        |> required "coordinates" coordinateDecoder 
+
+
+
+coordinateDecoder : Decoder Position
+coordinateDecoder =
+    Decode.succeed Position
+        |> required "lat" float
+        |> required "lon" float
+
+
+
+-- Landmark Decoder
+landmarkListDecoder : Decoder (List Landmark)
+landmarkListDecoder =
+    Decode.list landmarkDecoder
+        |> Decode.field "landmarks"
+
+
+landmarkDecoder : Decoder Landmark
+landmarkDecoder =
+    Decode.succeed Landmark
+        |> required "id" int
+        |> required "wikipage" string
+        |> required "wikiname" string
+
+
 
 
 -- HELPERS
