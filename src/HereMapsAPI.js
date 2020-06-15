@@ -3,9 +3,10 @@ var map,
 	markerGroup,
 	routeGroup,
 	mapHTML,
-	routes,
-	sofiaPos = { lat: 42.693, lng: 23.33 };
+	routes;
+	
 
+const sofiaPos = { lat: 42.693, lng: 23.33 };
 const bodyTag = document.getElementsByTagName('body')[0];
 
 const LIBS = {
@@ -17,12 +18,13 @@ const LIBS = {
 };
 
 
-/* 
+/** 
     The HereMaps libraries are loaded in the following sequence:
         1) mapjsCore
         2) mapjsService, mapjsEvents, mapjsUI (dependent on mapjsCore)
         3) mapjsPlaces (dependent on mapjsCore, mapjsService)
-    Return error if the loading fails
+
+    @return {Promise} Promise if the loading succeeds or fails
 */
 export function loadMapLibs() {
     return loadLibrary(LIBS.mapsjsCore)
@@ -34,7 +36,14 @@ export function loadMapLibs() {
         .catch((error) => 'Failed to load map libraries');
 }
 
-// Load library by adding it to the headTag
+
+
+/**
+ * Loads library by adding it to the headTag
+ * 
+ * @param  {string} url - String representing the url of the library to load
+ * @return {Promise} - Promise representing the failure or success of loading
+ */
 function loadLibrary(url) {
     return new Promise((resolve, reject) => {
         let scriptHTML = document.createElement('script');
@@ -44,45 +53,55 @@ function loadLibrary(url) {
         scriptHTML.async = true;
         scriptHTML.src = url;
 
-        // Resolve callback if loading is successful
+        // Resolves callback if loading is successful
         scriptHTML.onload = function () {
             resolve(url);
         }
 
-        // Reject callback if loading has failed
+        // Rejects callback if loading has failed
         scriptHTML.onerror = function () {
             reject('Failed to load library: ' + url);
         }
 
-        // Append the script to the bodyTag
+        // Appends the script to the bodyTag
         bodyTag.appendChild(scriptHTML);
     })
 }
 
 
-// Create map HTML div and append it to the map-page element
+
+/**
+ * Creates HTMLElement containing the map and append it to the 'map-page' element
+ * 
+ * @return {void}
+ */
 export function createMapHTML() {
  	let mapElement = document.createElement('div');
  
- 	// Add id "map"
+ 	// Adds id "map"
 	mapElement.setAttribute("id", "map");
 
-	// Append the created mapElement to the map-page element
+	// Appends the created mapElement to the map-page element
  	document.getElementById('map-page').appendChild(mapElement);
 }
 
 
-// Initialize the map using the apikey
+/**
+ * Initializes the map using the HereMap Service API key
+ * 
+ * @return {void}
+ */
 export function initMap() {
-	// Create new platform service using the apikey
+
+	// Creates new platform service using the apikey
 	platform = new H.service.Platform({
 		'apikey' : 'dP5zwyCeAD7lpfNYrPowSIoJajsYo5P4NQunUM10bw0'
 	});
 
-	// Obtain the default map types from the platform object:
+	// Obtains the default map types from the platform object:
 	let defaultLayers = platform.createDefaultLayers({ lg: ''});
 
-	// Instantiate (and display) a map object:
+	// Instantiates (and display) a map object:
 	map = new H.Map(
 	    document.getElementById('map'),
 	    defaultLayers.vector.normal.map,
@@ -95,22 +114,32 @@ export function initMap() {
 	// Resize listener to make sure that the map occupies the whole container
     window.addEventListener('resize', () => map.getViewPort().resize());
 
-	// Make the map interactive
+	// Makes the map interactive
     let behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 
-    //Create group that can hold map objects
+    // Creates group that can hold map objects
     markerGroup = new H.map.Group();
 
-    //Create group that can hold route lines 
+    // Creates group that can hold route lines 
     routeGroup = new H.map.Group();
 
-    //Add the group to the map object
+    // Adds the group to the map object
     map.addObjects([markerGroup, routeGroup]);
 }
 
 
+/**
+ * Search address
+ * 
+ * @param  {string} query - String representing the address to be searched
+ * @param  {requestCallback} callback - Callback function used to return
+ * the found addresses
+ *  
+ * @return {void}
+ */
 export function search(query, callback) {
-	//	Get SearchService and create search paramaters
+
+	// Takes SearchService and creates search paramaters
 	let service = platform.getSearchService(),
 		geocodingParamaters = {
 			searchText : query,
@@ -118,19 +147,24 @@ export function search(query, callback) {
 		};
 
 
-	// Get location of Sofia center 
+	// Takes location of Sofia center 
 	let lat = sofiaPos.lat.toString(),
 		lng = sofiaPos.lng.toString(),
 		at = lat.concat(',', lng);
 
 
-	// Use [/browse] endpoint service to search for locations using the text query
+    /**
+     * Searched the for locations using the /discover endopoint and the
+     * @param query
+     */
 	service.discover({
 		q: query,
 		at: at,
 		limit: 10,
 		lang: 'en-US'
 	}
+
+    // Returns addresses and their relevant information
 	, (results) => {
 		let items = results.items.map(i => 
 			({ address : i.address
@@ -139,14 +173,25 @@ export function search(query, callback) {
 			, title : i.title
 			}));
 
+            // Returns results if there are any
 			callback( items );
 	}
+
+    // Returns any error
 	, (err) => callback( { error : err } )
 	);
 }
 
 
-
+/**
+ *  Adds marker to the map
+ * 
+ * @param {obejct} landmark - Object containing all the information needed to 
+ * create the marker and add it to the map
+ * 
+ * @param {requestCallback} callback - Callback function which is invoked if 
+ * the user clicks on the marker
+ */
 export function addMarker(landmark, callback) {
 	let coords = {
 		lat : landmark.coords.lat,
@@ -159,19 +204,24 @@ export function addMarker(landmark, callback) {
 		marker;
 
 
-	// If there is no thumbnail just render empty icon
+    /**
+     * Renders empty icon with the landmark name if there is 
+     * no thumbnail available.
+     *
+     * Otherwise adds the thumbnail
+     */
 	if (landmark.thumbnail == "") {
 
 		outerElement.classList.add('marker-text');
 
-		//Create paragraph node and add the landmark title to it
+		//Creates paragraph node and add the landmark title to it
 	  	let title = document.createElement('p');
   		title.innerHTML = landmark.title;
 
-	  	// Add the paragraph to the div
+	  	// Adds the paragraph to the div
 	  	outerElement.appendChild(title);
 
-	  	//Create new DomIcon by passing the created dom element
+	  	//Creates new DomIcon by passing the created dom element
 	  	domIcon = new H.map.DomIcon(outerElement,{});
 
 	} else {
@@ -180,45 +230,59 @@ export function addMarker(landmark, callback) {
 		innerElement.src = landmark.thumbnail;
 		innerElement.alt = landmark.title;
 
-	  	//Create new DomIcon by passing the created dom element
+	  	//Creates new DomIcon by passing the created dom element
 	  	domIcon = new H.map.DomIcon(innerElement,{});
 	}
 
-	// Create new marker
+	// Creates new marker
   	marker = new H.map.DomMarker(coords,{
   		icon: domIcon,
   		data: landmark.id
   	});
 
-	  	marker.addEventListener('tap', (evt) => {
+    // Listens for the @event {tap} and invokes the callback
+  	marker.addEventListener('tap', (evt) => {
   		callback(evt.target.data)
   	});
 
-  	// map.addObject(marker);
+    // Adds the marker to the marker group
   	markerGroup.addObject(marker);
 }
 
 
 
-// Geoservices API 
+/**
+ * Geoservices API
+ * 
+ * @param  {requestCallback} callback - Callback function used to notify if 
+ * the device supports Geoservices or not
+ *
+ * @return {void}
+ */
 export function getGeolocation(callback) {
-    // Check if geoservices are supported
+
+    // Checks if geoservices are supported
     if (navigator.geolocation) {
 
-	    // If geoservices are supported get the current position
+        // Takes the current position if geoservices are supported
 	    navigator.geolocation.getCurrentPosition((position) => {
 
-	        // Filter just the coordinates
+	        // Filters just the coordinates
 	        let pos = {
 	            lat: position.coords.latitude,
 	            lng: position.coords.longitude
 	        };
 
+            // Returns the position
 	        callback(pos);
+
+            // Monitors the position for changes
 	        monitorPosition(callback);
 	    }
 
-	    // Send message onError(app.ports.geoserviceLocationError.send) if there is problem with getting the current location 
+	
+        // Invokes the callback with error if there is problem getting the 
+        // current location
 	    , (error) => callback("Couldn't get current position")
 
         // Apply options 
@@ -228,48 +292,80 @@ export function getGeolocation(callback) {
 
     // Browser doesn't support Geolocation
     else {
-
-      // handleLocationError(false, infoWindow, map.getCenter());
       onError("Your device doesn't support geolocation")
     }
 }
 
 
+/**
+ *  Monitors the device geolocation for changes
+ * 
+ * @param  {requestCallback} callback - Callback function used to notify if 
+ * the device supports Geoservices or not
+ * 
+ * @return {void}
+ */
 export function monitorPosition(callback) {
 
-    // Watch for changes
-    navigator.geolocation.watchPosition((p) => {
+    /**
+     *  Watch geolocation position of the device
+     * 
+     * @param  {GeolocationPosition} position - Represents the position of the 
+     * device at a given time
+     * 
+     * @return {void}
+     */
+    navigator.geolocation.watchPosition((pos) => {
 
-        // Filter just the coordinates
-        let pos = {
-            lat: p.coords.latitude,
-            lng: p.coords.longitude
+        // Filters just the coordinates
+        let position = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
         };
 
-        // Call the onSuccess(app.ports.geoserviceLocationReceive.send) callback with the current postion
-        callback(pos);
+        // Calls the callback with the current postion
+        callback(position);
     }
+
+    // Calls the callback with error 
     , (error) => callback("Couldn't get current position")
-    , { enableHighaccuracy : true, timeout: Infinity, maximumAge: 0 }
+
+    // @param {PositionOptions} - object providing options for the location watch
+    , { enableHighaccuracy: true, timeout: Infinity, maximumAge: 0 }
     )
 }
 
 
-export function routing(parameters, onResponse) {
-	// Instantiate routing service
+/**
+ * HereMaps Routing API 
+ * 
+ * @param  {object} parameters - Routing parameters
+ *   Example: 
+ *      { origin: { lat: {float} , lng: {float} }
+ *      , destination: { lat: {float}, lat: {float} }
+ *      , transportMode: {string} // car or pedestrian 
+ *      } 
+ *      
+ * @param  {requestCallback} callback - Callback function
+ * 
+ * @return {void}
+ */
+export function routing(parameters, callback) {
+
+	// Instantiates routing service and asks for version 8
 	let router = platform.getRoutingService(null, 8);
 
-	// Get the origin point
+	// Takes the origin point
 	let originLat = parameters.origin.lat.toString(),
 		originLng = parameters.origin.lng.toString(),
 		originPos = originLat.concat(',', originLng);
 
-	// Get the destination point 
+	// Takes the destination point 
 	let destinationLat = parameters.destination.lat.toString(),
 		destinationLng = parameters.destination.lng.toString(),
 		destinationPos = destinationLat.concat(',', destinationLng);
 
-	// Create routing parameters
+	// Routing parameters
 	let routingParameter = {
 		'transportMode' : parameters.transportMode,
 		'routingMode' : 'fast',
@@ -281,33 +377,34 @@ export function routing(parameters, onResponse) {
 		'return' : ['polyline','summary','actions', 'instructions']
 	}
 
-
+    // Creates function which will be invkoed if there is a result 
 	let onResult = function(result) {
-		// console.log(result);
 		let arrival,
 			departure,
 			routeSummaryList = [];
 
+        // Takes each route and filters only the relevent information
 		result.routes.forEach((route) => {
-			// Create actions array
+
+			// Creates actions array
 			let actions = [],
 				duration,
 				distance;
 
-			// Take deparute and arrival points
+			// Takes deparute and arrival points
 			departure = route.sections[0].departure.place.location,
 			arrival = route.sections[0].arrival.place.location;
 
-			// 
+			// Formats the duration and distance in a human-readable form
 			duration = getTime(route.sections[0].summary.duration);
 			distance = getDistance(route.sections[0].summary.length)
 
-			// Take action instructions for every route
+			// Takes list of action instructions for every route
 			route.sections[0].actions.forEach((action) => {
 				actions.push(action.instruction);
 			})
 
-			// Create routeObject 
+			// Creates routing object 
 			let routeObject = {
 				id : route.sections[0].id,
 				polyline : route.sections[0].polyline,
@@ -320,49 +417,53 @@ export function routing(parameters, onResponse) {
 				arrival : arrival
 			};
 
-			// Add routeObject to the list of Routes
+			// Adds the routing object to the list of Routes
 			routeSummaryList.push(routeObject);
 		})
 
-		// console.log(getDistance(routeSummaryList[0].summary.length));
-		// console.log(getTime(routeSummaryList[0].summary.duration));
-		// console.log(routeSummaryList);
-		onResponse(routeSummaryList);
-
-		// // Get the first route polyline 
-		// let route = routeSummaryList[0];
-
-		// // Show polyline on the map
-		// addRouteShapeToMap(route);
+        // Invokes the callback with the results
+		callback(routeSummaryList);
 	}
 
 
-	// Call the routing service with the parameters
+	// Calls the routing service with the parameters
 	router.calculateRoute( 
         routingParameter,
         onResult,
-		(error) => onResponse({ error : error })
+		(error) => callback({ error : error })
     );
 }
 
+
+/**
+ *  Shows the selected route on the map
+ *  
+ * @param {object} route - Object holding information needed to add a route the map
+ *  route = 
+ *      { polyline: {string}
+ *      , departure : { lat: {float}, lng: {float} }
+ *      , arrival: { lat: {float}, lng: {float} }
+ *      }
+ * 
+ */
 export function addRouteShapeToMap(route) {
-	// First clean the previous routes
+
+	// Cleans the previous routes and hides the markers
 	cleanRouteGroup();
 	hideMarkerGroup();
-	// console.log(route.departure);
-	// console.log(route.arrival);
-	// Instantiate linestring
+
+    // Creates a {LineString} from a polyline
 	let lineString = new H.geo.LineString.fromFlexiblePolyline(route.polyline);
 
 
-	// Create a marker for the starting point 
+	// Creates a marker for the starting point 
 	let	startMarker = new H.map.Marker(route.departure);
 
 	// Create a marker for the end point
 	let	endMarker = new H.map.Marker(route.arrival);
 
 
-	// Create polyline
+	// Creates polyline
 	let polyline = new H.map.Polyline(lineString, {
 		style: 
 			{ strokeColor : 'rgba(156, 39, 176, 1)'
@@ -374,7 +475,7 @@ export function addRouteShapeToMap(route) {
 	});
 
 
-	// Create patterned polyline
+	// Creates patterned polyline
 	let routeArrows = new H.map.Polyline(lineString, {
 		style : 
 			{ lineWidth : 10
@@ -388,29 +489,40 @@ export function addRouteShapeToMap(route) {
 	});
 	
 
-	// Add the polyline and markers to the map;
+	// Adds the polyline and markers to the map;
 	routeGroup.addObjects([polyline, routeArrows, startMarker, endMarker])
 
 
-	// Set the map
+	// Sets the map
 	map.getViewModel().setLookAtData({bounds: polyline.getBoundingBox()});
 }
 
 
+// Cleans the routeGroup
 export function cleanRouteGroup() {
 	routeGroup.removeAll();
 }
 
 
+// Hides the marker group
 export function hideMarkerGroup() {
 	markerGroup.setVisibility(false);
 }
 
+
+// Brings back the markers
 export function showMarkerGroup() {
     markerGroup.setVisibility(true);
 }
 
 
+/**
+ *  Formats the time from seconds to human-readable form
+ * 
+ * @param  {int} seconds - the travel time in seconds
+ * 
+ * @return {string} - formatted time
+ */
 function getTime(seconds) {
 	let hours,
 		min;
@@ -428,10 +540,19 @@ function getTime(seconds) {
 
 }
 
+
+
+/**
+ *  Formats the distance to human-readable form
+ * 
+ * @param  {int} meters - the travel distance in meters
+ * 
+ * @returns {string} - formatted distance in km and meters
+ */
 function getDistance(meters) {
 	if (meters < 1000) {
 		return meters + ' m';
 	} else 
-		return (meters / 1000).toFixed(1) + ' km';
-
+		
+    return (meters / 1000).toFixed(1) + ' km';
 }
