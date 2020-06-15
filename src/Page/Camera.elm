@@ -94,7 +94,7 @@ view model  =
 viewCamera : Html Msg
 viewCamera =
     video 
-        [ id "camera"
+        [ id "video"
         , autoplay True
         , attribute "playsinline" "true"
         , attribute "muted" "true"
