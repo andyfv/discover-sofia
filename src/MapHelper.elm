@@ -21,6 +21,7 @@ module MapHelper exposing
     , routeSummaryListDecoder
     , routeParamEncoder
     , routeSummaryEncoder
+    , routeSummaryDecoder
     , summaryDecoder
     , landmarkListDecoder
     , markerInfoEncoder
@@ -193,8 +194,8 @@ routeSummaryDecoder =
         |> optional "mode" string ""
         |> optional "distance" string "Distance not available"
         |> optional "duration" string "Duration not available"
-        |> required "departure" positionDecoder
-        |> required "arrival" positionDecoder
+        |> requiredAt ["departure", "place", "location"] positionDecoder
+        |> requiredAt ["arrival", "place", "location"] positionDecoder
 
 
 actionListDecoder : Decoder (List String)
