@@ -88,10 +88,13 @@ export function createMapHTML() {
 
 /**
  * Initializes the map using the HereMap Service API key
+ *
+ * @param {requestCallback} onMapLoad - Callback function used to notify Elm runtime
+ * when the map is loaded
  * 
  * @return {void}
  */
-export function initMap() {
+export function initMap(onMapLoad) {
 
 	// Creates new platform service using the apikey
 	platform = new H.service.Platform({
@@ -99,7 +102,7 @@ export function initMap() {
 	});
 
 	// Obtains the default map types from the platform object:
-	let defaultLayers = platform.createDefaultLayers({ lg: ''});
+	let defaultLayers = platform.createDefaultLayers();
 
 	// Instantiates (and display) a map object:
 	map = new H.Map(
@@ -125,6 +128,9 @@ export function initMap() {
 
     // Adds the group to the map object
     map.addObjects([markerGroup, routeGroup]);
+
+    // Notifies Elm runtime that the map is loaded
+    onMapLoad("loaded");
 }
 
 

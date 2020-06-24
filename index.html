@@ -32,8 +32,9 @@
         app.ports.mapLoad.subscribe(() =>  {
             HereMapsAPI.loadMapLibs()
             .then(() => HereMapsAPI.createMapHTML())
-            .then(() => HereMapsAPI.initMap())
-            .catch((error) => app.ports.mapLoadingStatus.send("failed"));
+            .then(() => HereMapsAPI.initMap(app.ports.mapLoadingStatus.send))
+            // .then(() => app.ports.mapLoadingStatus.send("loaded"))
+            .catch((error) => app.ports.mapLoadingStatus.send("failed"))
         });
 
 
