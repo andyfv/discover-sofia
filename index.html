@@ -33,7 +33,6 @@
             HereMapsAPI.loadMapLibs()
             .then(() => HereMapsAPI.createMapHTML())
             .then(() => HereMapsAPI.initMap(app.ports.mapLoadingStatus.send))
-            // .then(() => app.ports.mapLoadingStatus.send("loaded"))
             .catch((error) => app.ports.mapLoadingStatus.send("failed"))
         });
 
@@ -95,8 +94,14 @@
         // Tell the model to predict the video stream from the camera
         app.ports.tfVideoPredict.subscribe(() => {
             TF.createVideoElement()
-            .then((values) => TF.predictVideo(values, app.ports.tfPredictResult.send))
-            .catch((err) => console.log(err.message));
+            .then((values) => TF.predictVideo(
+                values, 
+                app.ports.tfPredictResult.send
+                )
+            )
+            .catch((err) => 
+                app.ports.tfPredictResult.send({ error : err.message })
+            );
         });
 
     </script>
