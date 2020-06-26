@@ -47,7 +47,6 @@ body {
         height: 100%; 
     }
 
-
 	.header-wrapper {
 		height: 64px;
 /*		margin: 10px;*/
@@ -1545,6 +1544,27 @@ body {
     }
 
 }
+
+
+
+#map-status {
+    z-index: 99;
+    position: fixed;
+    bottom: 10px;
+    /*left: calc(50% - 200px);*/
+    left: calc(50% - 100px);
+    background-color: white;
+    width: 200px;
+    max-width: 650px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 0px 3px rgba(0,0,0,0.45);
+    height: 48px;
+}
+
+#map-status p {
+    text-align: center;
+}
+
 
 .marker-text { 
     user-select: none;

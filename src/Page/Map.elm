@@ -430,7 +430,10 @@ viewMode : Model -> Html Msg
 viewMode model =
     case model.mapStatus of
         MH.MapLoading ->
-            p [ style "text-align" "center" ] [ text "Loading..." ]
+            div [ id "map-status" ] 
+                [ 
+                p [] [ text "Loading..." ] 
+                ]
 
         MH.MapLoadingFialed err ->
             text err
