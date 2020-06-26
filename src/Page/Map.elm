@@ -5,7 +5,6 @@ import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.Lazy exposing (lazy)
 import Json.Decode as Decode exposing (Error, Value, decodeValue)
 import Json.Decode.Pipeline as DecodePipe
 import Url.Builder as UrlBuilder exposing (crossOrigin)
@@ -108,7 +107,7 @@ type InfoMode
 
 type Msg
     = NoOp
-      -- MapStatus
+      -- Map
     | MapStatusMsg String
     | MapSearchResponse (Result Decode.Error (List MH.Address))
     | MapSearchClear
@@ -116,6 +115,7 @@ type Msg
     | MapRoutesUpdate MH.RoutePoint
     | MapRoutesTransport MH.Transport
     | MapRouteSelected RouteSummary
+
       -- Info Element
     | InfoOpen (Maybe Int)
     | InfoOpenDirections String Position
@@ -123,10 +123,13 @@ type Msg
     | InfoUpdateRouteFocus MH.RedactedPoint
     | InfoClose
     | InfoHide
-      -- DirectionsView
+
+      -- Geoservices
     | GeoserviceLocationReceive (Result Decode.Error Position)
+
       -- Load data.json
     | LoadLandmarksList (Result Http.Error (List MH.Landmark))
+
       -- Received Wikipedia summary pages
     | LoadLandmarskWiki (Result Http.Error MH.Summary)
 

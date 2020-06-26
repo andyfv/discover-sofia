@@ -125,7 +125,7 @@ export function createVideoElement() {
     return new Promise((resolve, reject) => {
         
         // @var {HTMLElement} video - take a refence to the 
-        const videoElement = document.getElementById('video');
+        let videoElement = document.getElementById('video');
 
         // @var {object} constraints - holds the configurations for media stream
         const constraints =
@@ -219,11 +219,13 @@ export async function predictVideo (videoElement, onResult) {
     let interval = setInterval(async () => {
         // Make predictions if the video is playing
         if (!videoElement.paused) {
-
+            // Takes a frame from the video stream
             const img = await videoCam.capture();
 
+            // Makes prediction on the frame
             makePrediction(img, onResult);
 
+            // Dispose the tensors to free the memory 
             img.dispose();
 
             await tf.nextFrame();
