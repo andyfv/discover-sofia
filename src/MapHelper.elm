@@ -194,8 +194,8 @@ routeSummaryDecoder =
         |> optional "mode" string ""
         |> optional "distance" string "Distance not available"
         |> optional "duration" string "Duration not available"
-        |> requiredAt ["departure", "place", "location"] positionDecoder
-        |> requiredAt ["arrival", "place", "location"] positionDecoder
+        |> requiredAt ["departure"] positionDecoder
+        |> requiredAt ["arrival"] positionDecoder
 
 
 actionListDecoder : Decoder (List String)
