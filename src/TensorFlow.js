@@ -77,11 +77,11 @@ function loadLibrary(url) {
  * @param  {function} onLoad - Callback function to notify Elm when 
  * the model is loaded
  * 
- * @return {boolean} onLoad - A callback to returns
+ * @return {requestCallback} onLoad - A callback to returns
  */
 export async function loadModel(onLoad) {
     try {
-        model = await tf.loadGraphModel('/assets/tfjs_model_quantized_2/model.json');
+        model = await tf.loadGraphModel('/assets/tfjs_model_quantized_uint8/model.json');
     } catch (e) {
         // Notifies Elm runtime that the loading has failed
         onLoad(false);
