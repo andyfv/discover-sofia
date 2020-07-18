@@ -114,7 +114,8 @@ viewPrediction result =
                 ]
 
         TF.PredictionErr err ->
-            div [] [ text err ]
+            div [ style "text-align" "center" ] 
+                [ text err ]
 
         _ ->
             text ""

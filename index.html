@@ -100,7 +100,7 @@
                 )
             )
             .catch((err) => 
-                app.ports.tfPredictResult.send({ error : err.message })
+                app.ports.tfPredictResult.send({ error : "Camera not found" })
             );
         });
 
