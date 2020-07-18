@@ -57,15 +57,6 @@ type alias Model =
 
 
 
-
---type RoutePoint
---    = StartPointValid String MapValues.Position
---    | StartPointInvalid String
---    | EndPointValid String MapValues.Position
---    | EndPointInvalid String
-
-
-
 type AddressResults
     = AddressResultsEmpty
     | AddressResultsLoading
