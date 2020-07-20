@@ -16,34 +16,34 @@ type Route
 
 gitHubBase : String
 gitHubBase =
-    "discover-sofia"
+    "discover-sofia-deployment"
 
 
 -- Ucomment when deploying to Github/Gitlab
---matchRoute : Parser (Route -> a) a
---matchRoute =
---    oneOf
---        [ Parser.map Map Parser.top
---        , Parser.map Map (s gitHubBase)
---        , Parser.map MapLandmark (s gitHubBase </> s "map" </> string)
---        , Parser.map Map (s gitHubBase </> s "map")
---        , Parser.map Camera (s gitHubBase </> s "camera")
---        , Parser.map Photos (s gitHubBase </> s "photos")
---        ]
+matchRoute : Parser (Route -> a) a
+matchRoute =
+    oneOf
+        [ Parser.map Map Parser.top
+        , Parser.map Map (s gitHubBase)
+        , Parser.map MapLandmark (s gitHubBase </> s "map" </> string)
+        , Parser.map Map (s gitHubBase </> s "map")
+        , Parser.map Camera (s gitHubBase </> s "camera")
+        , Parser.map Photos (s gitHubBase </> s "photos")
+        ]
 
 
 
 
 -- Comment when deploying to Github/Gitlab
-matchRoute : Parser (Route -> a) a
-matchRoute =
-    oneOf
-        [ Parser.map Map Parser.top
-        , Parser.map Map (s "map")
-        , Parser.map MapLandmark (s "map" </> string)
-        , Parser.map Camera (s "camera")
-        , Parser.map Photos (s "photos")
-        ]
+--matchRoute : Parser (Route -> a) a
+--matchRoute =
+--    oneOf
+--        [ Parser.map Map Parser.top
+--        , Parser.map Map (s "map")
+--        , Parser.map MapLandmark (s "map" </> string)
+--        , Parser.map Camera (s "camera")
+--        , Parser.map Photos (s "photos")
+--        ]
 
 
 fromUrl : Url -> Route
@@ -89,15 +89,15 @@ routeToString page =
 -- LINKS
 
 -- Uncomment when deploying to Github/Gitlab
---internalLink : String -> String
---internalLink path =
---    absolute [ gitHubBase, String.dropLeft 1 path ] []
+internalLink : String -> String
+internalLink path =
+    absolute [ gitHubBase, String.dropLeft 1 path ] []
 
 
 -- Comment when deploying to GitHub/GitLab
-internalLink : String -> String
-internalLink path =
-    absolute [ String.dropLeft 1 path ] []
+--internalLink : String -> String
+--internalLink path =
+--    absolute [ String.dropLeft 1 path ] []
 
 
 absoluteLink : String -> String

@@ -10924,6 +10924,7 @@ var $author$project$Route$MapLandmark = function (a) {
 	return {$: 'MapLandmark', a: a};
 };
 var $author$project$Route$Photos = {$: 'Photos'};
+var $author$project$Route$gitHubBase = 'discover-sofia-deployment';
 var $elm$url$Url$Parser$Parser = function (a) {
 	return {$: 'Parser', a: a};
 };
@@ -11059,22 +11060,38 @@ var $author$project$Route$matchRoute = $elm$url$Url$Parser$oneOf(
 			A2(
 			$elm$url$Url$Parser$map,
 			$author$project$Route$Map,
-			$elm$url$Url$Parser$s('map')),
+			$elm$url$Url$Parser$s($author$project$Route$gitHubBase)),
 			A2(
 			$elm$url$Url$Parser$map,
 			$author$project$Route$MapLandmark,
 			A2(
 				$elm$url$Url$Parser$slash,
-				$elm$url$Url$Parser$s('map'),
-				$elm$url$Url$Parser$string)),
+				$elm$url$Url$Parser$s($author$project$Route$gitHubBase),
+				A2(
+					$elm$url$Url$Parser$slash,
+					$elm$url$Url$Parser$s('map'),
+					$elm$url$Url$Parser$string))),
+			A2(
+			$elm$url$Url$Parser$map,
+			$author$project$Route$Map,
+			A2(
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s($author$project$Route$gitHubBase),
+				$elm$url$Url$Parser$s('map'))),
 			A2(
 			$elm$url$Url$Parser$map,
 			$author$project$Route$Camera,
-			$elm$url$Url$Parser$s('camera')),
+			A2(
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s($author$project$Route$gitHubBase),
+				$elm$url$Url$Parser$s('camera'))),
 			A2(
 			$elm$url$Url$Parser$map,
 			$author$project$Route$Photos,
-			$elm$url$Url$Parser$s('photos'))
+			A2(
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s($author$project$Route$gitHubBase),
+				$elm$url$Url$Parser$s('photos')))
 		]));
 var $elm$url$Url$Parser$getFirstMatch = function (states) {
 	getFirstMatch:
@@ -13057,6 +13074,7 @@ var $author$project$Route$internalLink = function (path) {
 		$elm$url$Url$Builder$absolute,
 		_List_fromArray(
 			[
+				$author$project$Route$gitHubBase,
 				A2($elm$core$String$dropLeft, 1, path)
 			]),
 		_List_Nil);
