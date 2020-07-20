@@ -144,7 +144,12 @@ update msg model =
             case status of 
                 "loaded" ->
                     ( { model | mapStatus = MH.MapLoaded }
-                    , getLandmarksRequest "/../assets/data.json" 
+
+                    -- Comment when deploying 
+                    --, getLandmarksRequest "/../assets/data.json" 
+
+                    -- Uncomment when deploying
+                    , getLandmarksRequest "/disover-sofia-deployment/assets/data.json" 
                     )
 
                 "failed" ->
