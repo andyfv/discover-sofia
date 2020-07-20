@@ -381,25 +381,24 @@ mapSearchHelper address model =
    Uncomment when deploying to Github/GitLab
    Wiki Link: https://en.wikipedia.org/api/rest_v1/page/summary/Stack_Overflow
 -}
---wikiUrlBuilder : String -> String
---wikiUrlBuilder wikiName =
---    crossOrigin
---        "https://en.wikipedia.org"
---        [ "api" ,"rest_v1", "page", "summary", wikiName]
---        []
+wikiUrlBuilder : String -> String
+wikiUrlBuilder wikiName =
+    crossOrigin
+        "https://en.wikipedia.org"
+        [ "api" ,"rest_v1", "page", "summary", wikiName]
+        []
+
 {-
    Comment when deploying to Github/GitLab
    With cors-anywhere (npm install cors-anywhere)
    Link: url2 = "http://localhost:8080/https://en.wikipedia.org/api/rest_v1/page/summary/Stack_Overflow"
 -}
-
-
-wikiUrlBuilder : String -> String
-wikiUrlBuilder wikiName =
-    crossOrigin
-        "http://localhost:8080"
-        [ "https://en.wikipedia.org/api/rest_v1/page/summary", wikiName ]
-        []
+--wikiUrlBuilder : String -> String
+--wikiUrlBuilder wikiName =
+--    crossOrigin
+--        "http://localhost:8080"
+--        [ "https://en.wikipedia.org/api/rest_v1/page/summary", wikiName ]
+--        []
 
 
 getLandmarkWiki : MH.Landmark -> Cmd Msg

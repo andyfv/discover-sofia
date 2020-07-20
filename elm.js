@@ -12410,9 +12410,9 @@ var $elm$url$Url$Builder$crossOrigin = F3(
 var $author$project$Page$Map$wikiUrlBuilder = function (wikiName) {
 	return A3(
 		$elm$url$Url$Builder$crossOrigin,
-		'http://localhost:8080',
+		'https://en.wikipedia.org',
 		_List_fromArray(
-			['https://en.wikipedia.org/api/rest_v1/page/summary', wikiName]),
+			['api', 'rest_v1', 'page', 'summary', wikiName]),
 		_List_Nil);
 };
 var $author$project$Page$Map$getLandmarkWiki = function (landmark) {
