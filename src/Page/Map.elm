@@ -149,7 +149,7 @@ update msg model =
                     --, getLandmarksRequest "/../assets/data.json" 
 
                     -- Uncomment when deploying
-                    , getLandmarksRequest "/disover-sofia-deployment/assets/data.json" 
+                    , getLandmarksRequest "/discover-sofia-deployment/assets/data.json" 
                     )
 
                 "failed" ->
