@@ -87,6 +87,7 @@ view model  =
         [ div [ id "camera-results-wrapper" ] 
             [ viewCamera
             , viewPrediction model.prediction
+            , viewTFStatus model.tfStatus
             ]
         ]
 
@@ -119,3 +120,21 @@ viewPrediction result =
 
         _ ->
             text ""
+
+viewTFStatus : TF.TFStatus -> Html Msg
+viewTFStatus tfStatus =
+    case tfStatus of 
+        TF.Loading ->
+            div [ style "text-align" "center" ]
+                [ text "Loading..."
+                ]
+
+        TF.NotLoaded ->
+            div [ style "text-align" "center" ]
+                [ text "Unable to load model"
+                ]
+
+        TF.Loaded ->
+            div [ style "text-align" "center" ]
+                [ text ""
+                ]

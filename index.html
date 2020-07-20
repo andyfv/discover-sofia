@@ -99,7 +99,7 @@
                 )
             )
             .catch((err) => 
-                app.ports.tfPredictResult.send({ error : "Camera not found" })
+                app.ports.tfPredictResult.send({ error : "Back camera not found" })
             );
         });
 
