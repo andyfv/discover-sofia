@@ -81,7 +81,7 @@ function loadLibrary(url) {
  */
 export async function loadModel(onLoad) {
     try {
-        model = await tf.loadGraphModel('/assets/tfjs_model_quantized_uint8/model.json');
+        model = await tf.loadGraphModel('/assets/tfjs_model_quantized_uint16/model.json');
     } catch (e) {
         // Notifies Elm runtime that the loading has failed
         onLoad(false);
