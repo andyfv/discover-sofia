@@ -90,7 +90,7 @@ export async function loadModel(onLoad) {
         /*
             Uncomment when deploying
          */
-        model = await tf.loadGraphModel('/discover-sofia-deployment/assets/tfjs_model_quantized_uint16/model.json');        
+        model = await tf.loadGraphModel('/discover-sofia/assets/tfjs_model_quantized_uint16/model.json');        
 
         
     } catch (e) {

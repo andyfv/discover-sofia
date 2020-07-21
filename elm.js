@@ -10924,7 +10924,7 @@ var $author$project$Route$MapLandmark = function (a) {
 	return {$: 'MapLandmark', a: a};
 };
 var $author$project$Route$Photos = {$: 'Photos'};
-var $author$project$Route$gitHubBase = 'discover-sofia-deployment';
+var $author$project$Route$gitHubBase = 'discover-sofia';
 var $elm$url$Url$Parser$Parser = function (a) {
 	return {$: 'Parser', a: a};
 };
@@ -12575,7 +12575,7 @@ var $author$project$Page$Map$update = F2(
 							_Utils_update(
 								model,
 								{mapStatus: $author$project$MapHelper$MapLoaded}),
-							$author$project$Page$Map$getLandmarksRequest('/discover-sofia-deployment/assets/data.json'));
+							$author$project$Page$Map$getLandmarksRequest('/discover-sofia/assets/data.json'));
 					case 'failed':
 						return _Utils_Tuple2(
 							_Utils_update(
