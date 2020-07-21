@@ -527,11 +527,6 @@ viewRouteViewControls startPoint endPoint maybeRouteSummary =
                 ]
 
         ( _, _ , _ ) ->
-            let 
-                _ = Debug.log "startPoint" startPoint
-                _ = Debug.log "endPoint" endPoint
-                _ = Debug.log "maybeRouteSummary" maybeRouteSummary
-            in
             text ""
 
 

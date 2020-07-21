@@ -196,10 +196,7 @@ export function createVideoElement() {
 
             resolve(videoElement);
         })
-        .catch((err) => {
-            console.log(err);
-            reject(new Error("Camera not found"))
-        });
+        .catch((err) => reject(new Error("Camera not found")));
     });
 
 }
