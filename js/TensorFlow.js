@@ -90,7 +90,7 @@ export async function loadModel(onLoad) {
         /*
             Uncomment when deploying
          */
-        model = await tf.loadGraphModel('/discover-sofia-deployment/assets/tfjs_model_quantized_uint8/model.json');        
+        model = await tf.loadGraphModel('/discover-sofia-deployment/assets/tfjs_model_quantized_uint16/model.json');        
 
         
     } catch (e) {
@@ -196,7 +196,10 @@ export function createVideoElement() {
 
             resolve(videoElement);
         })
-        .catch((err) => reject(new Error("Camera not found")));
+        .catch((err) => {
+            console.log(err);
+            reject(new Error("Camera not found"))
+        });
     });
 
 }
