@@ -1,4 +1,4 @@
-const LIBS = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js";
+const LIBS = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.1/dist/tf.min.js";
 const bodyTag = document.getElementsByTagName('body')[0];
 
 var model,
