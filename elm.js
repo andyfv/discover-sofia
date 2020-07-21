@@ -10924,7 +10924,7 @@ var $author$project$Route$MapLandmark = function (a) {
 	return {$: 'MapLandmark', a: a};
 };
 var $author$project$Route$Photos = {$: 'Photos'};
-var $author$project$Route$gitHubBase = 'discover-sofia-deployment';
+var $author$project$Route$gitHubBase = 'discover-sofia';
 var $elm$url$Url$Parser$Parser = function (a) {
 	return {$: 'Parser', a: a};
 };
