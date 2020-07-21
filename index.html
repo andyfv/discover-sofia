@@ -36,7 +36,7 @@
         });
 
 
-        // Sends showLandmarkSummary port as a callback function
+        // Adds custom map marker to the map
         app.ports.mapMarkerAddCustom.subscribe((landmark) => {
             HereMapsAPI.addMarker(
                 landmark, 
@@ -90,7 +90,7 @@
         });
 
 
-        // Tell the model to predict the video stream from the camera
+        // Tells the model to predict the video stream from the camera
         app.ports.tfVideoPredict.subscribe(() => {
             TF.createVideoElement()
             .then((values) => TF.predictVideo(
@@ -98,8 +98,10 @@
                 app.ports.tfPredictResult.send
                 )
             )
-            .catch((err) => 
+            .catch((err) => {
+                console.log(err);
                 app.ports.tfPredictResult.send({ error : "Back camera not found" })
+            }
             );
         });
 
