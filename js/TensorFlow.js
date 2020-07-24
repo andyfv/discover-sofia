@@ -145,7 +145,7 @@ export function createVideoElement() {
                 video : {
                     width : { ideal : 720 },
                     height : { ideal : 720 },
-                    aspectRation : { ideal : 1/1 },
+                    aspectRatio : { ideal : 1/1 },
                     frameRate : { min : 24, max : 60 },
                     facingMode : { exact : "environment" }
                 }
