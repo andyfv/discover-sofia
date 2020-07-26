@@ -134,8 +134,8 @@ export function createVideoElement() {
                 video : {
                     width : { ideal : 720 },
                     height : { ideal : 720 },
-                    aspectRatio : { ideal : 1/1 },
-                    frameRate : { min : 24, max : 60 },
+                    aspectRatio : { ideal : 1.0 },
+                    frameRate : { min : 24, max : 30 },
                     facingMode : { exact : "environment" }
                 }
             }
@@ -156,7 +156,6 @@ export function createVideoElement() {
             tracks.forEach(function(track) {
                 track.stop();
             });
-
             videoElement.srcObject = null;
         };
 
