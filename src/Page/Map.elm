@@ -131,7 +131,7 @@ type Msg
     | LoadLandmarksList (Result Http.Error (List MH.Landmark))
 
       -- Received Wikipedia summary pages
-    | LoadLandmarskWiki (Result Http.Error MH.Summary)
+    | LoadLandmarksWiki (Result Http.Error MH.Summary)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -315,7 +315,7 @@ update msg model =
             ( model, Cmd.none )
 
         -- Received Wikipedia summary pages
-        LoadLandmarskWiki (Ok summary) ->
+        LoadLandmarksWiki (Ok summary) ->
             ( { model
                 | landmarkSummaryList =
                     model.landmarkSummaryList
@@ -324,7 +324,7 @@ update msg model =
             , mapMarkerAddCustom (MH.markerInfoEncoder summary)
             )
 
-        LoadLandmarskWiki (Err summary) ->
+        LoadLandmarksWiki (Err summary) ->
             ( model, Cmd.none )
 
 
@@ -411,7 +411,7 @@ getLandmarkWiki landmark =
     Http.get
         { url = wikiUrlBuilder landmark.wikiName
         , expect = 
-            Http.expectJson LoadLandmarskWiki (MH.summaryDecoder landmark.id)
+            Http.expectJson LoadLandmarksWiki (MH.summaryDecoder landmark.id)
         }
 
 
