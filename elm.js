@@ -10916,7 +10916,7 @@ var $author$project$Main$NavBarMsg = function (a) {
 	return {$: 'NavBarMsg', a: a};
 };
 var $author$project$Main$NotFoundPage = {$: 'NotFoundPage'};
-var $author$project$TF$NotLoaded = {$: 'NotLoaded'};
+var $author$project$TensorFlow$NotLoaded = {$: 'NotLoaded'};
 var $author$project$Route$NotFound = {$: 'NotFound'};
 var $author$project$Route$Camera = {$: 'Camera'};
 var $author$project$Route$Map = {$: 'Map'};
@@ -11235,15 +11235,15 @@ var $author$project$Main$PhotosMsg = function (a) {
 var $author$project$Main$PhotosPage = function (a) {
 	return {$: 'PhotosPage', a: a};
 };
-var $author$project$TF$Empty = {$: 'Empty'};
-var $author$project$TF$Loading = {$: 'Loading'};
+var $author$project$TensorFlow$Empty = {$: 'Empty'};
+var $author$project$TensorFlow$Loading = {$: 'Loading'};
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$TF$tfLoad = _Platform_outgoingPort(
+var $author$project$TensorFlow$tfLoad = _Platform_outgoingPort(
 	'tfLoad',
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $author$project$TF$tfVideoPredict = _Platform_outgoingPort(
+var $author$project$TensorFlow$tfVideoPredict = _Platform_outgoingPort(
 	'tfVideoPredict',
 	function ($) {
 		return $elm$json$Json$Encode$null;
@@ -11253,11 +11253,11 @@ var $author$project$Page$Camera$init = function (tfStatus) {
 		switch (tfStatus.$) {
 			case 'NotLoaded':
 				return _Utils_Tuple2(
-					$author$project$TF$tfLoad(_Utils_Tuple0),
-					$author$project$TF$Loading);
+					$author$project$TensorFlow$tfLoad(_Utils_Tuple0),
+					$author$project$TensorFlow$Loading);
 			case 'Loaded':
 				return _Utils_Tuple2(
-					$author$project$TF$tfVideoPredict(_Utils_Tuple0),
+					$author$project$TensorFlow$tfVideoPredict(_Utils_Tuple0),
 					tfStatus);
 			default:
 				return _Utils_Tuple2($elm$core$Platform$Cmd$none, tfStatus);
@@ -11266,7 +11266,7 @@ var $author$project$Page$Camera$init = function (tfStatus) {
 	var cmds = _v0.a;
 	var newTFStatus = _v0.b;
 	return _Utils_Tuple2(
-		{prediction: $author$project$TF$Empty, tfStatus: newTFStatus},
+		{prediction: $author$project$TensorFlow$Empty, tfStatus: newTFStatus},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[cmds])));
@@ -11313,8 +11313,8 @@ var $author$project$Page$Photos$init = function (tfStatus) {
 	var _v0 = function () {
 		if (tfStatus.$ === 'NotLoaded') {
 			return _Utils_Tuple2(
-				$author$project$TF$tfLoad(_Utils_Tuple0),
-				$author$project$TF$Loading);
+				$author$project$TensorFlow$tfLoad(_Utils_Tuple0),
+				$author$project$TensorFlow$Loading);
 		} else {
 			return _Utils_Tuple2($elm$core$Platform$Cmd$none, tfStatus);
 		}
@@ -11322,7 +11322,7 @@ var $author$project$Page$Photos$init = function (tfStatus) {
 	var cmds = _v0.a;
 	var newTFStatus = _v0.b;
 	return _Utils_Tuple2(
-		{image: $elm$core$Maybe$Nothing, imageUrl: $elm$core$Maybe$Nothing, prediction: $author$project$TF$Empty, tfStatus: newTFStatus},
+		{image: $elm$core$Maybe$Nothing, imageUrl: $elm$core$Maybe$Nothing, prediction: $author$project$TensorFlow$Empty, tfStatus: newTFStatus},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[cmds])));
@@ -11378,7 +11378,7 @@ var $author$project$Main$init = F3(
 		var _v0 = $author$project$NavBar$init;
 		var navBarModel = _v0.a;
 		var headerCmds = _v0.b;
-		var model = {navBarModel: navBarModel, navKey: navKey, page: $author$project$Main$NotFoundPage, route: route, tfStatus: $author$project$TF$NotLoaded};
+		var model = {navBarModel: navBarModel, navKey: navKey, page: $author$project$Main$NotFoundPage, route: route, tfStatus: $author$project$TensorFlow$NotLoaded};
 		return $author$project$Main$initCurrentPage(
 			_Utils_Tuple2(
 				model,
@@ -11586,13 +11586,13 @@ var $author$project$Page$Camera$TFPrediction = function (a) {
 var $author$project$Page$Camera$TFStatusMsg = function (a) {
 	return {$: 'TFStatusMsg', a: a};
 };
-var $author$project$TF$Prediction = function (a) {
+var $author$project$TensorFlow$Prediction = function (a) {
 	return {$: 'Prediction', a: a};
 };
-var $author$project$TF$PredictionErr = function (a) {
+var $author$project$TensorFlow$PredictionErr = function (a) {
 	return {$: 'PredictionErr', a: a};
 };
-var $author$project$TF$Data = F2(
+var $author$project$TensorFlow$Data = F2(
 	function (className, percentage) {
 		return {className: className, percentage: percentage};
 	});
@@ -11604,7 +11604,7 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
 			A2($elm$json$Json$Decode$at, path, valDecoder),
 			decoder);
 	});
-var $author$project$TF$dataDecoder = A3(
+var $author$project$TensorFlow$dataDecoder = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
 		['result', 'percentage']),
@@ -11614,33 +11614,33 @@ var $author$project$TF$dataDecoder = A3(
 		_List_fromArray(
 			['result', 'className']),
 		$elm$json$Json$Decode$string,
-		$elm$json$Json$Decode$succeed($author$project$TF$Data)));
-var $author$project$TF$errorDecoder = A2($elm$json$Json$Decode$field, 'error', $elm$json$Json$Decode$string);
+		$elm$json$Json$Decode$succeed($author$project$TensorFlow$Data)));
+var $author$project$TensorFlow$errorDecoder = A2($elm$json$Json$Decode$field, 'error', $elm$json$Json$Decode$string);
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-var $author$project$TF$predictionDecoder = $elm$json$Json$Decode$oneOf(
+var $author$project$TensorFlow$predictionDecoder = $elm$json$Json$Decode$oneOf(
 	_List_fromArray(
 		[
-			A2($elm$json$Json$Decode$map, $author$project$TF$Prediction, $author$project$TF$dataDecoder),
-			A2($elm$json$Json$Decode$map, $author$project$TF$PredictionErr, $author$project$TF$errorDecoder)
+			A2($elm$json$Json$Decode$map, $author$project$TensorFlow$Prediction, $author$project$TensorFlow$dataDecoder),
+			A2($elm$json$Json$Decode$map, $author$project$TensorFlow$PredictionErr, $author$project$TensorFlow$errorDecoder)
 		]));
-var $author$project$TF$tfPredictResult = _Platform_incomingPort('tfPredictResult', $elm$json$Json$Decode$value);
+var $author$project$TensorFlow$tfPredictResult = _Platform_incomingPort('tfPredictResult', $elm$json$Json$Decode$value);
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
-var $author$project$TF$tfStatus = _Platform_incomingPort('tfStatus', $elm$json$Json$Decode$bool);
+var $author$project$TensorFlow$tfStatus = _Platform_incomingPort('tfStatus', $elm$json$Json$Decode$bool);
 var $author$project$Page$Camera$subscriptions = $elm$core$Platform$Sub$batch(
 	_List_fromArray(
 		[
 			A2(
 			$elm$core$Platform$Sub$map,
 			$author$project$Page$Camera$TFStatusMsg,
-			$author$project$TF$tfStatus(
+			$author$project$TensorFlow$tfStatus(
 				function (statusMsg) {
 					return statusMsg;
 				})),
 			A2(
 			$elm$core$Platform$Sub$map,
 			$author$project$Page$Camera$TFPrediction,
-			$author$project$TF$tfPredictResult(
-				$elm$json$Json$Decode$decodeValue($author$project$TF$predictionDecoder)))
+			$author$project$TensorFlow$tfPredictResult(
+				$elm$json$Json$Decode$decodeValue($author$project$TensorFlow$predictionDecoder)))
 		]));
 var $author$project$Page$Map$GeoserviceLocationReceive = function (a) {
 	return {$: 'GeoserviceLocationReceive', a: a};
@@ -11862,15 +11862,15 @@ var $author$project$Page$Photos$subscriptions = $elm$core$Platform$Sub$batch(
 			A2(
 			$elm$core$Platform$Sub$map,
 			$author$project$Page$Photos$TFStatusMsg,
-			$author$project$TF$tfStatus(
+			$author$project$TensorFlow$tfStatus(
 				function (statusMsg) {
 					return statusMsg;
 				})),
 			A2(
 			$elm$core$Platform$Sub$map,
 			$author$project$Page$Photos$TFPrediction,
-			$author$project$TF$tfPredictResult(
-				$elm$json$Json$Decode$decodeValue($author$project$TF$predictionDecoder)))
+			$author$project$TensorFlow$tfPredictResult(
+				$elm$json$Json$Decode$decodeValue($author$project$TensorFlow$predictionDecoder)))
 		]));
 var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
@@ -11884,7 +11884,7 @@ var $author$project$Main$subscriptions = function (model) {
 				A2(
 				$elm$core$Platform$Sub$map,
 				$author$project$Main$TFStatusMsg,
-				$author$project$TF$tfStatus(
+				$author$project$TensorFlow$tfStatus(
 					function (statusMsg) {
 						return statusMsg;
 					})),
@@ -11893,7 +11893,7 @@ var $author$project$Main$subscriptions = function (model) {
 				A2($elm$core$Platform$Sub$map, $author$project$Main$CameraMsg, $author$project$Page$Camera$subscriptions)
 			]));
 };
-var $author$project$TF$Loaded = {$: 'Loaded'};
+var $author$project$TensorFlow$Loaded = {$: 'Loaded'};
 var $elm$browser$Browser$Navigation$load = _Browser_load;
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $elm$url$Url$addPort = F2(
@@ -11983,13 +11983,13 @@ var $author$project$Page$Camera$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{tfStatus: $author$project$TF$Loaded}),
-						$author$project$TF$tfVideoPredict(_Utils_Tuple0));
+							{tfStatus: $author$project$TensorFlow$Loaded}),
+						$author$project$TensorFlow$tfVideoPredict(_Utils_Tuple0));
 				} else {
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{tfStatus: $author$project$TF$NotLoaded}),
+							{tfStatus: $author$project$TensorFlow$NotLoaded}),
 						$elm$core$Platform$Cmd$none);
 				}
 			default:
@@ -12006,7 +12006,7 @@ var $author$project$Page$Camera$update = F2(
 						_Utils_update(
 							model,
 							{
-								prediction: $author$project$TF$PredictionErr('Error parsing the prediction')
+								prediction: $author$project$TensorFlow$PredictionErr('Error parsing the prediction')
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
@@ -12844,7 +12844,7 @@ var $elm$file$File$Select$file = F2(
 			toMsg,
 			_File_uploadOne(mimes));
 	});
-var $author$project$TF$tfImagePredict = _Platform_outgoingPort('tfImagePredict', $elm$json$Json$Encode$string);
+var $author$project$TensorFlow$tfImagePredict = _Platform_outgoingPort('tfImagePredict', $elm$json$Json$Encode$string);
 var $elm$file$File$toUrl = _File_toUrl;
 var $author$project$Page$Photos$update = F2(
 	function (msg, model) {
@@ -12879,20 +12879,20 @@ var $author$project$Page$Photos$update = F2(
 						{
 							imageUrl: $elm$core$Maybe$Just(url)
 						}),
-					$author$project$TF$tfImagePredict(url));
+					$author$project$TensorFlow$tfImagePredict(url));
 			case 'TFStatusMsg':
 				var statusMsg = msg.a;
 				if (statusMsg) {
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{tfStatus: $author$project$TF$Loaded}),
+							{tfStatus: $author$project$TensorFlow$Loaded}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{tfStatus: $author$project$TF$NotLoaded}),
+							{tfStatus: $author$project$TensorFlow$NotLoaded}),
 						$elm$core$Platform$Cmd$none);
 				}
 			default:
@@ -12909,7 +12909,7 @@ var $author$project$Page$Photos$update = F2(
 						_Utils_update(
 							model,
 							{
-								prediction: $author$project$TF$PredictionErr('Error parsing the prediction')
+								prediction: $author$project$TensorFlow$PredictionErr('Error parsing the prediction')
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
@@ -12988,13 +12988,13 @@ var $author$project$Main$update = F2(
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{tfStatus: $author$project$TF$Loaded}),
+								{tfStatus: $author$project$TensorFlow$Loaded}),
 							$elm$core$Platform$Cmd$none);
 					} else {
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{tfStatus: $author$project$TF$NotLoaded}),
+								{tfStatus: $author$project$TensorFlow$NotLoaded}),
 							$elm$core$Platform$Cmd$none);
 					}
 				case 'UrlChanged':
@@ -14465,4 +14465,4 @@ var $author$project$Main$view = function (model) {
 var $author$project$Main$main = $elm$browser$Browser$application(
 	{init: $author$project$Main$init, onUrlChange: $author$project$Main$UrlChanged, onUrlRequest: $author$project$Main$LinkClicked, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"MapHelper.Address":{"args":[],"type":"{ address : MapHelper.FullAddress, position : MapHelper.Position }"},"MapHelper.FullAddress":{"args":[],"type":"{ city : String.String, countryName : String.String, county : String.String, district : String.String, label : String.String, postalCode : String.String }"},"MapHelper.Landmark":{"args":[],"type":"{ id : Basics.Int, wikiPage : String.String, wikiName : String.String }"},"MapHelper.Position":{"args":[],"type":"{ lat : Basics.Float, lng : Basics.Float }"},"MapHelper.RouteSummary":{"args":[],"type":"{ id : String.String, polyline : String.String, actions : List.List String.String, mode : String.String, distance : String.String, duration : String.String, departure : MapHelper.Position, arrival : MapHelper.Position }"},"MapHelper.Summary":{"args":[],"type":"{ id : Basics.Int, title : String.String, extract : String.String, thumbnail : String.String, originalImage : String.String, wikiUrl : String.String, coordinates : MapHelper.Position }"},"Browser.Dom.Viewport":{"args":[],"type":"{ scene : { width : Basics.Float, height : Basics.Float }, viewport : { x : Basics.Float, y : Basics.Float, width : Basics.Float, height : Basics.Float } }"},"TF.Data":{"args":[],"type":"{ className : String.String, percentage : String.String }"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"}},"unions":{"Main.Msg":{"args":[],"tags":{"MapMsg":["Page.Map.Msg"],"CameraMsg":["Page.Camera.Msg"],"PhotosMsg":["Page.Photos.Msg"],"UrlChanged":["Url.Url"],"LinkClicked":["Browser.UrlRequest"],"NavBarMsg":["NavBar.Msg"],"TFStatusMsg":["Basics.Bool"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"NavBar.Msg":{"args":[],"tags":{"MenuButtonClicked":[],"CloseNavMenu":[],"ViewportSize":["Browser.Dom.Viewport"],"ViewportChanged":[]}},"Page.Camera.Msg":{"args":[],"tags":{"NoOp":[],"TFStatusMsg":["Basics.Bool"],"TFPrediction":["Result.Result Json.Decode.Error TF.PredictionResult"]}},"Page.Map.Msg":{"args":[],"tags":{"NoOp":[],"MapStatusMsg":["String.String"],"MapSearchResponse":["Result.Result Json.Decode.Error (List.List MapHelper.Address)"],"MapSearchClear":[],"MapRoutesResponse":["Result.Result Json.Decode.Error (List.List MapHelper.RouteSummary)"],"MapRoutesUpdate":["MapHelper.RoutePoint"],"MapRoutesTransport":["MapHelper.Transport"],"MapRouteSelected":["MapHelper.RouteSummary"],"InfoOpen":["Maybe.Maybe Basics.Int"],"InfoOpenDirections":["String.String","MapHelper.Position"],"InfoOpenRoute":[],"InfoUpdateRouteFocus":["MapHelper.RedactedPoint"],"InfoClose":[],"InfoHide":[],"GeoserviceLocationReceive":["Result.Result Json.Decode.Error MapHelper.Position"],"LoadLandmarksList":["Result.Result Http.Error (List.List MapHelper.Landmark)"],"LoadLandmarskWiki":["Result.Result Http.Error MapHelper.Summary"]}},"Page.Photos.Msg":{"args":[],"tags":{"NoOp":[],"Pick":[],"GotImage":["File.File"],"GotPreview":["String.String"],"TFStatusMsg":["Basics.Bool"],"TFPrediction":["Result.Result Json.Decode.Error TF.PredictionResult"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Json.Decode.Error":{"args":[],"tags":{"Field":["String.String","Json.Decode.Error"],"Index":["Basics.Int","Json.Decode.Error"],"OneOf":["List.List Json.Decode.Error"],"Failure":["String.String","Json.Decode.Value"]}},"File.File":{"args":[],"tags":{"File":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"List.List":{"args":["a"],"tags":{}},"TF.PredictionResult":{"args":[],"tags":{"Prediction":["TF.Data"],"PredictionErr":["String.String"],"Empty":[]}},"MapHelper.RedactedPoint":{"args":[],"tags":{"StartPoint":[],"EndPoint":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"MapHelper.RoutePoint":{"args":[],"tags":{"StartPointValid":["String.String","MapHelper.Position"],"StartPointInvalid":["String.String"],"EndPointValid":["String.String","MapHelper.Position"],"EndPointInvalid":["String.String"]}},"MapHelper.Transport":{"args":[],"tags":{"Car":[],"Walk":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"MapHelper.Address":{"args":[],"type":"{ address : MapHelper.FullAddress, position : MapHelper.Position }"},"MapHelper.FullAddress":{"args":[],"type":"{ city : String.String, countryName : String.String, county : String.String, district : String.String, label : String.String, postalCode : String.String }"},"MapHelper.Landmark":{"args":[],"type":"{ id : Basics.Int, wikiPage : String.String, wikiName : String.String }"},"MapHelper.Position":{"args":[],"type":"{ lat : Basics.Float, lng : Basics.Float }"},"MapHelper.RouteSummary":{"args":[],"type":"{ id : String.String, polyline : String.String, actions : List.List String.String, mode : String.String, distance : String.String, duration : String.String, departure : MapHelper.Position, arrival : MapHelper.Position }"},"MapHelper.Summary":{"args":[],"type":"{ id : Basics.Int, title : String.String, extract : String.String, thumbnail : String.String, originalImage : String.String, wikiUrl : String.String, coordinates : MapHelper.Position }"},"Browser.Dom.Viewport":{"args":[],"type":"{ scene : { width : Basics.Float, height : Basics.Float }, viewport : { x : Basics.Float, y : Basics.Float, width : Basics.Float, height : Basics.Float } }"},"TensorFlow.Data":{"args":[],"type":"{ className : String.String, percentage : String.String }"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"}},"unions":{"Main.Msg":{"args":[],"tags":{"MapMsg":["Page.Map.Msg"],"CameraMsg":["Page.Camera.Msg"],"PhotosMsg":["Page.Photos.Msg"],"UrlChanged":["Url.Url"],"LinkClicked":["Browser.UrlRequest"],"NavBarMsg":["NavBar.Msg"],"TFStatusMsg":["Basics.Bool"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"NavBar.Msg":{"args":[],"tags":{"MenuButtonClicked":[],"CloseNavMenu":[],"ViewportSize":["Browser.Dom.Viewport"],"ViewportChanged":[]}},"Page.Camera.Msg":{"args":[],"tags":{"NoOp":[],"TFStatusMsg":["Basics.Bool"],"TFPrediction":["Result.Result Json.Decode.Error TensorFlow.PredictionResult"]}},"Page.Map.Msg":{"args":[],"tags":{"NoOp":[],"MapStatusMsg":["String.String"],"MapSearchResponse":["Result.Result Json.Decode.Error (List.List MapHelper.Address)"],"MapSearchClear":[],"MapRoutesResponse":["Result.Result Json.Decode.Error (List.List MapHelper.RouteSummary)"],"MapRoutesUpdate":["MapHelper.RoutePoint"],"MapRoutesTransport":["MapHelper.Transport"],"MapRouteSelected":["MapHelper.RouteSummary"],"InfoOpen":["Maybe.Maybe Basics.Int"],"InfoOpenDirections":["String.String","MapHelper.Position"],"InfoOpenRoute":[],"InfoUpdateRouteFocus":["MapHelper.RedactedPoint"],"InfoClose":[],"InfoHide":[],"GeoserviceLocationReceive":["Result.Result Json.Decode.Error MapHelper.Position"],"LoadLandmarksList":["Result.Result Http.Error (List.List MapHelper.Landmark)"],"LoadLandmarskWiki":["Result.Result Http.Error MapHelper.Summary"]}},"Page.Photos.Msg":{"args":[],"tags":{"NoOp":[],"Pick":[],"GotImage":["File.File"],"GotPreview":["String.String"],"TFStatusMsg":["Basics.Bool"],"TFPrediction":["Result.Result Json.Decode.Error TensorFlow.PredictionResult"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Json.Decode.Error":{"args":[],"tags":{"Field":["String.String","Json.Decode.Error"],"Index":["Basics.Int","Json.Decode.Error"],"OneOf":["List.List Json.Decode.Error"],"Failure":["String.String","Json.Decode.Value"]}},"File.File":{"args":[],"tags":{"File":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"List.List":{"args":["a"],"tags":{}},"TensorFlow.PredictionResult":{"args":[],"tags":{"Prediction":["TensorFlow.Data"],"PredictionErr":["String.String"],"Empty":[]}},"MapHelper.RedactedPoint":{"args":[],"tags":{"StartPoint":[],"EndPoint":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"MapHelper.RoutePoint":{"args":[],"tags":{"StartPointValid":["String.String","MapHelper.Position"],"StartPointInvalid":["String.String"],"EndPointValid":["String.String","MapHelper.Position"],"EndPointInvalid":["String.String"]}},"MapHelper.Transport":{"args":[],"tags":{"Car":[],"Walk":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));

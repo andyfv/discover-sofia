@@ -6,7 +6,7 @@ import Browser.Navigation as Nav
 import Browser.Events exposing (onResize)
 import Browser exposing (UrlRequest, Document)
 --
-import TF as TF
+import TensorFlow as TF
 import Route as Route exposing (Route)
 import Viewport as Viewport exposing (view, viewNotFound)
 import NavBar as NavBar

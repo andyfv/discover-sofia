@@ -1,4 +1,4 @@
-port module TF exposing 
+port module TensorFlow exposing 
     ( TFStatus(..)
     , PredictionResult(..)
     , tfLoad
