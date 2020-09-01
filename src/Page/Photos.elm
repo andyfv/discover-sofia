@@ -62,6 +62,7 @@ type Msg
     | TFStatusMsg Bool
     | TFPrediction (Result D.Error TF.PredictionResult)
 
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of

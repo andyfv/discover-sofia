@@ -135,7 +135,7 @@ async function warmUp() {
 export function createVideoElement() {
     return new Promise((resolve, reject) => {
         
-        // @var {HTMLElement} video - take a refence to the 
+        // @var {HTMLElement} video - take a refence to the video element
         let videoElement = document.getElementById('video');
 
         // @var {object} constraints - holds the configurations for media stream
@@ -242,7 +242,7 @@ export async function predictVideo (videoElement, onResult) {
             await tf.nextFrame();
         } 
         else {
-            // Clear the interval to top the predictions if the video is paused
+            // Clear the interval if the video stream is paused
             clearInterval(interval);
         }
     }, 800);
