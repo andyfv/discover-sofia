@@ -7,7 +7,7 @@ import File exposing (File)
 import File.Select as Select
 import Json.Decode as D
 import Task
-import TF as TF 
+import TensorFlow as TF 
 
 
 
