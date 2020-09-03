@@ -77,7 +77,7 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
   return fun.a === 9 ? fun.f(a, b, c, d, e, f, g, h, i) : fun(a)(b)(c)(d)(e)(f)(g)(h)(i);
 }
 
-
+console.warn('Compiled in DEV mode. Follow the advice at https://elm-lang.org/0.19.1/optimize for better performance and smaller assets.');
 
 
 // EQUALITY
@@ -113,7 +113,7 @@ function _Utils_eqHelp(x, y, depth, stack)
 		return true;
 	}
 
-	/**_UNUSED/
+	/**/
 	if (x.$ === 'Set_elm_builtin')
 	{
 		x = $elm$core$Set$toList(x);
@@ -126,7 +126,7 @@ function _Utils_eqHelp(x, y, depth, stack)
 	}
 	//*/
 
-	/**/
+	/**_UNUSED/
 	if (x.$ < 0)
 	{
 		x = $elm$core$Dict$toList(x);
@@ -161,7 +161,7 @@ function _Utils_cmp(x, y, ord)
 		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
 	}
 
-	/**_UNUSED/
+	/**/
 	if (x instanceof String)
 	{
 		var a = x.valueOf();
@@ -170,10 +170,10 @@ function _Utils_cmp(x, y, ord)
 	}
 	//*/
 
-	/**/
+	/**_UNUSED/
 	if (typeof x.$ === 'undefined')
 	//*/
-	/**_UNUSED/
+	/**/
 	if (x.$[0] === '#')
 	//*/
 	{
@@ -203,17 +203,17 @@ var _Utils_compare = F2(function(x, y)
 
 // COMMON VALUES
 
-var _Utils_Tuple0 = 0;
-var _Utils_Tuple0_UNUSED = { $: '#0' };
+var _Utils_Tuple0_UNUSED = 0;
+var _Utils_Tuple0 = { $: '#0' };
 
-function _Utils_Tuple2(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2_UNUSED(a, b) { return { $: '#2', a: a, b: b }; }
+function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
 
-function _Utils_Tuple3(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3_UNUSED(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
 
-function _Utils_chr(c) { return c; }
-function _Utils_chr_UNUSED(c) { return new String(c); }
+function _Utils_chr_UNUSED(c) { return c; }
+function _Utils_chr(c) { return new String(c); }
 
 
 // RECORDS
@@ -264,11 +264,11 @@ function _Utils_ap(xs, ys)
 
 
 
-var _List_Nil = { $: 0 };
-var _List_Nil_UNUSED = { $: '[]' };
+var _List_Nil_UNUSED = { $: 0 };
+var _List_Nil = { $: '[]' };
 
-function _List_Cons(hd, tl) { return { $: 1, a: hd, b: tl }; }
-function _List_Cons_UNUSED(hd, tl) { return { $: '::', a: hd, b: tl }; }
+function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
+function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
 
 
 var _List_cons = F2(_List_Cons);
@@ -499,12 +499,12 @@ var _JsArray_appendN = F3(function(n, dest, source)
 
 // LOG
 
-var _Debug_log = F2(function(tag, value)
+var _Debug_log_UNUSED = F2(function(tag, value)
 {
 	return value;
 });
 
-var _Debug_log_UNUSED = F2(function(tag, value)
+var _Debug_log = F2(function(tag, value)
 {
 	console.log(tag + ': ' + _Debug_toString(value));
 	return value;
@@ -530,12 +530,12 @@ function _Debug_todoCase(moduleName, region, value)
 
 // TO STRING
 
-function _Debug_toString(value)
+function _Debug_toString_UNUSED(value)
 {
 	return '<internals>';
 }
 
-function _Debug_toString_UNUSED(value)
+function _Debug_toString(value)
 {
 	return _Debug_toAnsiString(false, value);
 }
@@ -720,13 +720,13 @@ function _Debug_toHexDigit(n)
 // CRASH
 
 
-function _Debug_crash(identifier)
+function _Debug_crash_UNUSED(identifier)
 {
 	throw new Error('https://github.com/elm/core/blob/1.0.0/hints/' + identifier + '.md');
 }
 
 
-function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
+function _Debug_crash(identifier, fact1, fact2, fact3, fact4)
 {
 	switch(identifier)
 	{
@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.ay.S === region.aJ.S)
+	if (region.start.line === region.end.line)
 	{
-		return 'on line ' + region.ay.S;
+		return 'on line ' + region.start.line;
 	}
-	return 'on lines ' + region.ay.S + ' through ' + region.aJ.S;
+	return 'on lines ' + region.start.line + ' through ' + region.end.line;
 }
 
 
@@ -1212,7 +1212,7 @@ function _Char_toLocaleLower(char)
 
 
 
-/**_UNUSED/
+/**/
 function _Json_errorToString(error)
 {
 	return $elm$json$Json$Decode$errorToString(error);
@@ -1616,11 +1616,11 @@ var _Json_encode = F2(function(indentLevel, value)
 	return JSON.stringify(_Json_unwrap(value), null, indentLevel) + '';
 });
 
-function _Json_wrap_UNUSED(value) { return { $: 0, a: value }; }
-function _Json_unwrap_UNUSED(value) { return value.a; }
+function _Json_wrap(value) { return { $: 0, a: value }; }
+function _Json_unwrap(value) { return value.a; }
 
-function _Json_wrap(value) { return value; }
-function _Json_unwrap(value) { return value; }
+function _Json_wrap_UNUSED(value) { return value; }
+function _Json_unwrap_UNUSED(value) { return value; }
 
 function _Json_emptyArray() { return []; }
 function _Json_emptyObject() { return {}; }
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bP,
-		impl.ck,
-		impl.cg,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function() { return function() {} }
 	);
 });
@@ -1872,7 +1872,7 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 function _Platform_initialize(flagDecoder, args, init, update, subscriptions, stepperBuilder)
 {
 	var result = A2(_Json_run, flagDecoder, _Json_wrap(args ? args['flags'] : undefined));
-	$elm$core$Result$isOk(result) || _Debug_crash(2 /**_UNUSED/, _Json_errorToString(result.a) /**/);
+	$elm$core$Result$isOk(result) || _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
 	var managers = {};
 	var initPair = init(result.a);
 	var model = initPair.a;
@@ -2316,7 +2316,7 @@ function _Platform_setupIncomingPort(name, sendToApp)
 //
 
 
-function _Platform_export(exports)
+function _Platform_export_UNUSED(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsProd(scope['Elm'], exports)
@@ -2337,7 +2337,7 @@ function _Platform_mergeExportsProd(obj, exports)
 }
 
 
-function _Platform_export_UNUSED(exports)
+function _Platform_export(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsDebug('Elm', scope['Elm'], exports)
@@ -2377,10 +2377,10 @@ var _VirtualDom_init = F4(function(virtualNode, flagDecoder, debugMetadata, args
 {
 	// NOTE: this function needs _Platform_export available to work
 
-	/**/
+	/**_UNUSED/
 	var node = args['node'];
 	//*/
-	/**_UNUSED/
+	/**/
 	var node = args && args['node'] ? args['node'] : _Debug_crash(0);
 	//*/
 
@@ -2635,24 +2635,24 @@ function _VirtualDom_noInnerHtmlOrFormAction(key)
 	return key == 'innerHTML' || key == 'formAction' ? 'data-' + key : key;
 }
 
-function _VirtualDom_noJavaScriptUri(value)
+function _VirtualDom_noJavaScriptUri_UNUSED(value)
 {
 	return /^javascript:/i.test(value.replace(/\s/g,'')) ? '' : value;
 }
 
-function _VirtualDom_noJavaScriptUri_UNUSED(value)
+function _VirtualDom_noJavaScriptUri(value)
 {
 	return /^javascript:/i.test(value.replace(/\s/g,''))
 		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
 		: value;
 }
 
-function _VirtualDom_noJavaScriptOrHtmlUri(value)
+function _VirtualDom_noJavaScriptOrHtmlUri_UNUSED(value)
 {
 	return /^\s*(javascript:|data:text\/html)/i.test(value) ? '' : value;
 }
 
-function _VirtualDom_noJavaScriptOrHtmlUri_UNUSED(value)
+function _VirtualDom_noJavaScriptOrHtmlUri(value)
 {
 	return /^\s*(javascript:|data:text\/html)/i.test(value)
 		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
@@ -2704,9 +2704,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		z: func(record.z),
-		aA: record.aA,
-		aw: record.aw
+		message: func(record.message),
+		stopPropagation: record.stopPropagation,
+		preventDefault: record.preventDefault
 	}
 });
 
@@ -2974,11 +2974,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.z;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.aA;
+		var message = !tag ? value : tag < 3 ? value.a : value.message;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.stopPropagation;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.aw) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.preventDefault) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,15 +3928,15 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bP,
-		impl.ck,
-		impl.cg,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
-			var view = impl.cl;
-			/**/
+			var view = impl.view;
+			/**_UNUSED/
 			var domNode = args['node'];
 			//*/
-			/**_UNUSED/
+			/**/
 			var domNode = args && args['node'] ? args['node'] : _Debug_crash(0);
 			//*/
 			var currNode = _VirtualDom_virtualize(domNode);
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bP,
-		impl.ck,
-		impl.cg,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.ax && impl.ax(sendToApp)
-			var view = impl.cl;
+			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
+			var view = impl.view;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.br);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.body);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.bh) && (_VirtualDom_doc.title = title = doc.bh);
+				(title !== doc.title) && (_VirtualDom_doc.title = title = doc.title);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.b1;
-	var onUrlRequest = impl.b2;
+	var onUrlChange = impl.onUrlChange;
+	var onUrlRequest = impl.onUrlRequest;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		ax: function(sendToApp)
+		setup: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.a2 === next.a2
-							&& curr.aR === next.aR
-							&& curr.a$.a === next.a$.a
+							&& curr.protocol === next.protocol
+							&& curr.host === next.host
+							&& curr.port_.a === next.port_.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		bP: function(flags)
+		init: function(flags)
 		{
-			return A3(impl.bP, flags, _Browser_getUrl(), key);
+			return A3(impl.init, flags, _Browser_getUrl(), key);
 		},
-		cl: impl.cl,
-		ck: impl.ck,
-		cg: impl.cg
+		view: impl.view,
+		update: impl.update,
+		subscriptions: impl.subscriptions
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { bN: 'hidden', bt: 'visibilitychange' }
+		? { hidden: 'hidden', change: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { bN: 'mozHidden', bt: 'mozvisibilitychange' }
+		? { hidden: 'mozHidden', change: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { bN: 'msHidden', bt: 'msvisibilitychange' }
+		? { hidden: 'msHidden', change: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { bN: 'webkitHidden', bt: 'webkitvisibilitychange' }
-		: { bN: 'hidden', bt: 'visibilitychange' };
+		? { hidden: 'webkitHidden', change: 'webkitvisibilitychange' }
+		: { hidden: 'hidden', change: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		cc: _Browser_getScene(),
-		ae: {
-			cq: _Browser_window.pageXOffset,
-			cr: _Browser_window.pageYOffset,
-			bk: _Browser_doc.documentElement.clientWidth,
-			aQ: _Browser_doc.documentElement.clientHeight
+		scene: _Browser_getScene(),
+		viewport: {
+			x: _Browser_window.pageXOffset,
+			y: _Browser_window.pageYOffset,
+			width: _Browser_doc.documentElement.clientWidth,
+			height: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		bk: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		aQ: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		width: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		height: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			cc: {
-				bk: node.scrollWidth,
-				aQ: node.scrollHeight
+			scene: {
+				width: node.scrollWidth,
+				height: node.scrollHeight
 			},
-			ae: {
-				cq: node.scrollLeft,
-				cr: node.scrollTop,
-				bk: node.clientWidth,
-				aQ: node.clientHeight
+			viewport: {
+				x: node.scrollLeft,
+				y: node.scrollTop,
+				width: node.clientWidth,
+				height: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			cc: _Browser_getScene(),
-			ae: {
-				cq: x,
-				cr: y,
-				bk: _Browser_doc.documentElement.clientWidth,
-				aQ: _Browser_doc.documentElement.clientHeight
+			scene: _Browser_getScene(),
+			viewport: {
+				x: x,
+				y: y,
+				width: _Browser_doc.documentElement.clientWidth,
+				height: _Browser_doc.documentElement.clientHeight
 			},
-			bF: {
-				cq: x + rect.left,
-				cr: y + rect.top,
-				bk: rect.width,
-				aQ: rect.height
+			element: {
+				x: x + rect.left,
+				y: y + rect.top,
+				width: rect.width,
+				height: rect.height
 			}
 		};
 	});
@@ -4382,25 +4382,25 @@ var _Http_toTask = F3(function(router, toTask, request)
 	return _Scheduler_binding(function(callback)
 	{
 		function done(response) {
-			callback(toTask(request.aL.a(response)));
+			callback(toTask(request.expect.a(response)));
 		}
 
 		var xhr = new XMLHttpRequest();
 		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
 		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
-		xhr.addEventListener('load', function() { done(_Http_toResponse(request.aL.b, xhr)); });
-		$elm$core$Maybe$isJust(request.bi) && _Http_track(router, xhr, request.bi.a);
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.expect.b, xhr)); });
+		$elm$core$Maybe$isJust(request.tracker) && _Http_track(router, xhr, request.tracker.a);
 
 		try {
-			xhr.open(request.bR, request.bj, true);
+			xhr.open(request.method, request.url, true);
 		} catch (e) {
-			return done($elm$http$Http$BadUrl_(request.bj));
+			return done($elm$http$Http$BadUrl_(request.url));
 		}
 
 		_Http_configureRequest(xhr, request);
 
-		request.br.a && xhr.setRequestHeader('Content-Type', request.br.a);
-		xhr.send(request.br.b);
+		request.body.a && xhr.setRequestHeader('Content-Type', request.body.a);
+		xhr.send(request.body.b);
 
 		return function() { xhr.c = true; xhr.abort(); };
 	});
@@ -4411,13 +4411,13 @@ var _Http_toTask = F3(function(router, toTask, request)
 
 function _Http_configureRequest(xhr, request)
 {
-	for (var headers = request.aP; headers.b; headers = headers.b) // WHILE_CONS
+	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
 	{
 		xhr.setRequestHeader(headers.a.a, headers.a.b);
 	}
-	xhr.timeout = request.cj.a || 0;
-	xhr.responseType = request.aL.d;
-	xhr.withCredentials = request.bp;
+	xhr.timeout = request.timeout.a || 0;
+	xhr.responseType = request.expect.d;
+	xhr.withCredentials = request.allowCookiesFromOtherDomains;
 }
 
 
@@ -4438,10 +4438,10 @@ function _Http_toResponse(toBody, xhr)
 function _Http_toMetadata(xhr)
 {
 	return {
-		bj: xhr.responseURL,
-		ce: xhr.status,
-		cf: xhr.statusText,
-		aP: _Http_parseHeaders(xhr.getAllResponseHeaders())
+		url: xhr.responseURL,
+		statusCode: xhr.status,
+		statusText: xhr.statusText,
+		headers: _Http_parseHeaders(xhr.getAllResponseHeaders())
 	};
 }
 
@@ -4536,15 +4536,15 @@ function _Http_track(router, xhr, tracker)
 	xhr.upload.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
-			cd: event.loaded,
-			ba: event.total
+			sent: event.loaded,
+			size: event.total
 		}))));
 	});
 	xhr.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
-			b9: event.loaded,
-			ba: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
+			received: event.loaded,
+			size: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
 }
@@ -4726,20 +4726,20 @@ function _File_toUrl(blob)
 }
 
 var $author$project$Main$LinkClicked = function (a) {
-	return {$: 4, a: a};
+	return {$: 'LinkClicked', a: a};
 };
 var $author$project$Main$UrlChanged = function (a) {
-	return {$: 3, a: a};
+	return {$: 'UrlChanged', a: a};
 };
-var $elm$core$Basics$EQ = 1;
-var $elm$core$Basics$GT = 2;
-var $elm$core$Basics$LT = 0;
+var $elm$core$Basics$EQ = {$: 'EQ'};
+var $elm$core$Basics$GT = {$: 'GT'};
+var $elm$core$Basics$LT = {$: 'LT'};
 var $elm$core$List$cons = _List_cons;
 var $elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
 		while (true) {
-			if (t.$ === -2) {
+			if (t.$ === 'RBEmpty_elm_builtin') {
 				return acc;
 			} else {
 				var key = t.b;
@@ -4784,7 +4784,7 @@ var $elm$core$Dict$keys = function (dict) {
 		dict);
 };
 var $elm$core$Set$toList = function (_v0) {
-	var dict = _v0;
+	var dict = _v0.a;
 	return $elm$core$Dict$keys(dict);
 };
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
@@ -4794,7 +4794,7 @@ var $elm$core$Array$foldr = F3(
 		var tail = _v0.d;
 		var helper = F2(
 			function (node, acc) {
-				if (!node.$) {
+				if (node.$ === 'SubTree') {
 					var subTree = node.a;
 					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
 				} else {
@@ -4812,32 +4812,32 @@ var $elm$core$Array$toList = function (array) {
 	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
 };
 var $elm$core$Result$Err = function (a) {
-	return {$: 1, a: a};
+	return {$: 'Err', a: a};
 };
 var $elm$json$Json$Decode$Failure = F2(
 	function (a, b) {
-		return {$: 3, a: a, b: b};
+		return {$: 'Failure', a: a, b: b};
 	});
 var $elm$json$Json$Decode$Field = F2(
 	function (a, b) {
-		return {$: 0, a: a, b: b};
+		return {$: 'Field', a: a, b: b};
 	});
 var $elm$json$Json$Decode$Index = F2(
 	function (a, b) {
-		return {$: 1, a: a, b: b};
+		return {$: 'Index', a: a, b: b};
 	});
 var $elm$core$Result$Ok = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Ok', a: a};
 };
 var $elm$json$Json$Decode$OneOf = function (a) {
-	return {$: 2, a: a};
+	return {$: 'OneOf', a: a};
 };
-var $elm$core$Basics$False = 1;
+var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Maybe$Just = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Just', a: a};
 };
-var $elm$core$Maybe$Nothing = {$: 1};
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -4962,12 +4962,12 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 		errorToStringHelp:
 		while (true) {
 			switch (error.$) {
-				case 0:
+				case 'Field':
 					var f = error.a;
 					var err = error.b;
 					var isSimple = function () {
 						var _v1 = $elm$core$String$uncons(f);
-						if (_v1.$ === 1) {
+						if (_v1.$ === 'Nothing') {
 							return false;
 						} else {
 							var _v2 = _v1.a;
@@ -4982,7 +4982,7 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 1:
+				case 'Index':
 					var i = error.a;
 					var err = error.b;
 					var indexName = '[' + ($elm$core$String$fromInt(i) + ']');
@@ -4991,7 +4991,7 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 2:
+				case 'OneOf':
 					var errors = error.a;
 					if (!errors.b) {
 						return 'Ran into a Json.Decode.oneOf with no possibilities' + function () {
@@ -5055,7 +5055,7 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 var $elm$core$Array$branchFactor = 32;
 var $elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
-		return {$: 0, a: a, b: b, c: c, d: d};
+		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
 	});
 var $elm$core$Elm$JsArray$empty = _JsArray_empty;
 var $elm$core$Basics$ceiling = _Basics_ceiling;
@@ -5070,7 +5070,7 @@ var $elm$core$Array$shiftStep = $elm$core$Basics$ceiling(
 var $elm$core$Array$empty = A4($elm$core$Array$Array_elm_builtin, 0, $elm$core$Array$shiftStep, $elm$core$Elm$JsArray$empty, $elm$core$Elm$JsArray$empty);
 var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var $elm$core$Array$Leaf = function (a) {
-	return {$: 1, a: a};
+	return {$: 'Leaf', a: a};
 };
 var $elm$core$Basics$apL = F2(
 	function (f, x) {
@@ -5090,7 +5090,7 @@ var $elm$core$Basics$max = F2(
 	});
 var $elm$core$Basics$mul = _Basics_mul;
 var $elm$core$Array$SubTree = function (a) {
-	return {$: 0, a: a};
+	return {$: 'SubTree', a: a};
 };
 var $elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
 var $elm$core$Array$compressNodes = F2(
@@ -5137,25 +5137,25 @@ var $elm$core$Array$treeFromBuilder = F2(
 	});
 var $elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
-		if (!builder.b) {
+		if (!builder.nodeListSize) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.d),
+				$elm$core$Elm$JsArray$length(builder.tail),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.d);
+				builder.tail);
 		} else {
-			var treeLen = builder.b * $elm$core$Array$branchFactor;
+			var treeLen = builder.nodeListSize * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.e) : builder.e;
-			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.b);
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.nodeList) : builder.nodeList;
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.nodeListSize);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.d) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.tail) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.d);
+				builder.tail);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -5168,7 +5168,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{e: nodeList, b: (len / $elm$core$Array$branchFactor) | 0, d: tail});
+					{nodeList: nodeList, nodeListSize: (len / $elm$core$Array$branchFactor) | 0, tail: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -5198,9 +5198,9 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
-var $elm$core$Basics$True = 0;
+var $elm$core$Basics$True = {$: 'True'};
 var $elm$core$Result$isOk = function (result) {
-	if (!result.$) {
+	if (result.$ === 'Ok') {
 		return true;
 	} else {
 		return false;
@@ -5211,31 +5211,33 @@ var $elm$json$Json$Decode$map2 = _Json_map2;
 var $elm$json$Json$Decode$succeed = _Json_succeed;
 var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
-		case 0:
+		case 'Normal':
 			return 0;
-		case 1:
+		case 'MayStopPropagation':
 			return 1;
-		case 2:
+		case 'MayPreventDefault':
 			return 2;
 		default:
 			return 3;
 	}
 };
 var $elm$browser$Browser$External = function (a) {
-	return {$: 1, a: a};
+	return {$: 'External', a: a};
 };
 var $elm$browser$Browser$Internal = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Internal', a: a};
 };
 var $elm$core$Basics$identity = function (x) {
 	return x;
 };
-var $elm$browser$Browser$Dom$NotFound = $elm$core$Basics$identity;
-var $elm$url$Url$Http = 0;
-var $elm$url$Url$Https = 1;
+var $elm$browser$Browser$Dom$NotFound = function (a) {
+	return {$: 'NotFound', a: a};
+};
+var $elm$url$Url$Http = {$: 'Http'};
+var $elm$url$Url$Https = {$: 'Https'};
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {aM: fragment, aR: host, aY: path, a$: port_, a2: protocol, a3: query};
+		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5271,7 +5273,7 @@ var $elm$url$Url$chompBeforePath = F5(
 					var i = _v0.a;
 					var _v1 = $elm$core$String$toInt(
 						A2($elm$core$String$dropLeft, i + 1, str));
-					if (_v1.$ === 1) {
+					if (_v1.$ === 'Nothing') {
 						return $elm$core$Maybe$Nothing;
 					} else {
 						var port_ = _v1;
@@ -5354,24 +5356,26 @@ var $elm$core$String$startsWith = _String_startsWith;
 var $elm$url$Url$fromString = function (str) {
 	return A2($elm$core$String$startsWith, 'http://', str) ? A2(
 		$elm$url$Url$chompAfterProtocol,
-		0,
+		$elm$url$Url$Http,
 		A2($elm$core$String$dropLeft, 7, str)) : (A2($elm$core$String$startsWith, 'https://', str) ? A2(
 		$elm$url$Url$chompAfterProtocol,
-		1,
+		$elm$url$Url$Https,
 		A2($elm$core$String$dropLeft, 8, str)) : $elm$core$Maybe$Nothing);
 };
 var $elm$core$Basics$never = function (_v0) {
 	never:
 	while (true) {
-		var nvr = _v0;
+		var nvr = _v0.a;
 		var $temp$_v0 = nvr;
 		_v0 = $temp$_v0;
 		continue never;
 	}
 };
-var $elm$core$Task$Perform = $elm$core$Basics$identity;
+var $elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
+};
 var $elm$core$Task$succeed = _Scheduler_succeed;
-var $elm$core$Task$init = $elm$core$Task$succeed(0);
+var $elm$core$Task$init = $elm$core$Task$succeed(_Utils_Tuple0);
 var $elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -5477,7 +5481,7 @@ var $elm$core$Task$sequence = function (tasks) {
 var $elm$core$Platform$sendToApp = _Platform_sendToApp;
 var $elm$core$Task$spawnCmd = F2(
 	function (router, _v0) {
-		var task = _v0;
+		var task = _v0.a;
 		return _Scheduler_spawn(
 			A2(
 				$elm$core$Task$andThen,
@@ -5489,7 +5493,7 @@ var $elm$core$Task$onEffects = F3(
 		return A2(
 			$elm$core$Task$map,
 			function (_v0) {
-				return 0;
+				return _Utils_Tuple0;
 			},
 			$elm$core$Task$sequence(
 				A2(
@@ -5499,47 +5503,51 @@ var $elm$core$Task$onEffects = F3(
 	});
 var $elm$core$Task$onSelfMsg = F3(
 	function (_v0, _v1, _v2) {
-		return $elm$core$Task$succeed(0);
+		return $elm$core$Task$succeed(_Utils_Tuple0);
 	});
 var $elm$core$Task$cmdMap = F2(
 	function (tagger, _v0) {
-		var task = _v0;
-		return A2($elm$core$Task$map, tagger, task);
+		var task = _v0.a;
+		return $elm$core$Task$Perform(
+			A2($elm$core$Task$map, tagger, task));
 	});
 _Platform_effectManagers['Task'] = _Platform_createManager($elm$core$Task$init, $elm$core$Task$onEffects, $elm$core$Task$onSelfMsg, $elm$core$Task$cmdMap);
 var $elm$core$Task$command = _Platform_leaf('Task');
 var $elm$core$Task$perform = F2(
 	function (toMessage, task) {
 		return $elm$core$Task$command(
-			A2($elm$core$Task$map, toMessage, task));
+			$elm$core$Task$Perform(
+				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$application = _Browser_application;
 var $author$project$Main$NavBarMsg = function (a) {
-	return {$: 5, a: a};
+	return {$: 'NavBarMsg', a: a};
 };
-var $author$project$Main$NotFoundPage = {$: 0};
-var $author$project$TensorFlow$NotLoaded = 0;
+var $author$project$Main$NotFoundPage = {$: 'NotFoundPage'};
+var $author$project$TensorFlow$NotLoaded = {$: 'NotLoaded'};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $author$project$Route$NotFound = {$: 4};
-var $author$project$Route$Camera = {$: 2};
-var $author$project$Route$Map = {$: 0};
+var $author$project$Route$NotFound = {$: 'NotFound'};
+var $author$project$Route$Camera = {$: 'Camera'};
+var $author$project$Route$Map = {$: 'Map'};
 var $author$project$Route$MapLandmark = function (a) {
-	return {$: 1, a: a};
+	return {$: 'MapLandmark', a: a};
 };
-var $author$project$Route$Photos = {$: 3};
+var $author$project$Route$Photos = {$: 'Photos'};
 var $author$project$Route$gitHubBase = 'discover-sofia';
-var $elm$url$Url$Parser$Parser = $elm$core$Basics$identity;
+var $elm$url$Url$Parser$Parser = function (a) {
+	return {$: 'Parser', a: a};
+};
 var $elm$url$Url$Parser$State = F5(
 	function (visited, unvisited, params, frag, value) {
-		return {D: frag, G: params, C: unvisited, v: value, I: visited};
+		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
 	});
 var $elm$url$Url$Parser$mapState = F2(
 	function (func, _v0) {
-		var visited = _v0.I;
-		var unvisited = _v0.C;
-		var params = _v0.G;
-		var frag = _v0.D;
-		var value = _v0.v;
+		var visited = _v0.visited;
+		var unvisited = _v0.unvisited;
+		var params = _v0.params;
+		var frag = _v0.frag;
+		var value = _v0.value;
 		return A5(
 			$elm$url$Url$Parser$State,
 			visited,
@@ -5550,19 +5558,20 @@ var $elm$url$Url$Parser$mapState = F2(
 	});
 var $elm$url$Url$Parser$map = F2(
 	function (subValue, _v0) {
-		var parseArg = _v0;
-		return function (_v1) {
-			var visited = _v1.I;
-			var unvisited = _v1.C;
-			var params = _v1.G;
-			var frag = _v1.D;
-			var value = _v1.v;
-			return A2(
-				$elm$core$List$map,
-				$elm$url$Url$Parser$mapState(value),
-				parseArg(
-					A5($elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
-		};
+		var parseArg = _v0.a;
+		return $elm$url$Url$Parser$Parser(
+			function (_v1) {
+				var visited = _v1.visited;
+				var unvisited = _v1.unvisited;
+				var params = _v1.params;
+				var frag = _v1.frag;
+				var value = _v1.value;
+				return A2(
+					$elm$core$List$map,
+					$elm$url$Url$Parser$mapState(value),
+					parseArg(
+						A5($elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
+			});
 	});
 var $elm$core$List$append = F2(
 	function (xs, ys) {
@@ -5581,89 +5590,94 @@ var $elm$core$List$concatMap = F2(
 			A2($elm$core$List$map, f, list));
 	});
 var $elm$url$Url$Parser$oneOf = function (parsers) {
-	return function (state) {
-		return A2(
-			$elm$core$List$concatMap,
-			function (_v0) {
-				var parser = _v0;
-				return parser(state);
-			},
-			parsers);
-	};
-};
-var $elm$url$Url$Parser$s = function (str) {
-	return function (_v0) {
-		var visited = _v0.I;
-		var unvisited = _v0.C;
-		var params = _v0.G;
-		var frag = _v0.D;
-		var value = _v0.v;
-		if (!unvisited.b) {
-			return _List_Nil;
-		} else {
-			var next = unvisited.a;
-			var rest = unvisited.b;
-			return _Utils_eq(next, str) ? _List_fromArray(
-				[
-					A5(
-					$elm$url$Url$Parser$State,
-					A2($elm$core$List$cons, next, visited),
-					rest,
-					params,
-					frag,
-					value)
-				]) : _List_Nil;
-		}
-	};
-};
-var $elm$url$Url$Parser$slash = F2(
-	function (_v0, _v1) {
-		var parseBefore = _v0;
-		var parseAfter = _v1;
-		return function (state) {
+	return $elm$url$Url$Parser$Parser(
+		function (state) {
 			return A2(
 				$elm$core$List$concatMap,
-				parseAfter,
-				parseBefore(state));
-		};
-	});
-var $elm$url$Url$Parser$custom = F2(
-	function (tipe, stringToSomething) {
-		return function (_v0) {
-			var visited = _v0.I;
-			var unvisited = _v0.C;
-			var params = _v0.G;
-			var frag = _v0.D;
-			var value = _v0.v;
+				function (_v0) {
+					var parser = _v0.a;
+					return parser(state);
+				},
+				parsers);
+		});
+};
+var $elm$url$Url$Parser$s = function (str) {
+	return $elm$url$Url$Parser$Parser(
+		function (_v0) {
+			var visited = _v0.visited;
+			var unvisited = _v0.unvisited;
+			var params = _v0.params;
+			var frag = _v0.frag;
+			var value = _v0.value;
 			if (!unvisited.b) {
 				return _List_Nil;
 			} else {
 				var next = unvisited.a;
 				var rest = unvisited.b;
-				var _v2 = stringToSomething(next);
-				if (!_v2.$) {
-					var nextValue = _v2.a;
-					return _List_fromArray(
-						[
-							A5(
-							$elm$url$Url$Parser$State,
-							A2($elm$core$List$cons, next, visited),
-							rest,
-							params,
-							frag,
-							value(nextValue))
-						]);
-				} else {
-					return _List_Nil;
-				}
+				return _Utils_eq(next, str) ? _List_fromArray(
+					[
+						A5(
+						$elm$url$Url$Parser$State,
+						A2($elm$core$List$cons, next, visited),
+						rest,
+						params,
+						frag,
+						value)
+					]) : _List_Nil;
 			}
-		};
+		});
+};
+var $elm$url$Url$Parser$slash = F2(
+	function (_v0, _v1) {
+		var parseBefore = _v0.a;
+		var parseAfter = _v1.a;
+		return $elm$url$Url$Parser$Parser(
+			function (state) {
+				return A2(
+					$elm$core$List$concatMap,
+					parseAfter,
+					parseBefore(state));
+			});
+	});
+var $elm$url$Url$Parser$custom = F2(
+	function (tipe, stringToSomething) {
+		return $elm$url$Url$Parser$Parser(
+			function (_v0) {
+				var visited = _v0.visited;
+				var unvisited = _v0.unvisited;
+				var params = _v0.params;
+				var frag = _v0.frag;
+				var value = _v0.value;
+				if (!unvisited.b) {
+					return _List_Nil;
+				} else {
+					var next = unvisited.a;
+					var rest = unvisited.b;
+					var _v2 = stringToSomething(next);
+					if (_v2.$ === 'Just') {
+						var nextValue = _v2.a;
+						return _List_fromArray(
+							[
+								A5(
+								$elm$url$Url$Parser$State,
+								A2($elm$core$List$cons, next, visited),
+								rest,
+								params,
+								frag,
+								value(nextValue))
+							]);
+					} else {
+						return _List_Nil;
+					}
+				}
+			});
 	});
 var $elm$url$Url$Parser$string = A2($elm$url$Url$Parser$custom, 'STRING', $elm$core$Maybe$Just);
-var $elm$url$Url$Parser$top = function (state) {
-	return _List_fromArray(
-		[state]);
-};
+var $elm$url$Url$Parser$top = $elm$url$Url$Parser$Parser(
+	function (state) {
+		return _List_fromArray(
+			[state]);
+	});
 var $author$project$Route$matchRoute = $elm$url$Url$Parser$oneOf(
 	_List_fromArray(
 		[
@@ -5712,12 +5726,12 @@ var $elm$url$Url$Parser$getFirstMatch = function (states) {
 		} else {
 			var state = states.a;
 			var rest = states.b;
-			var _v1 = state.C;
+			var _v1 = state.unvisited;
 			if (!_v1.b) {
-				return $elm$core$Maybe$Just(state.v);
+				return $elm$core$Maybe$Just(state.value);
 			} else {
 				if ((_v1.a === '') && (!_v1.b.b)) {
-					return $elm$core$Maybe$Just(state.v);
+					return $elm$core$Maybe$Just(state.value);
 				} else {
 					var $temp$states = rest;
 					states = $temp$states;
@@ -5755,7 +5769,7 @@ var $elm$url$Url$Parser$preparePath = function (path) {
 };
 var $elm$url$Url$Parser$addToParametersHelp = F2(
 	function (value, maybeList) {
-		if (maybeList.$ === 1) {
+		if (maybeList.$ === 'Nothing') {
 			return $elm$core$Maybe$Just(
 				_List_fromArray(
 					[value]));
@@ -5771,7 +5785,7 @@ var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
 		while (true) {
-			if (dict.$ === -2) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
 				return $elm$core$Maybe$Nothing;
 			} else {
 				var key = dict.b;
@@ -5779,14 +5793,14 @@ var $elm$core$Dict$get = F2(
 				var left = dict.d;
 				var right = dict.e;
 				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1) {
-					case 0:
+				switch (_v1.$) {
+					case 'LT':
 						var $temp$targetKey = targetKey,
 							$temp$dict = left;
 						targetKey = $temp$targetKey;
 						dict = $temp$dict;
 						continue get;
-					case 1:
+					case 'EQ':
 						return $elm$core$Maybe$Just(value);
 					default:
 						var $temp$targetKey = targetKey,
@@ -5798,22 +5812,22 @@ var $elm$core$Dict$get = F2(
 			}
 		}
 	});
-var $elm$core$Dict$Black = 1;
+var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
-		return {$: -1, a: a, b: b, c: c, d: d, e: e};
+		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
 	});
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
-var $elm$core$Dict$Red = 0;
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$Red = {$: 'Red'};
 var $elm$core$Dict$balance = F5(
 	function (color, key, value, left, right) {
-		if ((right.$ === -1) && (!right.a)) {
+		if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Red')) {
 			var _v1 = right.a;
 			var rK = right.b;
 			var rV = right.c;
 			var rLeft = right.d;
 			var rRight = right.e;
-			if ((left.$ === -1) && (!left.a)) {
+			if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
 				var _v3 = left.a;
 				var lK = left.b;
 				var lV = left.c;
@@ -5821,22 +5835,22 @@ var $elm$core$Dict$balance = F5(
 				var lRight = left.e;
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					0,
+					$elm$core$Dict$Red,
 					key,
 					value,
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
 					color,
 					rK,
 					rV,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, left, rLeft),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, left, rLeft),
 					rRight);
 			}
 		} else {
-			if ((((left.$ === -1) && (!left.a)) && (left.d.$ === -1)) && (!left.d.a)) {
+			if ((((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) && (left.d.$ === 'RBNode_elm_builtin')) && (left.d.a.$ === 'Red')) {
 				var _v5 = left.a;
 				var lK = left.b;
 				var lV = left.c;
@@ -5849,11 +5863,11 @@ var $elm$core$Dict$balance = F5(
 				var lRight = left.e;
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					0,
+					$elm$core$Dict$Red,
 					lK,
 					lV,
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 1, key, value, lRight, right));
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, llK, llV, llLeft, llRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, key, value, lRight, right));
 			} else {
 				return A5($elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
 			}
@@ -5861,8 +5875,8 @@ var $elm$core$Dict$balance = F5(
 	});
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
-		if (dict.$ === -2) {
-			return A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
 		} else {
 			var nColor = dict.a;
 			var nKey = dict.b;
@@ -5870,8 +5884,8 @@ var $elm$core$Dict$insertHelp = F3(
 			var nLeft = dict.d;
 			var nRight = dict.e;
 			var _v1 = A2($elm$core$Basics$compare, key, nKey);
-			switch (_v1) {
-				case 0:
+			switch (_v1.$) {
+				case 'LT':
 					return A5(
 						$elm$core$Dict$balance,
 						nColor,
@@ -5879,7 +5893,7 @@ var $elm$core$Dict$insertHelp = F3(
 						nValue,
 						A3($elm$core$Dict$insertHelp, key, value, nLeft),
 						nRight);
-				case 1:
+				case 'EQ':
 					return A5($elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
 				default:
 					return A5(
@@ -5895,13 +5909,13 @@ var $elm$core$Dict$insertHelp = F3(
 var $elm$core$Dict$insert = F3(
 	function (key, value, dict) {
 		var _v0 = A3($elm$core$Dict$insertHelp, key, value, dict);
-		if ((_v0.$ === -1) && (!_v0.a)) {
+		if ((_v0.$ === 'RBNode_elm_builtin') && (_v0.a.$ === 'Red')) {
 			var _v1 = _v0.a;
 			var k = _v0.b;
 			var v = _v0.c;
 			var l = _v0.d;
 			var r = _v0.e;
-			return A5($elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, k, v, l, r);
 		} else {
 			var x = _v0;
 			return x;
@@ -5910,7 +5924,7 @@ var $elm$core$Dict$insert = F3(
 var $elm$core$Dict$getMin = function (dict) {
 	getMin:
 	while (true) {
-		if ((dict.$ === -1) && (dict.d.$ === -1)) {
+		if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
 			var left = dict.d;
 			var $temp$dict = left;
 			dict = $temp$dict;
@@ -5921,8 +5935,8 @@ var $elm$core$Dict$getMin = function (dict) {
 	}
 };
 var $elm$core$Dict$moveRedLeft = function (dict) {
-	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
-		if ((dict.e.d.$ === -1) && (!dict.e.d.a)) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.e.d.$ === 'RBNode_elm_builtin') && (dict.e.d.a.$ === 'Red')) {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
@@ -5945,17 +5959,17 @@ var $elm$core$Dict$moveRedLeft = function (dict) {
 			var rRight = _v2.e;
 			return A5(
 				$elm$core$Dict$RBNode_elm_builtin,
-				0,
+				$elm$core$Dict$Red,
 				rlK,
 				rlV,
 				A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					1,
+					$elm$core$Dict$Black,
 					k,
 					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
 					rlL),
-				A5($elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rlR, rRight));
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, rK, rV, rlR, rRight));
 		} else {
 			var clr = dict.a;
 			var k = dict.b;
@@ -5972,22 +5986,22 @@ var $elm$core$Dict$moveRedLeft = function (dict) {
 			var rV = _v5.c;
 			var rLeft = _v5.d;
 			var rRight = _v5.e;
-			if (clr === 1) {
+			if (clr.$ === 'Black') {
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					1,
+					$elm$core$Dict$Black,
 					k,
 					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					1,
+					$elm$core$Dict$Black,
 					k,
 					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
 			}
 		}
 	} else {
@@ -5995,8 +6009,8 @@ var $elm$core$Dict$moveRedLeft = function (dict) {
 	}
 };
 var $elm$core$Dict$moveRedRight = function (dict) {
-	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
-		if ((dict.d.d.$ === -1) && (!dict.d.d.a)) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.d.d.$ === 'RBNode_elm_builtin') && (dict.d.d.a.$ === 'Red')) {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
@@ -6019,17 +6033,17 @@ var $elm$core$Dict$moveRedRight = function (dict) {
 			var rRight = _v4.e;
 			return A5(
 				$elm$core$Dict$RBNode_elm_builtin,
-				0,
+				$elm$core$Dict$Red,
 				lK,
 				lV,
-				A5($elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, llK, llV, llLeft, llRight),
 				A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					1,
+					$elm$core$Dict$Black,
 					k,
 					v,
 					lRight,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight)));
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight)));
 		} else {
 			var clr = dict.a;
 			var k = dict.b;
@@ -6046,22 +6060,22 @@ var $elm$core$Dict$moveRedRight = function (dict) {
 			var rV = _v6.c;
 			var rLeft = _v6.d;
 			var rRight = _v6.e;
-			if (clr === 1) {
+			if (clr.$ === 'Black') {
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					1,
+					$elm$core$Dict$Black,
 					k,
 					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
-					1,
+					$elm$core$Dict$Black,
 					k,
 					v,
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
 			}
 		}
 	} else {
@@ -6070,7 +6084,7 @@ var $elm$core$Dict$moveRedRight = function (dict) {
 };
 var $elm$core$Dict$removeHelpPrepEQGT = F7(
 	function (targetKey, dict, color, key, value, left, right) {
-		if ((left.$ === -1) && (!left.a)) {
+		if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
 			var _v1 = left.a;
 			var lK = left.b;
 			var lV = left.c;
@@ -6082,13 +6096,13 @@ var $elm$core$Dict$removeHelpPrepEQGT = F7(
 				lK,
 				lV,
 				lLeft,
-				A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, lRight, right));
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, lRight, right));
 		} else {
 			_v2$2:
 			while (true) {
-				if ((right.$ === -1) && (right.a === 1)) {
-					if (right.d.$ === -1) {
-						if (right.d.a === 1) {
+				if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Black')) {
+					if (right.d.$ === 'RBNode_elm_builtin') {
+						if (right.d.a.$ === 'Black') {
 							var _v3 = right.a;
 							var _v4 = right.d;
 							var _v5 = _v4.a;
@@ -6109,7 +6123,7 @@ var $elm$core$Dict$removeHelpPrepEQGT = F7(
 		}
 	});
 var $elm$core$Dict$removeMin = function (dict) {
-	if ((dict.$ === -1) && (dict.d.$ === -1)) {
+	if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
 		var color = dict.a;
 		var key = dict.b;
 		var value = dict.c;
@@ -6117,8 +6131,8 @@ var $elm$core$Dict$removeMin = function (dict) {
 		var lColor = left.a;
 		var lLeft = left.d;
 		var right = dict.e;
-		if (lColor === 1) {
-			if ((lLeft.$ === -1) && (!lLeft.a)) {
+		if (lColor.$ === 'Black') {
+			if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
 				var _v3 = lLeft.a;
 				return A5(
 					$elm$core$Dict$RBNode_elm_builtin,
@@ -6129,7 +6143,7 @@ var $elm$core$Dict$removeMin = function (dict) {
 					right);
 			} else {
 				var _v4 = $elm$core$Dict$moveRedLeft(dict);
-				if (_v4.$ === -1) {
+				if (_v4.$ === 'RBNode_elm_builtin') {
 					var nColor = _v4.a;
 					var nKey = _v4.b;
 					var nValue = _v4.c;
@@ -6161,7 +6175,7 @@ var $elm$core$Dict$removeMin = function (dict) {
 };
 var $elm$core$Dict$removeHelp = F2(
 	function (targetKey, dict) {
-		if (dict.$ === -2) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
 			return $elm$core$Dict$RBEmpty_elm_builtin;
 		} else {
 			var color = dict.a;
@@ -6170,10 +6184,10 @@ var $elm$core$Dict$removeHelp = F2(
 			var left = dict.d;
 			var right = dict.e;
 			if (_Utils_cmp(targetKey, key) < 0) {
-				if ((left.$ === -1) && (left.a === 1)) {
+				if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Black')) {
 					var _v4 = left.a;
 					var lLeft = left.d;
-					if ((lLeft.$ === -1) && (!lLeft.a)) {
+					if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
 						var _v6 = lLeft.a;
 						return A5(
 							$elm$core$Dict$RBNode_elm_builtin,
@@ -6184,7 +6198,7 @@ var $elm$core$Dict$removeHelp = F2(
 							right);
 					} else {
 						var _v7 = $elm$core$Dict$moveRedLeft(dict);
-						if (_v7.$ === -1) {
+						if (_v7.$ === 'RBNode_elm_builtin') {
 							var nColor = _v7.a;
 							var nKey = _v7.b;
 							var nValue = _v7.c;
@@ -6220,7 +6234,7 @@ var $elm$core$Dict$removeHelp = F2(
 	});
 var $elm$core$Dict$removeHelpEQGT = F2(
 	function (targetKey, dict) {
-		if (dict.$ === -1) {
+		if (dict.$ === 'RBNode_elm_builtin') {
 			var color = dict.a;
 			var key = dict.b;
 			var value = dict.c;
@@ -6228,7 +6242,7 @@ var $elm$core$Dict$removeHelpEQGT = F2(
 			var right = dict.e;
 			if (_Utils_eq(targetKey, key)) {
 				var _v1 = $elm$core$Dict$getMin(right);
-				if (_v1.$ === -1) {
+				if (_v1.$ === 'RBNode_elm_builtin') {
 					var minKey = _v1.b;
 					var minValue = _v1.c;
 					return A5(
@@ -6257,13 +6271,13 @@ var $elm$core$Dict$removeHelpEQGT = F2(
 var $elm$core$Dict$remove = F2(
 	function (key, dict) {
 		var _v0 = A2($elm$core$Dict$removeHelp, key, dict);
-		if ((_v0.$ === -1) && (!_v0.a)) {
+		if ((_v0.$ === 'RBNode_elm_builtin') && (_v0.a.$ === 'Red')) {
 			var _v1 = _v0.a;
 			var k = _v0.b;
 			var v = _v0.c;
 			var l = _v0.d;
 			var r = _v0.e;
-			return A5($elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, k, v, l, r);
 		} else {
 			var x = _v0;
 			return x;
@@ -6273,7 +6287,7 @@ var $elm$core$Dict$update = F3(
 	function (targetKey, alter, dictionary) {
 		var _v0 = alter(
 			A2($elm$core$Dict$get, targetKey, dictionary));
-		if (!_v0.$) {
+		if (_v0.$ === 'Just') {
 			var value = _v0.a;
 			return A3($elm$core$Dict$insert, targetKey, value, dictionary);
 		} else {
@@ -6288,12 +6302,12 @@ var $elm$url$Url$Parser$addParam = F2(
 			var _v1 = _v0.b;
 			var rawValue = _v1.a;
 			var _v2 = $elm$url$Url$percentDecode(rawKey);
-			if (_v2.$ === 1) {
+			if (_v2.$ === 'Nothing') {
 				return dict;
 			} else {
 				var key = _v2.a;
 				var _v3 = $elm$url$Url$percentDecode(rawValue);
-				if (_v3.$ === 1) {
+				if (_v3.$ === 'Nothing') {
 					return dict;
 				} else {
 					var value = _v3.a;
@@ -6310,7 +6324,7 @@ var $elm$url$Url$Parser$addParam = F2(
 	});
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
-	if (maybeQuery.$ === 1) {
+	if (maybeQuery.$ === 'Nothing') {
 		return $elm$core$Dict$empty;
 	} else {
 		var qry = maybeQuery.a;
@@ -6323,20 +6337,20 @@ var $elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
 };
 var $elm$url$Url$Parser$parse = F2(
 	function (_v0, url) {
-		var parser = _v0;
+		var parser = _v0.a;
 		return $elm$url$Url$Parser$getFirstMatch(
 			parser(
 				A5(
 					$elm$url$Url$Parser$State,
 					_List_Nil,
-					$elm$url$Url$Parser$preparePath(url.aY),
-					$elm$url$Url$Parser$prepareQuery(url.a3),
-					url.aM,
+					$elm$url$Url$Parser$preparePath(url.path),
+					$elm$url$Url$Parser$prepareQuery(url.query),
+					url.fragment,
 					$elm$core$Basics$identity)));
 	});
 var $author$project$Route$fromUrl = function (url) {
 	var _v0 = A2($elm$url$Url$Parser$parse, $author$project$Route$matchRoute, url);
-	if (!_v0.$) {
+	if (_v0.$ === 'Just') {
 		var route = _v0.a;
 		return route;
 	} else {
@@ -6344,15 +6358,15 @@ var $author$project$Route$fromUrl = function (url) {
 	}
 };
 var $author$project$NavBar$ViewportSize = function (a) {
-	return {$: 2, a: a};
+	return {$: 'ViewportSize', a: a};
 };
 var $elm$browser$Browser$Dom$getViewport = _Browser_withWindow(_Browser_getViewport);
 var $author$project$NavBar$init = _Utils_Tuple2(
 	{
-		K: false,
-		ae: {
-			cc: {aQ: 0, bk: 0},
-			ae: {aQ: 0, bk: 0, cq: 0, cr: 0}
+		isMenuOpen: false,
+		viewport: {
+			scene: {height: 0, width: 0},
+			viewport: {height: 0, width: 0, x: 0, y: 0}
 		}
 	},
 	$elm$core$Platform$Cmd$batch(
@@ -6361,25 +6375,25 @@ var $author$project$NavBar$init = _Utils_Tuple2(
 				A2($elm$core$Task$perform, $author$project$NavBar$ViewportSize, $elm$browser$Browser$Dom$getViewport)
 			])));
 var $author$project$Main$CameraMsg = function (a) {
-	return {$: 1, a: a};
+	return {$: 'CameraMsg', a: a};
 };
 var $author$project$Main$CameraPage = function (a) {
-	return {$: 2, a: a};
+	return {$: 'CameraPage', a: a};
 };
 var $author$project$Main$MapMsg = function (a) {
-	return {$: 0, a: a};
+	return {$: 'MapMsg', a: a};
 };
 var $author$project$Main$MapPage = function (a) {
-	return {$: 1, a: a};
+	return {$: 'MapPage', a: a};
 };
 var $author$project$Main$PhotosMsg = function (a) {
-	return {$: 2, a: a};
+	return {$: 'PhotosMsg', a: a};
 };
 var $author$project$Main$PhotosPage = function (a) {
-	return {$: 3, a: a};
+	return {$: 'PhotosPage', a: a};
 };
-var $author$project$TensorFlow$Empty = {$: 2};
-var $author$project$TensorFlow$Loading = 2;
+var $author$project$TensorFlow$Empty = {$: 'Empty'};
+var $author$project$TensorFlow$Loading = {$: 'Loading'};
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$TensorFlow$tfLoad = _Platform_outgoingPort(
@@ -6394,14 +6408,14 @@ var $author$project$TensorFlow$tfVideoPredict = _Platform_outgoingPort(
 	});
 var $author$project$Page$Camera$init = function (tfStatus) {
 	var _v0 = function () {
-		switch (tfStatus) {
-			case 0:
+		switch (tfStatus.$) {
+			case 'NotLoaded':
 				return _Utils_Tuple2(
-					$author$project$TensorFlow$tfLoad(0),
-					2);
-			case 1:
+					$author$project$TensorFlow$tfLoad(_Utils_Tuple0),
+					$author$project$TensorFlow$Loading);
+			case 'Loaded':
 				return _Utils_Tuple2(
-					$author$project$TensorFlow$tfVideoPredict(0),
+					$author$project$TensorFlow$tfVideoPredict(_Utils_Tuple0),
 					tfStatus);
 			default:
 				return _Utils_Tuple2($elm$core$Platform$Cmd$none, tfStatus);
@@ -6410,24 +6424,24 @@ var $author$project$Page$Camera$init = function (tfStatus) {
 	var cmds = _v0.a;
 	var newTFStatus = _v0.b;
 	return _Utils_Tuple2(
-		{X: $author$project$TensorFlow$Empty, N: newTFStatus},
+		{prediction: $author$project$TensorFlow$Empty, tfStatus: newTFStatus},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[cmds])));
 };
-var $author$project$MapHelper$AddressResultsEmpty = {$: 0};
-var $author$project$MapHelper$Car = 0;
-var $author$project$Page$Map$Closed = {$: 0};
+var $author$project$MapHelper$AddressResultsEmpty = {$: 'AddressResultsEmpty'};
+var $author$project$MapHelper$Car = {$: 'Car'};
+var $author$project$Page$Map$Closed = {$: 'Closed'};
 var $author$project$MapHelper$EndPointInvalid = function (a) {
-	return {$: 3, a: a};
+	return {$: 'EndPointInvalid', a: a};
 };
-var $author$project$MapHelper$MapLoading = {$: 1};
-var $author$project$MapHelper$RoutesUnavailable = {$: 0};
-var $author$project$MapHelper$StartPoint = 0;
+var $author$project$MapHelper$MapLoading = {$: 'MapLoading'};
+var $author$project$MapHelper$RoutesUnavailable = {$: 'RoutesUnavailable'};
+var $author$project$MapHelper$StartPoint = {$: 'StartPoint'};
 var $author$project$MapHelper$StartPointInvalid = function (a) {
-	return {$: 1, a: a};
+	return {$: 'StartPointInvalid', a: a};
 };
-var $author$project$MapHelper$SummaryInvalid = {$: 1};
+var $author$project$MapHelper$SummaryInvalid = {$: 'SummaryInvalid'};
 var $author$project$Page$Map$mapLoad = _Platform_outgoingPort(
 	'mapLoad',
 	function ($) {
@@ -6435,30 +6449,30 @@ var $author$project$Page$Map$mapLoad = _Platform_outgoingPort(
 	});
 var $author$project$Page$Map$init = _Utils_Tuple2(
 	{
-		p: $author$project$MapHelper$AddressResultsEmpty,
-		x: $author$project$MapHelper$EndPointInvalid(''),
-		t: $author$project$Page$Map$Closed,
-		Q: $author$project$MapHelper$SummaryInvalid,
-		R: $elm$core$Dict$empty,
-		ar: _List_Nil,
-		y: $author$project$MapHelper$RoutesUnavailable,
-		T: $author$project$MapHelper$MapLoading,
-		aj: 0,
-		Z: $elm$core$Maybe$Nothing,
-		B: $author$project$MapHelper$StartPointInvalid(''),
-		ab: 0
+		addressResults: $author$project$MapHelper$AddressResultsEmpty,
+		endPoint: $author$project$MapHelper$EndPointInvalid(''),
+		infoMode: $author$project$Page$Map$Closed,
+		landmarkSummary: $author$project$MapHelper$SummaryInvalid,
+		landmarkSummaryList: $elm$core$Dict$empty,
+		landmarksList: _List_Nil,
+		mapRoutes: $author$project$MapHelper$RoutesUnavailable,
+		mapStatus: $author$project$MapHelper$MapLoading,
+		redactedRoutePoint: $author$project$MapHelper$StartPoint,
+		selectedRoute: $elm$core$Maybe$Nothing,
+		startPoint: $author$project$MapHelper$StartPointInvalid(''),
+		transport: $author$project$MapHelper$Car
 	},
 	$elm$core$Platform$Cmd$batch(
 		_List_fromArray(
 			[
-				$author$project$Page$Map$mapLoad(0)
+				$author$project$Page$Map$mapLoad(_Utils_Tuple0)
 			])));
 var $author$project$Page$Photos$init = function (tfStatus) {
 	var _v0 = function () {
-		if (!tfStatus) {
+		if (tfStatus.$ === 'NotLoaded') {
 			return _Utils_Tuple2(
-				$author$project$TensorFlow$tfLoad(0),
-				2);
+				$author$project$TensorFlow$tfLoad(_Utils_Tuple0),
+				$author$project$TensorFlow$Loading);
 		} else {
 			return _Utils_Tuple2($elm$core$Platform$Cmd$none, tfStatus);
 		}
@@ -6466,7 +6480,7 @@ var $author$project$Page$Photos$init = function (tfStatus) {
 	var cmds = _v0.a;
 	var newTFStatus = _v0.b;
 	return _Utils_Tuple2(
-		{ap: $elm$core$Maybe$Nothing, ag: $elm$core$Maybe$Nothing, X: $author$project$TensorFlow$Empty, N: newTFStatus},
+		{image: $elm$core$Maybe$Nothing, imageUrl: $elm$core$Maybe$Nothing, prediction: $author$project$TensorFlow$Empty, tfStatus: newTFStatus},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[cmds])));
@@ -6484,24 +6498,24 @@ var $author$project$Main$initCurrentPage = function (_v0) {
 	var model = _v0.a;
 	var existingCmds = _v0.b;
 	var _v1 = function () {
-		var _v2 = model.Y;
+		var _v2 = model.route;
 		switch (_v2.$) {
-			case 4:
+			case 'NotFound':
 				return _Utils_Tuple2($author$project$Main$NotFoundPage, $elm$core$Platform$Cmd$none);
-			case 0:
+			case 'Map':
 				return A3($author$project$Main$updateWith, $author$project$Main$MapPage, $author$project$Main$MapMsg, $author$project$Page$Map$init);
-			case 2:
+			case 'Camera':
 				return A3(
 					$author$project$Main$updateWith,
 					$author$project$Main$CameraPage,
 					$author$project$Main$CameraMsg,
-					$author$project$Page$Camera$init(model.N));
-			case 3:
+					$author$project$Page$Camera$init(model.tfStatus));
+			case 'Photos':
 				return A3(
 					$author$project$Main$updateWith,
 					$author$project$Main$PhotosPage,
 					$author$project$Main$PhotosMsg,
-					$author$project$Page$Photos$init(model.N));
+					$author$project$Page$Photos$init(model.tfStatus));
 			default:
 				var landmark = _v2.a;
 				return A3($author$project$Main$updateWith, $author$project$Main$MapPage, $author$project$Main$MapMsg, $author$project$Page$Map$init);
@@ -6512,7 +6526,7 @@ var $author$project$Main$initCurrentPage = function (_v0) {
 	return _Utils_Tuple2(
 		_Utils_update(
 			model,
-			{L: currentPage}),
+			{page: currentPage}),
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[existingCmds, mappedPageCmds])));
@@ -6523,7 +6537,7 @@ var $author$project$Main$init = F3(
 		var _v0 = $author$project$NavBar$init;
 		var navBarModel = _v0.a;
 		var headerCmds = _v0.b;
-		var model = {U: navBarModel, at: navKey, L: $author$project$Main$NotFoundPage, Y: route, N: 0};
+		var model = {navBarModel: navBarModel, navKey: navKey, page: $author$project$Main$NotFoundPage, route: route, tfStatus: $author$project$TensorFlow$NotLoaded};
 		return $author$project$Main$initCurrentPage(
 			_Utils_Tuple2(
 				model,
@@ -6534,26 +6548,26 @@ var $author$project$Main$init = F3(
 						]))));
 	});
 var $author$project$Main$TFStatusMsg = function (a) {
-	return {$: 6, a: a};
+	return {$: 'TFStatusMsg', a: a};
 };
-var $author$project$NavBar$ViewportChanged = {$: 3};
+var $author$project$NavBar$ViewportChanged = {$: 'ViewportChanged'};
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$map = _Platform_map;
-var $elm$browser$Browser$Events$Window = 1;
+var $elm$browser$Browser$Events$Window = {$: 'Window'};
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$browser$Browser$Events$MySub = F3(
 	function (a, b, c) {
-		return {$: 0, a: a, b: b, c: c};
+		return {$: 'MySub', a: a, b: b, c: c};
 	});
 var $elm$browser$Browser$Events$State = F2(
 	function (subs, pids) {
-		return {aZ: pids, be: subs};
+		return {pids: pids, subs: subs};
 	});
 var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
 	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
 var $elm$browser$Browser$Events$nodeToKey = function (node) {
-	if (!node) {
+	if (node.$ === 'Document') {
 		return 'd_';
 	} else {
 		return 'w_';
@@ -6585,7 +6599,7 @@ var $elm$core$Dict$foldl = F3(
 	function (func, acc, dict) {
 		foldl:
 		while (true) {
-			if (dict.$ === -2) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
 				return acc;
 			} else {
 				var key = dict.b;
@@ -6669,7 +6683,7 @@ var $elm$core$Dict$merge = F6(
 	});
 var $elm$browser$Browser$Events$Event = F2(
 	function (key, event) {
-		return {aK: event, aS: key};
+		return {event: event, key: key};
 	});
 var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
 var $elm$browser$Browser$Events$spawn = F3(
@@ -6677,7 +6691,7 @@ var $elm$browser$Browser$Events$spawn = F3(
 		var node = _v0.a;
 		var name = _v0.b;
 		var actualNode = function () {
-			if (!node) {
+			if (node.$ === 'Document') {
 				return _Browser_doc;
 			} else {
 				return _Browser_window;
@@ -6744,7 +6758,7 @@ var $elm$browser$Browser$Events$onEffects = F3(
 			stepLeft,
 			stepBoth,
 			stepRight,
-			state.aZ,
+			state.pids,
 			$elm$core$Dict$fromList(newSubs),
 			_Utils_Tuple3(_List_Nil, $elm$core$Dict$empty, _List_Nil));
 		var deadPids = _v0.a;
@@ -6773,7 +6787,7 @@ var $elm$browser$Browser$Events$onEffects = F3(
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
 		var _v0 = f(mx);
-		if (!_v0.$) {
+		if (_v0.$ === 'Just') {
 			var x = _v0.a;
 			return A2($elm$core$List$cons, x, xs);
 		} else {
@@ -6790,8 +6804,8 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$browser$Browser$Events$onSelfMsg = F3(
 	function (router, _v0, state) {
-		var key = _v0.aS;
-		var event = _v0.aK;
+		var key = _v0.key;
+		var event = _v0.event;
 		var toMessage = function (_v2) {
 			var subKey = _v2.a;
 			var _v3 = _v2.b;
@@ -6800,7 +6814,7 @@ var $elm$browser$Browser$Events$onSelfMsg = F3(
 			var decoder = _v3.c;
 			return _Utils_eq(subKey, key) ? A2(_Browser_decodeEvent, decoder, event) : $elm$core$Maybe$Nothing;
 		};
-		var messages = A2($elm$core$List$filterMap, toMessage, state.be);
+		var messages = A2($elm$core$List$filterMap, toMessage, state.subs);
 		return A2(
 			$elm$core$Task$andThen,
 			function (_v1) {
@@ -6833,7 +6847,7 @@ var $elm$browser$Browser$Events$on = F3(
 var $elm$browser$Browser$Events$onResize = function (func) {
 	return A3(
 		$elm$browser$Browser$Events$on,
-		1,
+		$elm$browser$Browser$Events$Window,
 		'resize',
 		A2(
 			$elm$json$Json$Decode$field,
@@ -6845,21 +6859,21 @@ var $elm$browser$Browser$Events$onResize = function (func) {
 				A2($elm$json$Json$Decode$field, 'innerHeight', $elm$json$Json$Decode$int))));
 };
 var $author$project$Page$Camera$TFPrediction = function (a) {
-	return {$: 2, a: a};
+	return {$: 'TFPrediction', a: a};
 };
 var $author$project$Page$Camera$TFStatusMsg = function (a) {
-	return {$: 1, a: a};
+	return {$: 'TFStatusMsg', a: a};
 };
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$TensorFlow$Prediction = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Prediction', a: a};
 };
 var $author$project$TensorFlow$PredictionErr = function (a) {
-	return {$: 1, a: a};
+	return {$: 'PredictionErr', a: a};
 };
 var $author$project$TensorFlow$Data = F2(
 	function (className, percentage) {
-		return {bw: className, b6: percentage};
+		return {className: className, percentage: percentage};
 	});
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
@@ -6914,19 +6928,19 @@ var $author$project$Page$Camera$subscriptions = $elm$core$Platform$Sub$batch(
 				$elm$json$Json$Decode$decodeValue($author$project$TensorFlow$predictionDecoder)))
 		]));
 var $author$project$Page$Map$GeoserviceLocationReceive = function (a) {
-	return {$: 14, a: a};
+	return {$: 'GeoserviceLocationReceive', a: a};
 };
 var $author$project$Page$Map$InfoOpen = function (a) {
-	return {$: 8, a: a};
+	return {$: 'InfoOpen', a: a};
 };
 var $author$project$Page$Map$MapRoutesResponse = function (a) {
-	return {$: 4, a: a};
+	return {$: 'MapRoutesResponse', a: a};
 };
 var $author$project$Page$Map$MapSearchResponse = function (a) {
-	return {$: 2, a: a};
+	return {$: 'MapSearchResponse', a: a};
 };
 var $author$project$Page$Map$MapStatusMsg = function (a) {
-	return {$: 1, a: a};
+	return {$: 'MapStatusMsg', a: a};
 };
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
@@ -6936,11 +6950,11 @@ var $elm$core$Basics$composeR = F3(
 var $author$project$Page$Map$geoserviceLocationReceive = _Platform_incomingPort('geoserviceLocationReceive', $elm$json$Json$Decode$value);
 var $author$project$MapHelper$Address = F2(
 	function (address, position) {
-		return {bo: address, b7: position};
+		return {address: address, position: position};
 	});
 var $author$project$MapHelper$FullAddress = F6(
 	function (city, countryName, county, district, label, postalCode) {
-		return {bv: city, by: countryName, bz: county, bC: district, bQ: label, b8: postalCode};
+		return {city: city, countryName: countryName, county: county, district: district, label: label, postalCode: postalCode};
 	});
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$fail = _Json_fail;
@@ -6957,13 +6971,13 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3
 		};
 		var handleResult = function (input) {
 			var _v0 = A2($elm$json$Json$Decode$decodeValue, pathDecoder, input);
-			if (!_v0.$) {
+			if (_v0.$ === 'Ok') {
 				var rawValue = _v0.a;
 				var _v1 = A2(
 					$elm$json$Json$Decode$decodeValue,
 					nullOr(valDecoder),
 					rawValue);
-				if (!_v1.$) {
+				if (_v1.$ === 'Ok') {
 					var finalResult = _v1.a;
 					return $elm$json$Json$Decode$succeed(finalResult);
 				} else {
@@ -7021,7 +7035,7 @@ var $author$project$MapHelper$addressDecoder = A4(
 						$elm$json$Json$Decode$succeed($author$project$MapHelper$FullAddress)))))));
 var $author$project$MapHelper$Position = F2(
 	function (lat, lng) {
-		return {E: lat, F: lng};
+		return {lat: lat, lng: lng};
 	});
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
@@ -7057,7 +7071,7 @@ var $author$project$Page$Map$mapRoutesResponse = _Platform_incomingPort('mapRout
 var $author$project$Page$Map$mapSearchResponse = _Platform_incomingPort('mapSearchResponse', $elm$json$Json$Decode$value);
 var $author$project$MapHelper$RouteSummary = F8(
 	function (id, polyline, actions, mode, distance, duration, departure, arrival) {
-		return {bm: actions, al: arrival, an: departure, bB: distance, bE: duration, af: id, bT: mode, a_: polyline};
+		return {actions: actions, arrival: arrival, departure: departure, distance: distance, duration: duration, id: id, mode: mode, polyline: polyline};
 	});
 var $author$project$MapHelper$actionListDecoder = $elm$json$Json$Decode$list($elm$json$Json$Decode$string);
 var $author$project$MapHelper$routeSummaryDecoder = A3(
@@ -7129,10 +7143,10 @@ var $author$project$Page$Map$subscriptions = $elm$core$Platform$Sub$batch(
 				$author$project$Page$Map$GeoserviceLocationReceive))
 		]));
 var $author$project$Page$Photos$TFPrediction = function (a) {
-	return {$: 5, a: a};
+	return {$: 'TFPrediction', a: a};
 };
 var $author$project$Page$Photos$TFStatusMsg = function (a) {
-	return {$: 4, a: a};
+	return {$: 'TFStatusMsg', a: a};
 };
 var $author$project$Page$Photos$subscriptions = $elm$core$Platform$Sub$batch(
 	_List_fromArray(
@@ -7171,12 +7185,12 @@ var $author$project$Main$subscriptions = function (model) {
 				A2($elm$core$Platform$Sub$map, $author$project$Main$CameraMsg, $author$project$Page$Camera$subscriptions)
 			]));
 };
-var $author$project$TensorFlow$Loaded = 1;
+var $author$project$TensorFlow$Loaded = {$: 'Loaded'};
 var $elm$browser$Browser$Navigation$load = _Browser_load;
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
-		if (maybePort.$ === 1) {
+		if (maybePort.$ === 'Nothing') {
 			return starter;
 		} else {
 			var port_ = maybePort.a;
@@ -7185,7 +7199,7 @@ var $elm$url$Url$addPort = F2(
 	});
 var $elm$url$Url$addPrefixed = F3(
 	function (prefix, maybeSegment, starter) {
-		if (maybeSegment.$ === 1) {
+		if (maybeSegment.$ === 'Nothing') {
 			return starter;
 		} else {
 			var segment = maybeSegment.a;
@@ -7196,8 +7210,8 @@ var $elm$url$Url$addPrefixed = F3(
 	});
 var $elm$url$Url$toString = function (url) {
 	var http = function () {
-		var _v0 = url.a2;
-		if (!_v0) {
+		var _v0 = url.protocol;
+		if (_v0.$ === 'Http') {
 			return 'http://';
 		} else {
 			return 'https://';
@@ -7206,35 +7220,35 @@ var $elm$url$Url$toString = function (url) {
 	return A3(
 		$elm$url$Url$addPrefixed,
 		'#',
-		url.aM,
+		url.fragment,
 		A3(
 			$elm$url$Url$addPrefixed,
 			'?',
-			url.a3,
+			url.query,
 			_Utils_ap(
 				A2(
 					$elm$url$Url$addPort,
-					url.a$,
-					_Utils_ap(http, url.aR)),
-				url.aY)));
+					url.port_,
+					_Utils_ap(http, url.host)),
+				url.path)));
 };
 var $elm$core$Basics$not = _Basics_not;
 var $author$project$NavBar$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 0:
+			case 'MenuButtonClicked':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{K: !model.K}),
+						{isMenuOpen: !model.isMenuOpen}),
 					$elm$core$Platform$Cmd$none);
-			case 1:
+			case 'CloseNavMenu':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{K: false}),
+						{isMenuOpen: false}),
 					$elm$core$Platform$Cmd$none);
-			case 3:
+			case 'ViewportChanged':
 				return _Utils_Tuple2(
 					model,
 					$elm$core$Platform$Cmd$batch(
@@ -7247,37 +7261,37 @@ var $author$project$NavBar$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{ae: vp}),
+						{viewport: vp}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Page$Camera$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 0:
+			case 'NoOp':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			case 1:
+			case 'TFStatusMsg':
 				var statusMsg = msg.a;
 				if (statusMsg) {
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{N: 1}),
-						$author$project$TensorFlow$tfVideoPredict(0));
+							{tfStatus: $author$project$TensorFlow$Loaded}),
+						$author$project$TensorFlow$tfVideoPredict(_Utils_Tuple0));
 				} else {
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{N: 0}),
+							{tfStatus: $author$project$TensorFlow$NotLoaded}),
 						$elm$core$Platform$Cmd$none);
 				}
 			default:
-				if (!msg.a.$) {
+				if (msg.a.$ === 'Ok') {
 					var result = msg.a.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{X: result}),
+							{prediction: result}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var err = msg.a.a;
@@ -7285,50 +7299,50 @@ var $author$project$Page$Camera$update = F2(
 						_Utils_update(
 							model,
 							{
-								X: $author$project$TensorFlow$PredictionErr('Error parsing the prediction')
+								prediction: $author$project$TensorFlow$PredictionErr('Error parsing the prediction')
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
 		}
 	});
 var $author$project$MapHelper$AddressResultsErr = function (a) {
-	return {$: 3, a: a};
+	return {$: 'AddressResultsErr', a: a};
 };
 var $author$project$MapHelper$AddressResultsLoaded = function (a) {
-	return {$: 2, a: a};
+	return {$: 'AddressResultsLoaded', a: a};
 };
 var $author$project$MapHelper$EndPointValid = F2(
 	function (a, b) {
-		return {$: 2, a: a, b: b};
+		return {$: 'EndPointValid', a: a, b: b};
 	});
-var $author$project$Page$Map$Hide = {$: 4};
-var $author$project$MapHelper$MapLoaded = {$: 0};
+var $author$project$Page$Map$Hide = {$: 'Hide'};
+var $author$project$MapHelper$MapLoaded = {$: 'MapLoaded'};
 var $author$project$MapHelper$MapLoadingFialed = function (a) {
-	return {$: 2, a: a};
+	return {$: 'MapLoadingFialed', a: a};
 };
-var $author$project$Page$Map$MapSearchClear = {$: 3};
-var $author$project$MapHelper$RoutesCalculating = {$: 1};
+var $author$project$Page$Map$MapSearchClear = {$: 'MapSearchClear'};
+var $author$project$MapHelper$RoutesCalculating = {$: 'RoutesCalculating'};
 var $author$project$MapHelper$RoutesResponse = function (a) {
-	return {$: 2, a: a};
+	return {$: 'RoutesResponse', a: a};
 };
 var $author$project$MapHelper$RoutesResponseErr = function (a) {
-	return {$: 3, a: a};
+	return {$: 'RoutesResponseErr', a: a};
 };
 var $author$project$MapHelper$StartPointValid = F2(
 	function (a, b) {
-		return {$: 0, a: a, b: b};
+		return {$: 'StartPointValid', a: a, b: b};
 	});
 var $author$project$MapHelper$SummaryValid = function (a) {
-	return {$: 0, a: a};
+	return {$: 'SummaryValid', a: a};
 };
 var $author$project$Page$Map$ViewDirections = F2(
 	function (a, b) {
-		return {$: 2, a: a, b: b};
+		return {$: 'ViewDirections', a: a, b: b};
 	});
-var $author$project$Page$Map$ViewRoute = {$: 3};
-var $author$project$Page$Map$ViewSummary = {$: 1};
+var $author$project$Page$Map$ViewRoute = {$: 'ViewRoute'};
+var $author$project$Page$Map$ViewSummary = {$: 'ViewSummary'};
 var $author$project$Page$Map$ErrorValue = function (status) {
-	return {az: status};
+	return {status: status};
 };
 var $author$project$Page$Map$decodeErrorValue = A4(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
@@ -7342,30 +7356,30 @@ var $author$project$Page$Map$geoserviceLocationCall = _Platform_outgoingPort(
 		return $elm$json$Json$Encode$null;
 	});
 var $author$project$Page$Map$LoadLandmarksWiki = function (a) {
-	return {$: 16, a: a};
+	return {$: 'LoadLandmarksWiki', a: a};
 };
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
-		return {$: 3, a: a, b: b};
+		return {$: 'BadStatus_', a: a, b: b};
 	});
 var $elm$http$Http$BadUrl_ = function (a) {
-	return {$: 0, a: a};
+	return {$: 'BadUrl_', a: a};
 };
 var $elm$http$Http$GoodStatus_ = F2(
 	function (a, b) {
-		return {$: 4, a: a, b: b};
+		return {$: 'GoodStatus_', a: a, b: b};
 	});
-var $elm$http$Http$NetworkError_ = {$: 2};
+var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
 var $elm$http$Http$Receiving = function (a) {
-	return {$: 1, a: a};
+	return {$: 'Receiving', a: a};
 };
 var $elm$http$Http$Sending = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Sending', a: a};
 };
-var $elm$http$Http$Timeout_ = {$: 1};
+var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
 var $elm$core$Maybe$isJust = function (maybe) {
-	if (!maybe.$) {
+	if (maybe.$ === 'Just') {
 		return true;
 	} else {
 		return false;
@@ -7381,7 +7395,7 @@ var $elm$http$Http$expectStringResponse = F2(
 	});
 var $elm$core$Result$mapError = F2(
 	function (f, result) {
-		if (!result.$) {
+		if (result.$ === 'Ok') {
 			var v = result.a;
 			return $elm$core$Result$Ok(v);
 		} else {
@@ -7391,31 +7405,31 @@ var $elm$core$Result$mapError = F2(
 		}
 	});
 var $elm$http$Http$BadBody = function (a) {
-	return {$: 4, a: a};
+	return {$: 'BadBody', a: a};
 };
 var $elm$http$Http$BadStatus = function (a) {
-	return {$: 3, a: a};
+	return {$: 'BadStatus', a: a};
 };
 var $elm$http$Http$BadUrl = function (a) {
-	return {$: 0, a: a};
+	return {$: 'BadUrl', a: a};
 };
-var $elm$http$Http$NetworkError = {$: 2};
-var $elm$http$Http$Timeout = {$: 1};
+var $elm$http$Http$NetworkError = {$: 'NetworkError'};
+var $elm$http$Http$Timeout = {$: 'Timeout'};
 var $elm$http$Http$resolve = F2(
 	function (toResult, response) {
 		switch (response.$) {
-			case 0:
+			case 'BadUrl_':
 				var url = response.a;
 				return $elm$core$Result$Err(
 					$elm$http$Http$BadUrl(url));
-			case 1:
+			case 'Timeout_':
 				return $elm$core$Result$Err($elm$http$Http$Timeout);
-			case 2:
+			case 'NetworkError_':
 				return $elm$core$Result$Err($elm$http$Http$NetworkError);
-			case 3:
+			case 'BadStatus_':
 				var metadata = response.a;
 				return $elm$core$Result$Err(
-					$elm$http$Http$BadStatus(metadata.ce));
+					$elm$http$Http$BadStatus(metadata.statusCode));
 			default:
 				var body = response.b;
 				return A2(
@@ -7439,11 +7453,11 @@ var $elm$http$Http$expectJson = F2(
 	});
 var $elm$http$Http$emptyBody = _Http_emptyBody;
 var $elm$http$Http$Request = function (a) {
-	return {$: 1, a: a};
+	return {$: 'Request', a: a};
 };
 var $elm$http$Http$State = F2(
 	function (reqs, subs) {
-		return {a5: reqs, be: subs};
+		return {reqs: reqs, subs: subs};
 	});
 var $elm$http$Http$init = $elm$core$Task$succeed(
 	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
@@ -7457,10 +7471,10 @@ var $elm$http$Http$updateReqs = F3(
 			} else {
 				var cmd = cmds.a;
 				var otherCmds = cmds.b;
-				if (!cmd.$) {
+				if (cmd.$ === 'Cancel') {
 					var tracker = cmd.a;
 					var _v2 = A2($elm$core$Dict$get, tracker, reqs);
-					if (_v2.$ === 1) {
+					if (_v2.$ === 'Nothing') {
 						var $temp$router = router,
 							$temp$cmds = otherCmds,
 							$temp$reqs = reqs;
@@ -7486,8 +7500,8 @@ var $elm$http$Http$updateReqs = F3(
 					return A2(
 						$elm$core$Task$andThen,
 						function (pid) {
-							var _v4 = req.bi;
-							if (_v4.$ === 1) {
+							var _v4 = req.tracker;
+							if (_v4.$ === 'Nothing') {
 								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
 								var tracker = _v4.a;
@@ -7516,7 +7530,7 @@ var $elm$http$Http$onEffects = F4(
 				return $elm$core$Task$succeed(
 					A2($elm$http$Http$State, reqs, subs));
 			},
-			A3($elm$http$Http$updateReqs, router, cmds, state.a5));
+			A3($elm$http$Http$updateReqs, router, cmds, state.reqs));
 	});
 var $elm$http$Http$maybeSend = F4(
 	function (router, desiredTracker, progress, _v0) {
@@ -7541,34 +7555,34 @@ var $elm$http$Http$onSelfMsg = F3(
 				A2(
 					$elm$core$List$filterMap,
 					A3($elm$http$Http$maybeSend, router, tracker, progress),
-					state.be)));
+					state.subs)));
 	});
 var $elm$http$Http$Cancel = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Cancel', a: a};
 };
 var $elm$http$Http$cmdMap = F2(
 	function (func, cmd) {
-		if (!cmd.$) {
+		if (cmd.$ === 'Cancel') {
 			var tracker = cmd.a;
 			return $elm$http$Http$Cancel(tracker);
 		} else {
 			var r = cmd.a;
 			return $elm$http$Http$Request(
 				{
-					bp: r.bp,
-					br: r.br,
-					aL: A2(_Http_mapExpect, func, r.aL),
-					aP: r.aP,
-					bR: r.bR,
-					cj: r.cj,
-					bi: r.bi,
-					bj: r.bj
+					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
+					body: r.body,
+					expect: A2(_Http_mapExpect, func, r.expect),
+					headers: r.headers,
+					method: r.method,
+					timeout: r.timeout,
+					tracker: r.tracker,
+					url: r.url
 				});
 		}
 	});
 var $elm$http$Http$MySub = F2(
 	function (a, b) {
-		return {$: 0, a: a, b: b};
+		return {$: 'MySub', a: a, b: b};
 	});
 var $elm$http$Http$subMap = F2(
 	function (func, _v0) {
@@ -7585,15 +7599,15 @@ var $elm$http$Http$subscription = _Platform_leaf('Http');
 var $elm$http$Http$request = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{bp: false, br: r.br, aL: r.aL, aP: r.aP, bR: r.bR, cj: r.cj, bi: r.bi, bj: r.bj}));
+			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
 };
 var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
-		{br: $elm$http$Http$emptyBody, aL: r.aL, aP: _List_Nil, bR: 'GET', cj: $elm$core$Maybe$Nothing, bi: $elm$core$Maybe$Nothing, bj: r.bj});
+		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
 var $author$project$MapHelper$Summary = F7(
 	function (id, title, extract, thumbnail, originalImage, wikiUrl, coordinates) {
-		return {am: coordinates, bK: extract, af: id, b5: originalImage, bg: thumbnail, bh: title, co: wikiUrl};
+		return {coordinates: coordinates, extract: extract, id: id, originalImage: originalImage, thumbnail: thumbnail, title: title, wikiUrl: wikiUrl};
 	});
 var $author$project$MapHelper$coordinateDecoder = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -7681,19 +7695,19 @@ var $author$project$Page$Map$wikiUrlBuilder = function (wikiName) {
 var $author$project$Page$Map$getLandmarkWiki = function (landmark) {
 	return $elm$http$Http$get(
 		{
-			aL: A2(
+			expect: A2(
 				$elm$http$Http$expectJson,
 				$author$project$Page$Map$LoadLandmarksWiki,
-				$author$project$MapHelper$summaryDecoder(landmark.af)),
-			bj: $author$project$Page$Map$wikiUrlBuilder(landmark.cm)
+				$author$project$MapHelper$summaryDecoder(landmark.id)),
+			url: $author$project$Page$Map$wikiUrlBuilder(landmark.wikiName)
 		});
 };
 var $author$project$Page$Map$LoadLandmarksList = function (a) {
-	return {$: 15, a: a};
+	return {$: 'LoadLandmarksList', a: a};
 };
 var $author$project$MapHelper$Landmark = F3(
 	function (id, wikiPage, wikiName) {
-		return {af: id, cm: wikiName, cn: wikiPage};
+		return {id: id, wikiName: wikiName, wikiPage: wikiPage};
 	});
 var $author$project$MapHelper$landmarkDecoder = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -7715,8 +7729,8 @@ var $author$project$MapHelper$landmarkListDecoder = A2(
 var $author$project$Page$Map$getLandmarksRequest = function (url) {
 	return $elm$http$Http$get(
 		{
-			aL: A2($elm$http$Http$expectJson, $author$project$Page$Map$LoadLandmarksList, $author$project$MapHelper$landmarkListDecoder),
-			bj: url
+			expect: A2($elm$http$Http$expectJson, $author$project$Page$Map$LoadLandmarksList, $author$project$MapHelper$landmarkListDecoder),
+			url: url
 		});
 };
 var $author$project$Page$Map$mapMarkerAddCustom = _Platform_outgoingPort('mapMarkerAddCustom', $elm$core$Basics$identity);
@@ -7736,7 +7750,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 					var v = _v0.b;
 					return A3(_Json_addField, k, v, obj);
 				}),
-			_Json_emptyObject(0),
+			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
 var $elm$json$Json$Encode$float = _Json_wrap;
@@ -7761,28 +7775,28 @@ var $author$project$MapHelper$routeParamEncoder = F3(
 				[
 					_Utils_Tuple2(
 					'origin',
-					A2($author$project$MapHelper$positionEncoder, origin.E, origin.F)),
+					A2($author$project$MapHelper$positionEncoder, origin.lat, origin.lng)),
 					_Utils_Tuple2(
 					'destination',
-					A2($author$project$MapHelper$positionEncoder, destination.E, destination.F)),
+					A2($author$project$MapHelper$positionEncoder, destination.lat, destination.lng)),
 					_Utils_Tuple2(
 					'transportMode',
 					$elm$json$Json$Encode$string(transportMode))
 				]));
 	});
 var $author$project$Page$Map$transportModeHelper = function (transport) {
-	if (!transport) {
+	if (transport.$ === 'Car') {
 		return 'car';
 	} else {
 		return 'pedestrian';
 	}
 };
 var $author$project$Page$Map$mapRoutesHelper = function (_v0) {
-	var startPoint = _v0.B;
-	var endPoint = _v0.x;
-	var transport = _v0.ab;
+	var startPoint = _v0.startPoint;
+	var endPoint = _v0.endPoint;
+	var transport = _v0.transport;
 	var _v1 = _Utils_Tuple2(startPoint, endPoint);
-	if ((!_v1.a.$) && (_v1.b.$ === 2)) {
+	if ((_v1.a.$ === 'StartPointValid') && (_v1.b.$ === 'EndPointValid')) {
 		var _v2 = _v1.a;
 		var origin = _v2.b;
 		var _v3 = _v1.b;
@@ -7798,19 +7812,19 @@ var $author$project$Page$Map$mapRoutesShowSelected = _Platform_outgoingPort('map
 var $author$project$Page$Map$mapSearch = _Platform_outgoingPort('mapSearch', $elm$json$Json$Encode$string);
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $author$project$MapHelper$markerInfoEncoder = function (summary) {
-	var encodedCoord = A2($author$project$MapHelper$positionEncoder, summary.am.E, summary.am.F);
+	var encodedCoord = A2($author$project$MapHelper$positionEncoder, summary.coordinates.lat, summary.coordinates.lng);
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
 			[
 				_Utils_Tuple2(
 				'id',
-				$elm$json$Json$Encode$int(summary.af)),
+				$elm$json$Json$Encode$int(summary.id)),
 				_Utils_Tuple2(
 				'title',
-				$elm$json$Json$Encode$string(summary.bh)),
+				$elm$json$Json$Encode$string(summary.title)),
 				_Utils_Tuple2(
 				'thumbnail',
-				$elm$json$Json$Encode$string(summary.bg)),
+				$elm$json$Json$Encode$string(summary.thumbnail)),
 				_Utils_Tuple2('coords', encodedCoord)
 			]));
 };
@@ -7820,13 +7834,13 @@ var $author$project$MapHelper$routeSummaryEncoder = function (routeSummary) {
 			[
 				_Utils_Tuple2(
 				'polyline',
-				$elm$json$Json$Encode$string(routeSummary.a_)),
+				$elm$json$Json$Encode$string(routeSummary.polyline)),
 				_Utils_Tuple2(
 				'departure',
-				A2($author$project$MapHelper$positionEncoder, routeSummary.an.E, routeSummary.an.F)),
+				A2($author$project$MapHelper$positionEncoder, routeSummary.departure.lat, routeSummary.departure.lng)),
 				_Utils_Tuple2(
 				'arrival',
-				A2($author$project$MapHelper$positionEncoder, routeSummary.al.E, routeSummary.al.F))
+				A2($author$project$MapHelper$positionEncoder, routeSummary.arrival.lat, routeSummary.arrival.lng))
 			]));
 };
 var $author$project$Page$Map$mapSearchHelper = F2(
@@ -7842,50 +7856,50 @@ var $author$project$Page$Map$mapSearchHelper = F2(
 var $author$project$Page$Map$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 0:
+			case 'NoOp':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			case 1:
+			case 'MapStatusMsg':
 				var status = msg.a;
 				switch (status) {
 					case 'loaded':
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{T: $author$project$MapHelper$MapLoaded}),
+								{mapStatus: $author$project$MapHelper$MapLoaded}),
 							$author$project$Page$Map$getLandmarksRequest('/discover-sofia/assets/data.json'));
 					case 'failed':
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
 								{
-									T: $author$project$MapHelper$MapLoadingFialed('Failed Loading the Map')
+									mapStatus: $author$project$MapHelper$MapLoadingFialed('Failed Loading the Map')
 								}),
 							$elm$core$Platform$Cmd$none);
 					default:
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
-			case 2:
-				if (!msg.a.$) {
+			case 'MapSearchResponse':
+				if (msg.a.$ === 'Ok') {
 					var items = msg.a.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								p: $author$project$MapHelper$AddressResultsLoaded(items)
+								addressResults: $author$project$MapHelper$AddressResultsLoaded(items)
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var items = msg.a.a;
-					if (items.$ === 3) {
+					if (items.$ === 'Failure') {
 						var value = items.b;
 						var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Page$Map$decodeErrorValue, value);
-						if (!_v3.$) {
+						if (_v3.$ === 'Ok') {
 							var errString = _v3.a;
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
 									{
-										p: $author$project$MapHelper$AddressResultsErr(errString.az)
+										addressResults: $author$project$MapHelper$AddressResultsErr(errString.status)
 									}),
 								$elm$core$Platform$Cmd$none);
 						} else {
@@ -7893,7 +7907,7 @@ var $author$project$Page$Map$update = F2(
 								_Utils_update(
 									model,
 									{
-										p: $author$project$MapHelper$AddressResultsErr('Response body is incorrect')
+										addressResults: $author$project$MapHelper$AddressResultsErr('Response body is incorrect')
 									}),
 								$elm$core$Platform$Cmd$none);
 						}
@@ -7902,71 +7916,71 @@ var $author$project$Page$Map$update = F2(
 							_Utils_update(
 								model,
 								{
-									p: $author$project$MapHelper$AddressResultsErr('Response body is incorrect')
+									addressResults: $author$project$MapHelper$AddressResultsErr('Response body is incorrect')
 								}),
 							$elm$core$Platform$Cmd$none);
 					}
 				}
-			case 3:
+			case 'MapSearchClear':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{p: $author$project$MapHelper$AddressResultsEmpty}),
+						{addressResults: $author$project$MapHelper$AddressResultsEmpty}),
 					$elm$core$Platform$Cmd$none);
-			case 5:
+			case 'MapRoutesUpdate':
 				var routePoint = msg.a;
 				switch (routePoint.$) {
-					case 0:
+					case 'StartPointValid':
 						var address = routePoint.a;
 						var position = routePoint.b;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{B: routePoint}),
+								{startPoint: routePoint}),
 							$elm$core$Platform$Cmd$none);
-					case 1:
+					case 'StartPointInvalid':
 						var address = routePoint.a;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{B: routePoint}),
+								{startPoint: routePoint}),
 							A2($author$project$Page$Map$mapSearchHelper, address, model));
-					case 2:
+					case 'EndPointValid':
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{x: routePoint}),
+								{endPoint: routePoint}),
 							$elm$core$Platform$Cmd$none);
 					default:
 						var address = routePoint.a;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{x: routePoint}),
+								{endPoint: routePoint}),
 							A2($author$project$Page$Map$mapSearchHelper, address, model));
 				}
-			case 4:
-				if (!msg.a.$) {
+			case 'MapRoutesResponse':
+				if (msg.a.$ === 'Ok') {
 					var routesList = msg.a.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								y: $author$project$MapHelper$RoutesResponse(routesList)
+								mapRoutes: $author$project$MapHelper$RoutesResponse(routesList)
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var mapRouteErr = msg.a.a;
-					if (mapRouteErr.$ === 3) {
+					if (mapRouteErr.$ === 'Failure') {
 						var value = mapRouteErr.b;
 						var _v6 = A2($elm$json$Json$Decode$decodeValue, $author$project$Page$Map$decodeErrorValue, value);
-						if (!_v6.$) {
+						if (_v6.$ === 'Ok') {
 							var errString = _v6.a;
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
 									{
-										y: $author$project$MapHelper$RoutesResponseErr(errString.az)
+										mapRoutes: $author$project$MapHelper$RoutesResponseErr(errString.status)
 									}),
 								$elm$core$Platform$Cmd$none);
 						} else {
@@ -7974,7 +7988,7 @@ var $author$project$Page$Map$update = F2(
 								_Utils_update(
 									model,
 									{
-										y: $author$project$MapHelper$RoutesResponseErr('There is something wrong with the response')
+										mapRoutes: $author$project$MapHelper$RoutesResponseErr('There is something wrong with the response')
 									}),
 								$elm$core$Platform$Cmd$none);
 						}
@@ -7983,42 +7997,42 @@ var $author$project$Page$Map$update = F2(
 							_Utils_update(
 								model,
 								{
-									y: $author$project$MapHelper$RoutesResponseErr('There is something wrong with the response')
+									mapRoutes: $author$project$MapHelper$RoutesResponseErr('There is something wrong with the response')
 								}),
 							$elm$core$Platform$Cmd$none);
 					}
 				}
-			case 6:
+			case 'MapRoutesTransport':
 				var transport = msg.a;
 				var newModel = _Utils_update(
 					model,
-					{ab: transport});
+					{transport: transport});
 				return _Utils_Tuple2(
 					newModel,
 					$author$project$Page$Map$mapRoutesHelper(newModel));
-			case 7:
+			case 'MapRouteSelected':
 				var selectedRoute = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							Z: $elm$core$Maybe$Just(selectedRoute)
+							selectedRoute: $elm$core$Maybe$Just(selectedRoute)
 						}),
 					$author$project$Page$Map$mapRoutesShowSelected(
 						$author$project$MapHelper$routeSummaryEncoder(selectedRoute)));
-			case 8:
-				if (!msg.a.$) {
+			case 'InfoOpen':
+				if (msg.a.$ === 'Just') {
 					var id = msg.a.a;
-					var _v7 = A2($elm$core$Dict$get, id, model.R);
-					if (!_v7.$) {
+					var _v7 = A2($elm$core$Dict$get, id, model.landmarkSummaryList);
+					if (_v7.$ === 'Just') {
 						var landmarkSummary = _v7.a;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
 								{
-									p: $author$project$MapHelper$AddressResultsEmpty,
-									t: $author$project$Page$Map$ViewSummary,
-									Q: $author$project$MapHelper$SummaryValid(landmarkSummary)
+									addressResults: $author$project$MapHelper$AddressResultsEmpty,
+									infoMode: $author$project$Page$Map$ViewSummary,
+									landmarkSummary: $author$project$MapHelper$SummaryValid(landmarkSummary)
 								}),
 							$elm$core$Platform$Cmd$none);
 					} else {
@@ -8029,56 +8043,56 @@ var $author$project$Page$Map$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{t: $author$project$Page$Map$ViewSummary}),
+							{infoMode: $author$project$Page$Map$ViewSummary}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 12:
+			case 'InfoClose':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{p: $author$project$MapHelper$AddressResultsEmpty, t: $author$project$Page$Map$Closed, Q: $author$project$MapHelper$SummaryInvalid}),
-					$author$project$Page$Map$mapMarkerShowAll(0));
-			case 13:
+						{addressResults: $author$project$MapHelper$AddressResultsEmpty, infoMode: $author$project$Page$Map$Closed, landmarkSummary: $author$project$MapHelper$SummaryInvalid}),
+					$author$project$Page$Map$mapMarkerShowAll(_Utils_Tuple0));
+			case 'InfoHide':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{t: $author$project$Page$Map$Hide}),
+						{infoMode: $author$project$Page$Map$Hide}),
 					$elm$core$Platform$Cmd$none);
-			case 9:
+			case 'InfoOpenDirections':
 				var address = msg.a;
 				var position = msg.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							x: A2($author$project$MapHelper$EndPointValid, address, position),
-							t: A2(
+							endPoint: A2($author$project$MapHelper$EndPointValid, address, position),
+							infoMode: A2(
 								$author$project$Page$Map$ViewDirections,
 								$author$project$MapHelper$StartPointInvalid('empty'),
 								A2($author$project$MapHelper$EndPointValid, address, position))
 						}),
-					$author$project$Page$Map$geoserviceLocationCall(0));
-			case 10:
+					$author$project$Page$Map$geoserviceLocationCall(_Utils_Tuple0));
+			case 'InfoOpenRoute':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{t: $author$project$Page$Map$ViewRoute, y: $author$project$MapHelper$RoutesCalculating}),
+						{infoMode: $author$project$Page$Map$ViewRoute, mapRoutes: $author$project$MapHelper$RoutesCalculating}),
 					$author$project$Page$Map$mapRoutesHelper(model));
-			case 11:
+			case 'InfoUpdateRouteFocus':
 				var redactedPoint = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{aj: redactedPoint}),
+						{redactedRoutePoint: redactedPoint}),
 					$elm$core$Platform$Cmd$none);
-			case 14:
-				if (!msg.a.$) {
+			case 'GeoserviceLocationReceive':
+				if (msg.a.$ === 'Ok') {
 					var currentPosition = msg.a.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								B: A2($author$project$MapHelper$StartPointValid, 'Current Position', currentPosition)
+								startPoint: A2($author$project$MapHelper$StartPointValid, 'Current Position', currentPosition)
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
@@ -8087,17 +8101,17 @@ var $author$project$Page$Map$update = F2(
 						_Utils_update(
 							model,
 							{
-								p: $author$project$MapHelper$AddressResultsErr('Couldn\'t get position')
+								addressResults: $author$project$MapHelper$AddressResultsErr('Couldn\'t get position')
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 15:
-				if (!msg.a.$) {
+			case 'LoadLandmarksList':
+				if (msg.a.$ === 'Ok') {
 					var landmarksList = msg.a.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{ar: landmarksList}),
+							{landmarksList: landmarksList}),
 						$elm$core$Platform$Cmd$batch(
 							A2($elm$core$List$map, $author$project$Page$Map$getLandmarkWiki, landmarksList)));
 				} else {
@@ -8105,13 +8119,13 @@ var $author$project$Page$Map$update = F2(
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
 			default:
-				if (!msg.a.$) {
+				if (msg.a.$ === 'Ok') {
 					var summary = msg.a.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								R: A3($elm$core$Dict$insert, summary.af, summary, model.R)
+								landmarkSummaryList: A3($elm$core$Dict$insert, summary.id, summary, model.landmarkSummaryList)
 							}),
 						$author$project$Page$Map$mapMarkerAddCustom(
 							$author$project$MapHelper$markerInfoEncoder(summary)));
@@ -8122,13 +8136,15 @@ var $author$project$Page$Map$update = F2(
 		}
 	});
 var $author$project$Page$Photos$GotImage = function (a) {
-	return {$: 2, a: a};
+	return {$: 'GotImage', a: a};
 };
 var $author$project$Page$Photos$GotPreview = function (a) {
-	return {$: 3, a: a};
+	return {$: 'GotPreview', a: a};
 };
-var $elm$time$Time$Posix = $elm$core$Basics$identity;
-var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $elm$file$File$Select$file = F2(
 	function (mimes, toMsg) {
 		return A2(
@@ -8141,9 +8157,9 @@ var $elm$file$File$toUrl = _File_toUrl;
 var $author$project$Page$Photos$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 0:
+			case 'NoOp':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			case 1:
+			case 'Pick':
 				return _Utils_Tuple2(
 					model,
 					A2(
@@ -8151,49 +8167,49 @@ var $author$project$Page$Photos$update = F2(
 						_List_fromArray(
 							['image/*']),
 						$author$project$Page$Photos$GotImage));
-			case 2:
+			case 'GotImage':
 				var image = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							ap: $elm$core$Maybe$Just(image)
+							image: $elm$core$Maybe$Just(image)
 						}),
 					A2(
 						$elm$core$Task$perform,
 						$author$project$Page$Photos$GotPreview,
 						$elm$file$File$toUrl(image)));
-			case 3:
+			case 'GotPreview':
 				var url = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							ag: $elm$core$Maybe$Just(url)
+							imageUrl: $elm$core$Maybe$Just(url)
 						}),
 					$author$project$TensorFlow$tfImagePredict(url));
-			case 4:
+			case 'TFStatusMsg':
 				var statusMsg = msg.a;
 				if (statusMsg) {
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{N: 1}),
+							{tfStatus: $author$project$TensorFlow$Loaded}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{N: 0}),
+							{tfStatus: $author$project$TensorFlow$NotLoaded}),
 						$elm$core$Platform$Cmd$none);
 				}
 			default:
-				if (!msg.a.$) {
+				if (msg.a.$ === 'Ok') {
 					var result = msg.a.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{X: result}),
+							{prediction: result}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var err = msg.a.a;
@@ -8201,7 +8217,7 @@ var $author$project$Page$Photos$update = F2(
 						_Utils_update(
 							model,
 							{
-								X: $author$project$TensorFlow$PredictionErr('Error parsing the prediction')
+								prediction: $author$project$TensorFlow$PredictionErr('Error parsing the prediction')
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
@@ -8215,18 +8231,18 @@ var $author$project$Main$updateWithModel = F4(
 			_Utils_update(
 				model,
 				{
-					L: toModel(subModel)
+					page: toModel(subModel)
 				}),
 			A2($elm$core$Platform$Cmd$map, toMsg, subCmd));
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		var _v0 = _Utils_Tuple2(model.L, msg);
+		var _v0 = _Utils_Tuple2(model.page, msg);
 		_v0$7:
 		while (true) {
 			switch (_v0.b.$) {
-				case 0:
-					if (_v0.a.$ === 1) {
+				case 'MapMsg':
+					if (_v0.a.$ === 'MapPage') {
 						var pageModel = _v0.a.a;
 						var subMsg = _v0.b.a;
 						return A4(
@@ -8238,8 +8254,8 @@ var $author$project$Main$update = F2(
 					} else {
 						break _v0$7;
 					}
-				case 2:
-					if (_v0.a.$ === 3) {
+				case 'PhotosMsg':
+					if (_v0.a.$ === 'PhotosPage') {
 						var pageModel = _v0.a.a;
 						var subMsg = _v0.b.a;
 						return A4(
@@ -8251,8 +8267,8 @@ var $author$project$Main$update = F2(
 					} else {
 						break _v0$7;
 					}
-				case 1:
-					if (_v0.a.$ === 2) {
+				case 'CameraMsg':
+					if (_v0.a.$ === 'CameraPage') {
 						var pageModel = _v0.a.a;
 						var subMsg = _v0.b.a;
 						return A4(
@@ -8264,49 +8280,49 @@ var $author$project$Main$update = F2(
 					} else {
 						break _v0$7;
 					}
-				case 5:
+				case 'NavBarMsg':
 					var subMsg = _v0.b.a;
-					var _v1 = A2($author$project$NavBar$update, subMsg, model.U);
+					var _v1 = A2($author$project$NavBar$update, subMsg, model.navBarModel);
 					var navBarModel = _v1.a;
 					var subCmds = _v1.b;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{U: navBarModel}),
+							{navBarModel: navBarModel}),
 						A2($elm$core$Platform$Cmd$map, $author$project$Main$NavBarMsg, subCmds));
-				case 6:
+				case 'TFStatusMsg':
 					var statusMsg = _v0.b.a;
 					if (statusMsg) {
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{N: 1}),
+								{tfStatus: $author$project$TensorFlow$Loaded}),
 							$elm$core$Platform$Cmd$none);
 					} else {
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{N: 0}),
+								{tfStatus: $author$project$TensorFlow$NotLoaded}),
 							$elm$core$Platform$Cmd$none);
 					}
-				case 3:
+				case 'UrlChanged':
 					var url = _v0.b.a;
 					var route = $author$project$Route$fromUrl(url);
 					return $author$project$Main$initCurrentPage(
 						_Utils_Tuple2(
 							_Utils_update(
 								model,
-								{Y: route}),
+								{route: route}),
 							$elm$core$Platform$Cmd$none));
 				default:
 					var urlRequest = _v0.b.a;
-					if (!urlRequest.$) {
+					if (urlRequest.$ === 'Internal') {
 						var url = urlRequest.a;
 						return _Utils_Tuple2(
 							model,
 							A2(
 								$elm$browser$Browser$Navigation$pushUrl,
-								model.at,
+								model.navKey,
 								$elm$url$Url$toString(url)));
 					} else {
 						var url = urlRequest.a;
@@ -8443,8 +8459,8 @@ var $author$project$NavBar$viewDesktopHeader = function (route) {
 };
 var $author$project$NavBar$view = F2(
 	function (route, _v0) {
-		var viewport = _v0.ae;
-		var isMenuOpen = _v0.K;
+		var viewport = _v0.viewport;
+		var isMenuOpen = _v0.isMenuOpen;
 		return $author$project$NavBar$viewDesktopHeader(route);
 	});
 var $elm$virtual_dom$VirtualDom$attribute = F2(
@@ -8480,7 +8496,7 @@ var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $author$project$Page$Camera$viewPrediction = function (result) {
 	switch (result.$) {
-		case 0:
+		case 'Prediction':
 			var data = result.a;
 			return A2(
 				$elm$html$Html$div,
@@ -8495,17 +8511,17 @@ var $author$project$Page$Camera$viewPrediction = function (result) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text(data.bw)
+								$elm$html$Html$text(data.className)
 							])),
 						A2(
 						$elm$html$Html$p,
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Accuracy: ' + data.b6)
+								$elm$html$Html$text('Accuracy: ' + data.percentage)
 							]))
 					]));
-		case 1:
+		case 'PredictionErr':
 			var err = result.a;
 			return A2(
 				$elm$html$Html$div,
@@ -8522,8 +8538,8 @@ var $author$project$Page$Camera$viewPrediction = function (result) {
 	}
 };
 var $author$project$Page$Camera$viewTFStatus = function (tfStatus) {
-	switch (tfStatus) {
-		case 2:
+	switch (tfStatus.$) {
+		case 'Loading':
 			return A2(
 				$elm$html$Html$div,
 				_List_fromArray(
@@ -8534,7 +8550,7 @@ var $author$project$Page$Camera$viewTFStatus = function (tfStatus) {
 					[
 						$elm$html$Html$text('Loading...')
 					]));
-		case 0:
+		case 'NotLoaded':
 			return A2(
 				$elm$html$Html$div,
 				_List_fromArray(
@@ -8576,15 +8592,15 @@ var $author$project$Page$Camera$view = function (model) {
 				_List_fromArray(
 					[
 						$author$project$Page$Camera$viewCamera,
-						$author$project$Page$Camera$viewPrediction(model.X),
-						$author$project$Page$Camera$viewTFStatus(model.N)
+						$author$project$Page$Camera$viewPrediction(model.prediction),
+						$author$project$Page$Camera$viewTFStatus(model.tfStatus)
 					]))
 			]));
 };
-var $author$project$Page$Map$InfoOpenRoute = {$: 10};
+var $author$project$Page$Map$InfoOpenRoute = {$: 'InfoOpenRoute'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Normal', a: a};
 };
 var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var $elm$html$Html$Events$on = F2(
@@ -8602,10 +8618,10 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $author$project$Page$Map$InfoUpdateRouteFocus = function (a) {
-	return {$: 11, a: a};
+	return {$: 'InfoUpdateRouteFocus', a: a};
 };
 var $author$project$Page$Map$MapRoutesUpdate = function (a) {
-	return {$: 5, a: a};
+	return {$: 'MapRoutesUpdate', a: a};
 };
 var $elm$html$Html$Attributes$autofocus = $elm$html$Html$Attributes$boolProperty('autofocus');
 var $elm$html$Html$form = _VirtualDom_node('form');
@@ -8621,7 +8637,7 @@ var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
 var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 1, a: a};
+	return {$: 'MayStopPropagation', a: a};
 };
 var $elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
@@ -8647,18 +8663,18 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $author$project$MapHelper$positionToString = function (pos) {
-	return '( ' + ($elm$core$String$fromFloat(pos.E) + (', ' + ($elm$core$String$fromFloat(pos.F) + ' )')));
+	return '( ' + ($elm$core$String$fromFloat(pos.lat) + (', ' + ($elm$core$String$fromFloat(pos.lng) + ' )')));
 };
 var $author$project$Page$Map$pointToString = function (point) {
 	switch (point.$) {
-		case 1:
+		case 'StartPointInvalid':
 			var title = point.a;
 			return title;
-		case 0:
+		case 'StartPointValid':
 			var title = point.a;
 			var position = point.b;
 			return title + (', ' + $author$project$MapHelper$positionToString(position));
-		case 3:
+		case 'EndPointInvalid':
 			var title = point.a;
 			return title;
 		default:
@@ -8671,7 +8687,7 @@ var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Page$Map$inputWrapperFrom = function (startPoint) {
 	var isValidAdrress = function () {
-		if (!startPoint.$) {
+		if (startPoint.$ === 'StartPointValid') {
 			return true;
 		} else {
 			return false;
@@ -8710,7 +8726,7 @@ var $author$project$Page$Map$inputWrapperFrom = function (startPoint) {
 								$author$project$MapHelper$StartPointInvalid(text));
 						}),
 						$elm$html$Html$Events$onFocus(
-						$author$project$Page$Map$InfoUpdateRouteFocus(0)),
+						$author$project$Page$Map$InfoUpdateRouteFocus($author$project$MapHelper$StartPoint)),
 						$elm$html$Html$Attributes$autofocus(true),
 						$elm$html$Html$Attributes$placeholder('Search'),
 						$elm$html$Html$Attributes$value(
@@ -8720,10 +8736,10 @@ var $author$project$Page$Map$inputWrapperFrom = function (startPoint) {
 				_List_Nil)
 			]));
 };
-var $author$project$MapHelper$EndPoint = 1;
+var $author$project$MapHelper$EndPoint = {$: 'EndPoint'};
 var $author$project$Page$Map$inputWrapperTo = function (endPoint) {
 	var isValidAdrress = function () {
-		if (endPoint.$ === 2) {
+		if (endPoint.$ === 'EndPointValid') {
 			return true;
 		} else {
 			return false;
@@ -8762,7 +8778,7 @@ var $author$project$Page$Map$inputWrapperTo = function (endPoint) {
 								$author$project$MapHelper$EndPointInvalid(text));
 						}),
 						$elm$html$Html$Events$onFocus(
-						$author$project$Page$Map$InfoUpdateRouteFocus(1)),
+						$author$project$Page$Map$InfoUpdateRouteFocus($author$project$MapHelper$EndPoint)),
 						$elm$html$Html$Attributes$placeholder('Search'),
 						$elm$html$Html$Attributes$value(
 						$author$project$Page$Map$pointToString(endPoint)),
@@ -8790,10 +8806,10 @@ var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$Page$Map$viewAddressSuggestion = F2(
 	function (redactedPoint, item) {
 		var point = function () {
-			if (!redactedPoint) {
-				return A2($author$project$MapHelper$StartPointValid, item.bo.bQ, item.b7);
+			if (redactedPoint.$ === 'StartPoint') {
+				return A2($author$project$MapHelper$StartPointValid, item.address.label, item.position);
 			} else {
-				return A2($author$project$MapHelper$EndPointValid, item.bo.bQ, item.b7);
+				return A2($author$project$MapHelper$EndPointValid, item.address.label, item.position);
 			}
 		}();
 		return A2(
@@ -8804,12 +8820,12 @@ var $author$project$Page$Map$viewAddressSuggestion = F2(
 					A2(
 					$elm$html$Html$Attributes$attribute,
 					'data-lan',
-					$elm$core$String$fromFloat(item.b7.E)),
+					$elm$core$String$fromFloat(item.position.lat)),
 					A2(
 					$elm$html$Html$Attributes$attribute,
 					'data-lng',
-					$elm$core$String$fromFloat(item.b7.F)),
-					A2($elm$html$Html$Attributes$attribute, 'data-title', item.bo.bQ),
+					$elm$core$String$fromFloat(item.position.lng)),
+					A2($elm$html$Html$Attributes$attribute, 'data-title', item.address.label),
 					$elm$html$Html$Events$onClick(
 					$author$project$Page$Map$MapRoutesUpdate(point))
 				]),
@@ -8823,7 +8839,7 @@ var $author$project$Page$Map$viewAddressSuggestion = F2(
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(item.bo.bQ)
+							$elm$html$Html$text(item.address.label)
 						])),
 					A2(
 					$elm$html$Html$p,
@@ -8841,7 +8857,7 @@ var $author$project$Page$Map$viewAddressSuggestion = F2(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text(item.bo.bz)
+									$elm$html$Html$text(item.address.county)
 								])),
 							$elm$html$Html$text(' '),
 							A2(
@@ -8852,7 +8868,7 @@ var $author$project$Page$Map$viewAddressSuggestion = F2(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text(item.bo.bC)
+									$elm$html$Html$text(item.address.district)
 								])),
 							$elm$html$Html$text(' '),
 							A2(
@@ -8863,7 +8879,7 @@ var $author$project$Page$Map$viewAddressSuggestion = F2(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text(item.bo.by)
+									$elm$html$Html$text(item.address.countryName)
 								]))
 						]))
 				]));
@@ -8871,7 +8887,7 @@ var $author$project$Page$Map$viewAddressSuggestion = F2(
 var $author$project$Page$Map$viewAddressResults = F2(
 	function (results, redactedPoint) {
 		switch (results.$) {
-			case 2:
+			case 'AddressResultsLoaded':
 				var items = results.a;
 				if (!items.b) {
 					return A2(
@@ -8896,7 +8912,7 @@ var $author$project$Page$Map$viewAddressResults = F2(
 							$author$project$Page$Map$viewAddressSuggestion(redactedPoint),
 							items));
 				}
-			case 0:
+			case 'AddressResultsEmpty':
 				return A2(
 					$elm$html$Html$p,
 					_List_fromArray(
@@ -8907,7 +8923,7 @@ var $author$project$Page$Map$viewAddressResults = F2(
 						[
 							$elm$html$Html$text('No results')
 						]));
-			case 1:
+			case 'AddressResultsLoading':
 				return A2(
 					$elm$html$Html$p,
 					_List_fromArray(
@@ -8983,7 +8999,7 @@ var $author$project$Page$Map$viewDirectionsControls = function (_v0) {
 	var startPoint = _v0.a;
 	var endPoint = _v0.b;
 	var _v1 = _Utils_Tuple2(startPoint, endPoint);
-	if ((!_v1.a.$) && (_v1.b.$ === 2)) {
+	if ((_v1.a.$ === 'StartPointValid') && (_v1.b.$ === 'EndPointValid')) {
 		var _v2 = _v1.a;
 		var _v3 = _v1.b;
 		return $author$project$Page$Map$infoControlsContainer(false);
@@ -8992,10 +9008,10 @@ var $author$project$Page$Map$viewDirectionsControls = function (_v0) {
 	}
 };
 var $author$project$Page$Map$viewDirection = function (_v0) {
-	var startPoint = _v0.B;
-	var endPoint = _v0.x;
-	var redactedRoutePoint = _v0.aj;
-	var addressResults = _v0.p;
+	var startPoint = _v0.startPoint;
+	var endPoint = _v0.endPoint;
+	var redactedRoutePoint = _v0.redactedRoutePoint;
+	var addressResults = _v0.addressResults;
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -9020,14 +9036,14 @@ var $author$project$Page$Map$viewDirection = function (_v0) {
 			]));
 };
 var $author$project$Page$Map$MapRouteSelected = function (a) {
-	return {$: 7, a: a};
+	return {$: 'MapRouteSelected', a: a};
 };
 var $author$project$Page$Map$viewRouteSuggestion = F2(
 	function (maybeRoute, routeSummary) {
 		var isSelected = function () {
-			if (!maybeRoute.$) {
+			if (maybeRoute.$ === 'Just') {
 				var route = maybeRoute.a;
-				return _Utils_eq(route.af, routeSummary.af) ? true : false;
+				return _Utils_eq(route.id, routeSummary.id) ? true : false;
 			} else {
 				return false;
 			}
@@ -9063,21 +9079,21 @@ var $author$project$Page$Map$viewRouteSuggestion = F2(
 					_List_Nil,
 					_List_fromArray(
 						[
-							$elm$html$Html$text(routeSummary.bE)
+							$elm$html$Html$text(routeSummary.duration)
 						])),
 					A2(
 					$elm$html$Html$p,
 					_List_Nil,
 					_List_fromArray(
 						[
-							$elm$html$Html$text(routeSummary.bB)
+							$elm$html$Html$text(routeSummary.distance)
 						]))
 				]));
 	});
 var $author$project$Page$Map$viewRouteResults = F2(
 	function (mapRoute, routeId) {
 		switch (mapRoute.$) {
-			case 0:
+			case 'RoutesUnavailable':
 				return A2(
 					$elm$html$Html$p,
 					_List_fromArray(
@@ -9088,7 +9104,7 @@ var $author$project$Page$Map$viewRouteResults = F2(
 						[
 							$elm$html$Html$text('No Routes available')
 						]));
-			case 1:
+			case 'RoutesCalculating':
 				return A2(
 					$elm$html$Html$p,
 					_List_fromArray(
@@ -9099,7 +9115,7 @@ var $author$project$Page$Map$viewRouteResults = F2(
 						[
 							$elm$html$Html$text('Calculating Routes...')
 						]));
-			case 3:
+			case 'RoutesResponseErr':
 				var err = mapRoute.a;
 				return A2(
 					$elm$html$Html$p,
@@ -9138,18 +9154,18 @@ var $author$project$Page$Map$viewRouteResults = F2(
 				}
 		}
 	});
-var $author$project$Page$Map$InfoHide = {$: 13};
+var $author$project$Page$Map$InfoHide = {$: 'InfoHide'};
 var $author$project$Page$Map$InfoOpenDirections = F2(
 	function (a, b) {
-		return {$: 9, a: a, b: b};
+		return {$: 'InfoOpenDirections', a: a, b: b};
 	});
 var $author$project$Page$Map$viewRouteViewControls = F3(
 	function (startPoint, endPoint, maybeRouteSummary) {
 		var _v0 = _Utils_Tuple3(startPoint, endPoint, maybeRouteSummary);
 		_v0$2:
 		while (true) {
-			if (_v0.b.$ === 2) {
-				if (_v0.c.$ === 1) {
+			if (_v0.b.$ === 'EndPointValid') {
+				if (_v0.c.$ === 'Nothing') {
 					var _v1 = _v0.b;
 					var address = _v1.a;
 					var position = _v1.b;
@@ -9197,7 +9213,7 @@ var $author$project$Page$Map$viewRouteViewControls = F3(
 									]))
 							]));
 				} else {
-					if (!_v0.a.$) {
+					if (_v0.a.$ === 'StartPointValid') {
 						var _v3 = _v0.a;
 						var startPosition = _v3.b;
 						var _v4 = _v0.b;
@@ -9258,12 +9274,12 @@ var $author$project$Page$Map$viewRouteViewControls = F3(
 		return $elm$html$Html$text('');
 	});
 var $author$project$Page$Map$MapRoutesTransport = function (a) {
-	return {$: 6, a: a};
+	return {$: 'MapRoutesTransport', a: a};
 };
-var $author$project$MapHelper$Walk = 1;
+var $author$project$MapHelper$Walk = {$: 'Walk'};
 var $author$project$Page$Map$viewTransportControls = function (transport) {
 	var isCarChosen = function () {
-		if (!transport) {
+		if (transport.$ === 'Car') {
 			return true;
 		} else {
 			return false;
@@ -9290,7 +9306,7 @@ var $author$project$Page$Map$viewTransportControls = function (transport) {
 								_Utils_Tuple2('selected-transport', isCarChosen)
 							])),
 						$elm$html$Html$Events$onClick(
-						$author$project$Page$Map$MapRoutesTransport(0))
+						$author$project$Page$Map$MapRoutesTransport($author$project$MapHelper$Car))
 					]),
 				_List_fromArray(
 					[
@@ -9308,7 +9324,7 @@ var $author$project$Page$Map$viewTransportControls = function (transport) {
 								_Utils_Tuple2('selected-transport', isWalkChosen)
 							])),
 						$elm$html$Html$Events$onClick(
-						$author$project$Page$Map$MapRoutesTransport(1))
+						$author$project$Page$Map$MapRoutesTransport($author$project$MapHelper$Walk))
 					]),
 				_List_fromArray(
 					[
@@ -9325,8 +9341,8 @@ var $author$project$Page$Map$viewRoute = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A3($author$project$Page$Map$viewRouteViewControls, model.B, model.x, model.Z),
-				$author$project$Page$Map$viewTransportControls(model.ab),
+				A3($author$project$Page$Map$viewRouteViewControls, model.startPoint, model.endPoint, model.selectedRoute),
+				$author$project$Page$Map$viewTransportControls(model.transport),
 				A2(
 				$elm$html$Html$hr,
 				_List_fromArray(
@@ -9335,7 +9351,7 @@ var $author$project$Page$Map$viewRoute = function (model) {
 						A2($elm$html$Html$Attributes$style, 'width', '100%')
 					]),
 				_List_Nil),
-				A2($author$project$Page$Map$viewRouteResults, model.y, model.Z)
+				A2($author$project$Page$Map$viewRouteResults, model.mapRoutes, model.selectedRoute)
 			]));
 };
 var $elm$html$Html$Attributes$alt = $elm$html$Html$Attributes$stringProperty('alt');
@@ -9347,7 +9363,7 @@ var $elm$html$Html$Attributes$src = function (url) {
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
 var $author$project$Page$Map$viewImage = function (landmark) {
-	var image = (landmark.b5 === '') ? A2(
+	var image = (landmark.originalImage === '') ? A2(
 		$elm$html$Html$p,
 		_List_Nil,
 		_List_fromArray(
@@ -9358,8 +9374,8 @@ var $author$project$Page$Map$viewImage = function (landmark) {
 		_List_fromArray(
 			[
 				$elm$html$Html$Attributes$id('summary-image'),
-				$elm$html$Html$Attributes$alt(landmark.bh),
-				$elm$html$Html$Attributes$src(landmark.bg)
+				$elm$html$Html$Attributes$alt(landmark.title),
+				$elm$html$Html$Attributes$src(landmark.thumbnail)
 			]),
 		_List_Nil);
 	return A2(
@@ -9371,7 +9387,7 @@ var $author$project$Page$Map$viewImage = function (landmark) {
 		_List_fromArray(
 			[image]));
 };
-var $author$project$Page$Map$InfoClose = {$: 12};
+var $author$project$Page$Map$InfoClose = {$: 'InfoClose'};
 var $author$project$Page$Map$viewInfoControls = function (landmark) {
 	return A2(
 		$elm$html$Html$div,
@@ -9404,7 +9420,7 @@ var $author$project$Page$Map$viewInfoControls = function (landmark) {
 						$elm$html$Html$Attributes$class('info-control'),
 						$elm$html$Html$Attributes$class('directions'),
 						$elm$html$Html$Events$onClick(
-						A2($author$project$Page$Map$InfoOpenDirections, landmark.bh, landmark.am))
+						A2($author$project$Page$Map$InfoOpenDirections, landmark.title, landmark.coordinates))
 					]),
 				_List_fromArray(
 					[
@@ -9451,7 +9467,7 @@ var $author$project$Page$Map$viewWikiLink = function (url) {
 			]));
 };
 var $author$project$Page$Map$viewSummary = function (summaryType) {
-	if (!summaryType.$) {
+	if (summaryType.$ === 'SummaryValid') {
 		var summary = summaryType.a;
 		return A2(
 			$elm$html$Html$div,
@@ -9478,10 +9494,10 @@ var $author$project$Page$Map$viewSummary = function (summaryType) {
 						]),
 					_List_fromArray(
 						[
-							$author$project$Page$Map$viewTitle(summary.bh),
+							$author$project$Page$Map$viewTitle(summary.title),
 							$author$project$Page$Map$viewImage(summary),
-							$author$project$Page$Map$viewText(summary.bK),
-							$author$project$Page$Map$viewWikiLink(summary.co)
+							$author$project$Page$Map$viewText(summary.extract),
+							$author$project$Page$Map$viewWikiLink(summary.wikiUrl)
 						]))
 				]));
 	} else {
@@ -9498,9 +9514,9 @@ var $author$project$Page$Map$viewSummary = function (summaryType) {
 	}
 };
 var $author$project$Page$Map$viewMode = function (model) {
-	var _v0 = model.T;
+	var _v0 = model.mapStatus;
 	switch (_v0.$) {
-		case 1:
+		case 'MapLoading':
 			return A2(
 				$elm$html$Html$div,
 				_List_fromArray(
@@ -9517,21 +9533,21 @@ var $author$project$Page$Map$viewMode = function (model) {
 								$elm$html$Html$text('Loading...')
 							]))
 					]));
-		case 2:
+		case 'MapLoadingFialed':
 			var err = _v0.a;
 			return $elm$html$Html$text(err);
 		default:
-			var _v1 = model.t;
+			var _v1 = model.infoMode;
 			switch (_v1.$) {
-				case 0:
+				case 'Closed':
 					return $elm$html$Html$text('');
-				case 2:
+				case 'ViewDirections':
 					var startPosition = _v1.a;
 					var endPosition = _v1.b;
 					return $author$project$Page$Map$viewDirection(model);
-				case 1:
-					return $author$project$Page$Map$viewSummary(model.Q);
-				case 3:
+				case 'ViewSummary':
+					return $author$project$Page$Map$viewSummary(model.landmarkSummary);
+				case 'ViewRoute':
 					return $author$project$Page$Map$viewRoute(model);
 				default:
 					return A2(
@@ -9567,9 +9583,9 @@ var $author$project$Page$Photos$viewPreview = F2(
 		var _v0 = _Utils_Tuple2(maybeUrl, result);
 		_v0$2:
 		while (true) {
-			if (!_v0.a.$) {
+			if (_v0.a.$ === 'Just') {
 				switch (_v0.b.$) {
-					case 0:
+					case 'Prediction':
 						var url = _v0.a.a;
 						var data = _v0.b.a;
 						return A2(
@@ -9599,18 +9615,18 @@ var $author$project$Page$Photos$viewPreview = F2(
 											_List_Nil,
 											_List_fromArray(
 												[
-													$elm$html$Html$text(data.bw)
+													$elm$html$Html$text(data.className)
 												])),
 											A2(
 											$elm$html$Html$p,
 											_List_Nil,
 											_List_fromArray(
 												[
-													$elm$html$Html$text('Accuracy: ' + data.b6)
+													$elm$html$Html$text('Accuracy: ' + data.percentage)
 												]))
 										]))
 								]));
-					case 1:
+					case 'PredictionErr':
 						var url = _v0.a.a;
 						var err = _v0.b.a;
 						return A2(
@@ -9647,7 +9663,7 @@ var $author$project$Page$Photos$viewPreview = F2(
 		}
 		return $elm$html$Html$text('');
 	});
-var $author$project$Page$Photos$Pick = {$: 1};
+var $author$project$Page$Photos$Pick = {$: 'Pick'};
 var $author$project$Page$Photos$viewUploadButton = function (modelStatus) {
 	var wrapper = F2(
 		function (listAttr, listHtml) {
@@ -9662,8 +9678,8 @@ var $author$project$Page$Photos$viewUploadButton = function (modelStatus) {
 						A2($elm$html$Html$button, listAttr, listHtml)
 					]));
 		});
-	switch (modelStatus) {
-		case 1:
+	switch (modelStatus.$) {
+		case 'Loaded':
 			return A2(
 				wrapper,
 				_List_fromArray(
@@ -9675,7 +9691,7 @@ var $author$project$Page$Photos$viewUploadButton = function (modelStatus) {
 					[
 						$elm$html$Html$text('Upload Photo')
 					]));
-		case 2:
+		case 'Loading':
 			return A2(
 				wrapper,
 				_List_fromArray(
@@ -9728,8 +9744,8 @@ var $author$project$Page$Photos$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$author$project$Page$Photos$viewUploadButton(model.N),
-						A2($author$project$Page$Photos$viewPreview, model.ag, model.X)
+						$author$project$Page$Photos$viewUploadButton(model.tfStatus),
+						A2($author$project$Page$Photos$viewPreview, model.imageUrl, model.prediction)
 					]))
 			]));
 };
@@ -9752,11 +9768,11 @@ var $author$project$Viewport$viewFooter = A2(
 		]),
 	_List_Nil);
 var $author$project$Viewport$view = function (_v0) {
-	var route = _v0.Y;
-	var content = _v0.bx;
-	var header = _v0.bM;
+	var route = _v0.route;
+	var content = _v0.content;
+	var header = _v0.header;
 	return {
-		br: A2(
+		body: A2(
 			$elm$core$List$cons,
 			header,
 			A2(
@@ -9764,7 +9780,7 @@ var $author$project$Viewport$view = function (_v0) {
 				A2($author$project$Viewport$viewContent, content, route),
 				_List_fromArray(
 					[$author$project$Viewport$viewFooter]))),
-		bh: 'Discover Sofia'
+		title: 'Discover Sofia'
 	};
 };
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
@@ -9801,15 +9817,15 @@ var $author$project$Main$view = function (model) {
 			var header = A2(
 				$elm$html$Html$map,
 				$author$project$Main$NavBarMsg,
-				A2($author$project$NavBar$view, route, model.U));
-			var config = {bx: content, bM: header, Y: route};
+				A2($author$project$NavBar$view, route, model.navBarModel));
+			var config = {content: content, header: header, route: route};
 			return $author$project$Viewport$view(config);
 		});
-	var _v0 = model.L;
+	var _v0 = model.page;
 	switch (_v0.$) {
-		case 0:
+		case 'NotFoundPage':
 			return A2(viewPage, $author$project$Route$NotFound, $author$project$Viewport$viewNotFound);
-		case 1:
+		case 'MapPage':
 			var pageModel = _v0.a;
 			return A2(
 				viewPage,
@@ -9818,7 +9834,7 @@ var $author$project$Main$view = function (model) {
 					$elm$html$Html$map,
 					$author$project$Main$MapMsg,
 					$author$project$Page$Map$view(pageModel)));
-		case 2:
+		case 'CameraPage':
 			var pageModel = _v0.a;
 			return A2(
 				viewPage,
@@ -9839,6 +9855,6 @@ var $author$project$Main$view = function (model) {
 	}
 };
 var $author$project$Main$main = $elm$browser$Browser$application(
-	{bP: $author$project$Main$init, b1: $author$project$Main$UrlChanged, b2: $author$project$Main$LinkClicked, cg: $author$project$Main$subscriptions, ck: $author$project$Main$update, cl: $author$project$Main$view});
+	{init: $author$project$Main$init, onUrlChange: $author$project$Main$UrlChanged, onUrlRequest: $author$project$Main$LinkClicked, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(0))(0)}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
