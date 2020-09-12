@@ -1,15 +1,15 @@
 const FILES_TO_CACHE = [
-    '/discorer-sofia/',
-    '/discorer-sofia/elm.min.js',
-    '/discorer-sofia/index.html',
-    '/discorer-sofia/public/manifest.json',
-    '/discorer-sofia/js/HereMaps.js',
-    '/discorer-sofia/js/TensorFlow.js',
-    '/discorer-sofia/css/normalize.css',
-    '/discorer-sofia/css/style.css',
-    '/discorer-sofia/public/model/tfjs_model_quantized_uint16/model.json',
-    '/discorer-sofia/public/model/tfjs_model_quantized_uint16/group1-shard1of2.bin',
-    '/discorer-sofia/public/model/tfjs_model_quantized_uint16/group1-shard2of2.bin'
+    '/discover-sofia/',
+    '/discover-sofia/elm.min.js',
+    '/discover-sofia/index.html',
+    '/discover-sofia/public/manifest.json',
+    '/discover-sofia/js/HereMaps.js',
+    '/discover-sofia/js/TensorFlow.js',
+    '/discover-sofia/css/normalize.css',
+    '/discover-sofia/css/style.css',
+    '/discover-sofia/public/model/tfjs_model_quantized_uint16/model.json',
+    '/discover-sofia/public/model/tfjs_model_quantized_uint16/group1-shard1of2.bin',
+    '/discover-sofia/public/model/tfjs_model_quantized_uint16/group1-shard2of2.bin'
 ]
 
 
