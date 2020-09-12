@@ -1,0 +1,104 @@
+{
+    "landmarks" : [
+        {
+            "id" : 1,
+            "wikipage" : "https://en.wikipedia.org/wiki/Seven_Saints_Church,_Sofia",
+            "wikiname" : "Seven_Saints_Church,_Sofia"
+        },
+        {
+            "id" : 2,
+            "wikipage" : "https://en.wikipedia.org/wiki/Alexander_Nevsky_Cathedral,_Sofia",
+            "wikiname" : "Alexander_Nevsky_Cathedral,_Sofia"
+        },
+        {
+            "id" : 3,
+            "wikipage" : "https://en.wikipedia.org/wiki/Church_of_St_Paraskeva,_Sofia",
+            "wikiname" : "Church_of_St_Paraskeva,_Sofia"
+        },
+        {
+            "id" : 4,
+            "wikipage" : "https://en.wikipedia.org/wiki/St_Nedelya_Church",
+            "wikiname" : "St_Nedelya_Church"
+        },
+        {
+            "id" : 5,
+            "wikipage" : "https://en.wikipedia.org/wiki/Russian_Church,_Sofia",
+            "wikiname" : "Russian_Church,_Sofia"
+        },
+        {
+            "id" : 6,
+            "wikipage" : "https://en.wikipedia.org/wiki/Sofia_Synagogue",
+            "wikiname" : "Sofia_Synagogue"
+        },
+        {
+            "id" : 7,
+            "wikipage" : "https://en.wikipedia.org/wiki/Saint_Sophia_Church,_Sofia",
+            "wikiname" : "Saint_Sophia_Church,_Sofia"
+        },
+        {
+            "id" : 8,
+            "wikipage" : "https://en.wikipedia.org/wiki/Banya_Bashi_Mosque",
+            "wikiname" : "Banya_Bashi_Mosque"
+        },
+        {
+            "id" : 9,
+            "wikipage" : "https://en.wikipedia.org/wiki/Cathedral_of_St_Joseph,_Sofia",
+            "wikiname" : "Cathedral_of_St_Joseph,_Sofia"
+        },
+        {
+            "id" : 10,
+            "wikipage" : "https://en.wikipedia.org/wiki/National_Gallery_for_Foreign_Art",
+            "wikiname" : "National_Gallery_for_Foreign_Art"
+        },
+        {
+            "id" : 11,
+            "wikipage" : "https://en.wikipedia.org/wiki/Church_of_Saint_George,_Sofia",
+            "wikiname" : "Church_of_Saint_George,_Sofia"
+        },
+        {
+            "id" : 12,
+            "wikipage" : "https://en.wikipedia.org/wiki/Sofia_University",
+            "wikiname" : "Sofia_University"
+        },
+        {
+            "id" : 13,
+            "wikipage" : "https://en.wikipedia.org/wiki/Ivan_Vazov_National_Theatre",
+            "wikiname" : "Ivan_Vazov_National_Theatre"
+        },
+        {
+            "id" : 14,
+            "wikipage" : "https://en.wikipedia.org/wiki/National_Opera_and_Ballet_of_Bulgaria",
+            "wikiname" : "National_Opera_and_Ballet_of_Bulgaria"
+        },
+        {
+            "id" : 15,
+            "wikipage" : "https://en.wikipedia.org/wiki/National_Palace_of_Culture",
+            "wikiname" : "National_Palace_of_Culture"
+        },
+        {
+            "id" : 16,
+            "wikipage" : "https://en.wikipedia.org/wiki/Slaveykov_Square",
+            "wikiname" : "Slaveykov_Square"
+        },
+        {
+            "id" : 17,
+            "wikipage" : "https://en.wikipedia.org/wiki/Monument_to_Vasil_Levski,_Sofia",
+            "wikiname" : "Monument_to_Vasil_Levski,_Sofia"
+        },
+        {
+            "id" : 18,
+            "wikipage" : "https://en.wikipedia.org/wiki/Monument_to_the_Tsar_Liberator",
+            "wikiname" : "Monument_to_the_Tsar_Liberator"
+        },
+        {
+            "id" : 19,
+            "wikipage" : "https://en.wikipedia.org/wiki/Monument_to_the_Soviet_Army,_Sofia",
+            "wikiname" : "Monument_to_the_Soviet_Army,_Sofia"
+        },
+        {
+            "id" : 20,
+            "wikipage" : "https://en.wikipedia.org/wiki/Sofia_Central_Mineral_Baths",
+            "wikiname" : "Sofia_Central_Mineral_Baths"
+        }
+    ]
+}
