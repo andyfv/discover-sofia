@@ -5,7 +5,7 @@ const FILES_TO_CACHE = [
     '/discorer-sofia/public/manifest.json',
     '/discorer-sofia/js/HereMaps.js',
     '/discorer-sofia/js/TensorFlow.js',
-    '/discorer-sofia/css/normalize/css',
+    '/discorer-sofia/css/normalize.css',
     '/discorer-sofia/css/style.css',
     '/discorer-sofia/public/model/tfjs_model_quantized_uint16/model.json',
     '/discorer-sofia/public/model/tfjs_model_quantized_uint16/group1-shard1of2.bin',
