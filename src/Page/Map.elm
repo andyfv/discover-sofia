@@ -144,7 +144,7 @@ update msg model =
             case status of 
                 "loaded" ->
                     ( { model | mapStatus = MH.MapLoaded }
-                    , getLandmarksRequest "/../assets/data.json" 
+                    , getLandmarksRequest "/../public/data.json" 
                     )
 
                 "failed" ->

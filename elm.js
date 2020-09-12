@@ -12558,7 +12558,7 @@ var $author$project$Page$Map$update = F2(
 							_Utils_update(
 								model,
 								{mapStatus: $author$project$MapHelper$MapLoaded}),
-							$author$project$Page$Map$getLandmarksRequest('/../assets/data.json'));
+							$author$project$Page$Map$getLandmarksRequest('/../public/data.json'));
 					case 'failed':
 						return _Utils_Tuple2(
 							_Utils_update(
