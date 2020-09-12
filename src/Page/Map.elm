@@ -146,10 +146,10 @@ update msg model =
                     ( { model | mapStatus = MH.MapLoaded }
 
                     -- Comment when deploying 
-                    --, getLandmarksRequest "/../assets/data.json" 
+                    --, getLandmarksRequest "/../public/data.json" 
 
                     -- Uncomment when deploying
-                    , getLandmarksRequest "/discover-sofia/assets/data.json" 
+                    , getLandmarksRequest "/discover-sofia/public/data.json" 
                     )
 
                 "failed" ->
