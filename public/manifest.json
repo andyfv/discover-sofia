@@ -2,7 +2,7 @@
   "name": "Discover Sofia",
   "short_name": "Discover Sofia",
   "icons": [{
-    "src": "/public/icons/discover_sofia_icon.svg",
+    "src": "/discover-sofia/public/icons/discover_sofia_icon.svg",
       // "sizes": "128x128 144x144 152x152 192x192 256x256 512x512",
       "sizes": "any"
     }],
