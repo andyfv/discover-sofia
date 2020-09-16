@@ -6,7 +6,7 @@
       "sizes": "any"
     }],
   "start_url": "https://andyfv.github.io/discover-sofia/",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#3E4EB8",
   "theme_color": "#65A573"
 }
