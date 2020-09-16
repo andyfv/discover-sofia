@@ -3,7 +3,7 @@
   "short_name": "Discover Sofia",
   "icons": [{
     "src": "/discover-sofia/public/icons/discover_sofia_icon.svg",
-      "sizes": "any"
+      "sizes": "192x192 512x512"
     }],
   "start_url": "https://andyfv.github.io/discover-sofia/",
   "display": "standalone",
