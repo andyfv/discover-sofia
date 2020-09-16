@@ -1,11 +1,8 @@
 const FILES_TO_CACHE = [
-    '/',
     '/discover-sofia/',
-    'discover-sofia/?p=/camera',
-    '/discover-sofia/?p=/photos',
     '/discover-sofia/elm.min.js',
     '/discover-sofia/index.html',
-    '/discover-sofia/public/manifest.json',
+    '/discover-sofia/manifest.json',
     '/discover-sofia/js/HereMaps.js',
     '/discover-sofia/js/TensorFlow.js',
     '/discover-sofia/css/normalize.css',
