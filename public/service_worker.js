@@ -1,4 +1,5 @@
 const FILES_TO_CACHE = [
+    '/',
     '/discover-sofia/',
     '/discover-sofia/elm.min.js',
     '/discover-sofia/index.html',
@@ -24,7 +25,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('fetch', function (event) {
   event.respondWith(
     caches.match(event.request).then(function (response) {
-      return response || fetch(event.request);
+      return response || fetch(event.request)
     })
   );
 });
