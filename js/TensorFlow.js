@@ -6,29 +6,47 @@ var model,
     onLoadFunction,
     onResultFunction;
 
+// const classes = {
+//     0: 'Alexander Nevski',
+//     1: 'Holy Synod',
+//     2: 'Ivan Vazov Theater',
+//     3: 'Monument to the Soviet Army',
+//     4: 'National Gallery for Foreign Art',
+//     5: 'National Opera and Ballet',
+//     6: 'National Palace of Culture',
+//     7: 'Regional History Museum',
+//     8: 'Russian Church',
+//     9: 'Church of Saint George',
+//     10: 'Cathedral of St Joseph',
+//     11: 'Saint Sofia Church',
+//     12: 'Seven Saints Church',
+//     13: 'Slaveykov Square',
+//     14: 'Sofia Synagogue',
+//     15: 'Sofia University',
+//     16: 'St Nedelya Church',
+//     17: 'Church of St Paraskeva',
+//     18: 'Monument to the Tsar Liberator ',
+//     19: 'Vasil Levski Monument'
+// }
+
+
 const classes = {
-    0: 'Alexander Nevski',
-    1: 'Holy Synod',
-    2: 'Ivan Vazov Theater',
+    0: 'Alexander Nevsky',
+    1: 'Banya Bashi',
+    2: 'Battenberg Mausoleum',
     3: 'Monument to the Soviet Army',
-    4: 'National Gallery for Foreign Art',
-    5: 'National Opera and Ballet',
-    6: 'National Palace of Culture',
+    4: 'National Archeological Museum',
+    5: 'National Opera and Ballet', 
+    6: 'Church of St Paraskeva',
     7: 'Regional History Museum',
     8: 'Russian Church',
-    9: 'Church of Saint George',
-    10: 'Cathedral of St Joseph',
-    11: 'Saint Sofia Church',
-    12: 'Seven Saints Church',
-    13: 'Slaveykov Square',
-    14: 'Sofia Synagogue',
-    15: 'Sofia University',
-    16: 'St Nedelya Church',
-    17: 'Church of St Paraskeva',
-    18: 'Monument to the Tsar Liberator ',
-    19: 'Vasil Levski Monument'
+    9: 'Cathedral of St Joseph',
+    10: 'Saint Sofia Church',
+    11: 'Seven Saints Church',
+    12: 'Sofia Synagogue',
+    13: 'Sofia University',
+    14: 'St Nedelya Church'
 }
-
 
 /**
  * Loads the TensorFlow library
@@ -81,7 +99,7 @@ function loadLibrary(url) {
  */
 export async function loadModel(onLoad) {
     try {
-        model = await tf.loadGraphModel('/public/model/tfjs_model_quantized_uint16/model.json');
+        model = await tf.loadGraphModel('/public/model/tfjs_model_float16/model.json');
     } catch (e) {
         // Notifies Elm runtime that the loading has failed
         onLoad(false);
