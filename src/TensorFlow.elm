@@ -46,9 +46,6 @@ type alias Data =
     }
 
 
---type alias Err = String
-
-
 type PredictionResult
     = Prediction Data
     | PredictionErr String
