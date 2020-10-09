@@ -70,32 +70,6 @@ update msg model =
 view : Route -> Model -> Html Msg
 view route ({ viewport, isMenuOpen }) =
     viewDesktopHeader route
-    --case isMenuOpen of
-    --    True ->
-    --        showMenu route
-    --    False ->
-    --        if viewport.viewport.width > 650 
-    --        then viewDesktopHeader route
-    --        else viewMobileHeader route
-
-
--- MOBILE
-
-viewMobileHeader : Route -> Html Msg
-viewMobileHeader route =
-    div [ class "header" ]
-        [ logo
-        , viewMenuButton
-        ]
-
-viewMenuButton : Html Msg
-viewMenuButton =
-    button 
-        [ id "menu-button"
-        , onClick MenuButtonClicked 
-        ]
-        [ img [ src "/z-context/img/menu_icon_dark.svg", id "menu-icon" ] []
-        ]
 
 
 -- DESKTOP
@@ -105,7 +79,6 @@ viewDesktopHeader route =
     div 
         [ classList 
             [ ("header-wrapper", True)
-            --, ("header-bg-scroll", True)
             ] 
         ]
         [ viewNavBar route ]
@@ -116,24 +89,6 @@ viewHeader route =
     div [ class "header"] 
         [ viewNavBar route ]
 
-
-logo : Html msg
-logo =
-    a [ href (internalLink "/")]
-        [ node "picture" [ id "header-icon" ]
-            [ source 
-                [ media "(max-width: 750px)"
-                , attribute "srcset" "/z-context/img/icon_mobile_dark.svg"
-                ] 
-                []
-            , source 
-                [ media "(min-width: 751px)"
-                , attribute "srcset" "/z-context/img/blog_desktop_dark.svg"
-                ] 
-                []
-            , img [ src "/z-context/img/icon_mobile_dark.svg", alt "logo"] []
-            ] 
-        ]
 
 
 viewNavBar : Route -> Html msg
