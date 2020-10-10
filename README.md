@@ -169,9 +169,8 @@ Elm dependencies:
 There is much to be done: 
 
 * Use the inference result so that the user can be redirected to the Map page
- showing the basic information about the landmark. To do this it should be analized how 
- and where to do it.
-* Implement back-end server and transform the app to PWA
+ showing the basic information about the landmark. First it should be analized how and where to do it.
+* Implement back-end server to host the page and transform to PWA
 * Making the experience more interactive
 * Update the model architecture from MobilenetV2 to MobilenetV3
 * Try further optimizing the inference times by using smaller input images. 
