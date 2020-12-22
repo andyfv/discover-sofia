@@ -138,7 +138,7 @@ Navigate through the three pages to use the functionality you want:
     │   ├── Main.elm            # Root file. Start here if you want to explore more
     │   ├── MapHelper.elm       # Additional types, encoders and decoderes to work with the map
     │   ├── NavBar.elm          # Navbar logic
-    │   ├── Page/                # Direcotory containing the pages
+    │   ├── Page/               # Direcotory containing the pages
     │   ├── Route.elm           # Router for the pages
     │   ├── TensorFlow.elm      # Helper file to work with TensorFlow
     │   └── ViewPort.elm        # Viewport logic
