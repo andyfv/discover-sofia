@@ -22,26 +22,26 @@ video feed from the back camera or by uploading a photo
 - Check interesting landmarks on the map and get short information about them
 - Get basic Navigation to the selected landmark
 
-**Functional programming** in the form of **Elm** was used for:
-- Being the single source of truth for the most of the application state 
-- Implementing the UI 
-- Putting together the logic from the additional JavaScript libraries.
+**Elm** was used for:
+- Being the single source of truth for most of the application state
+- Implementing the UI
+- Gluing together the logic from the additional JavaScript libraries.
 
 *** 
 
 ## Implementation
 
-The implementation is split in four parts:
+The implementation is split in four:
 
-1. Use Machine Learing to create model for Image Recognition using TensorFlow
-2. Create the UI using Elm
-3. Integrate the Image Recognition Model with the UI
-4. Integrate an Interactive Map with the UI
+1. Creating model for Image Recognition with TensorFlow
+2. Creating the UI using Elm
+3. Integrating the Image Recognition Model with the UI
+4. Integrating an Interactive Map with the UI
 
 #### Machine Learning
 
 Transfer Learning is used to improve the overall accuracy of the 
-model since the size of the photos set is extremely small.
+model since the size of the training set is extremely small.
 
 Post-training quantization is used to reduce the model size. 
 
@@ -126,19 +126,19 @@ Navigate through the three pages to use the functionality you want:
     │   └── style.css           # Styling
     ├── elm.js                  # Compiled file
     ├── elm.json                # Elm dependencies
-    ├── elm.min.js              # Minified version of elm used for deployment
+    ├── elm.min.js              # Minified version of elm.js used for deployment
     ├── index.html              
     ├── js              
     │   ├── HereMaps.js         # Logic to work with HereMaps API
     │   └── TensorFlow.js       # Logic to work with the inference model
     ├── public
     │   ├── data.json           # Stores the landmarks links 
-    │   └── model               # Stores the inference model files
+    │   └── model/              # Directory with for the files of the inference model
     ├── src     
     │   ├── Main.elm            # Root file. Start here if you want to explore more
-    │   ├── MapHelper.elm       # Additional types, coders and decoderes to work with the map
+    │   ├── MapHelper.elm       # Additional types, encoders and decoderes to work with the map
     │   ├── NavBar.elm          # Navbar logic
-    │   ├── Page                # Direcotory containing the pages
+    │   ├── Page/                # Direcotory containing the pages
     │   ├── Route.elm           # Router for the pages
     │   ├── TensorFlow.elm      # Helper file to work with TensorFlow
     │   └── ViewPort.elm        # Viewport logic
